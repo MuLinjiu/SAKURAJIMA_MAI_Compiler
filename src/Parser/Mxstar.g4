@@ -9,7 +9,7 @@ define : class_define | function_define | var_define_youfen;
 
 class_define : CLASS Identifier '{' (constructor_define)? (var_define_youfen | function_define)* '}' ';';
 
-constructor_define : Identifier '(' parameter ')' suite;
+constructor_define : Identifier '(' ')' suite;
 
 suite : '{' (suite | statement)* '}';
 
@@ -35,11 +35,17 @@ statement : var_define_youfen | expression_stmt | if_stmt | while_stmt | for_stm
 
 expression_stmt : expression? ';';
 
-if_stmt : IF '(' expression ')' (suite | statement | ';') (ELSE (suite | statement | ';'))?;
+if_stmt : IF '(' expression ')' suite_statement (ELSE suite_statement)?;
 
-while_stmt : WHILE '('expression ')' (suite | statement | ';');
+suite_statement : (suite | statement | ';');
 
-for_stmt : FOR '(' (var_define_sentence)? ';' (expression)? ';' (expression)? ')' (suite | statement | ';');
+while_stmt : WHILE '('expression ')' suite_statement;
+
+for_stmt : FOR '(' (for_start)? ';' (for_finish)? ';' (expression)? ')' suite_statement;
+
+for_start : expression | var_define_wufen;
+
+for_finish : expression;
 
 control_stmt : (RETURN expression | CONITNUE | BREAK) ';';
 
