@@ -16,4 +16,9 @@ public class ForStmtNode extends StmtNode{
         suite_stmtNode = suite_stmtNode_;
     }
 
+
+    @Override
+    public void accept(ASTvisitor visitor) {
+        visitor.visit(this);
+    }
 }

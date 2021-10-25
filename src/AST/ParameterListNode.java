@@ -12,4 +12,9 @@ public class ParameterListNode extends ASTNode{
         parameterNodes = new ArrayList<ParameterNode>();
     }
 
+    @Override
+    public void accept(ASTvisitor visitor) {
+        visitor.visit(this);
+    }
+
 }

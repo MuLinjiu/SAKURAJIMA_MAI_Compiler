@@ -9,4 +9,9 @@ public class ForfinishNode extends ASTNode{
         super(pos);
         exprNode = exprNode_;
     }
+
+    @Override
+    public void accept(ASTvisitor visitor) {
+        visitor.visit(this);
+    }
 }

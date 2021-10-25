@@ -12,4 +12,8 @@ public class WhileStmtNode extends StmtNode{
         suite_stmtNode = suiteNode_;
     }
 
+    @Override
+    public void accept(ASTvisitor visitor) {
+        visitor.visit(this);
+    }
 }

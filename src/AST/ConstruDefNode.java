@@ -13,9 +13,9 @@ public class ConstruDefNode extends ASTNode{
         suiteNode = suiteNode_;
 
     }
+
     @Override
-    public void accept(ASTVisitor visitor) {
+    public void accept(ASTvisitor visitor) {
         visitor.visit(this);
     }
-
 }

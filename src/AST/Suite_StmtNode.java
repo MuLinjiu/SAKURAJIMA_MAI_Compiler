@@ -14,7 +14,7 @@ public class Suite_StmtNode extends ASTNode{
     }
 
     @Override
-    public void accept(ASTVisitor visitor) {
+    public void accept(ASTvisitor visitor) {
         visitor.visit(this);
     }
 }

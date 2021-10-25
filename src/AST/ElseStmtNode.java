@@ -9,4 +9,9 @@ public class ElseStmtNode extends ASTNode{
         super(pos);
         suite_stmtNode = suite_stmtNode_;
     }
+
+    @Override
+    public void accept(ASTvisitor visitor) {
+        visitor.visit(this);
+    }
 }

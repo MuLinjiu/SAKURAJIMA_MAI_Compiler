@@ -22,7 +22,7 @@ public class IfStmtNode extends StmtNode{
     }
 
     @Override
-    public void accept(ASTVisitor visitor) {
+    public void accept(ASTvisitor visitor) {
         visitor.visit(this);
     }
 

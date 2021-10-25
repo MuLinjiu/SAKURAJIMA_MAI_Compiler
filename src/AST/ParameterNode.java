@@ -11,4 +11,9 @@ public class ParameterNode extends ASTNode{
         name = name_;
         typeNode = typeNode_;
     }
+
+    @Override
+    public void accept(ASTvisitor visitor) {
+        visitor.visit(this);
+    }
 }

@@ -16,4 +16,9 @@ public class ForstartNode extends ASTNode{
         super(pos);
         varDefNode = varDefNode_;
     }
+
+    @Override
+    public void accept(ASTvisitor visitor) {
+        visitor.visit(this);
+    }
 }

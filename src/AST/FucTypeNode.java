@@ -17,4 +17,8 @@ public class FucTypeNode extends ASTNode{
         typeNode = typeNode_;
     }
 
+    @Override
+    public void accept(ASTvisitor visitor) {
+        visitor.visit(this);
+    }
 }

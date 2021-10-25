@@ -16,4 +16,8 @@ public class VarDefNode extends StmtNode{
         varDefSentenceNodes = new ArrayList<>();
     }
 
+    @Override
+    public void accept(ASTvisitor visitor) {
+        visitor.visit(this);
+    }
 }

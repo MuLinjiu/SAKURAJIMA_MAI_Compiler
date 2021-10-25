@@ -16,4 +16,8 @@ public class TypeNode extends ASTNode{
         shuzu_or_not = b >= 2;
     }
 
+    @Override
+    public void accept(ASTvisitor visitor) {
+        visitor.visit(this);
+    }
 }

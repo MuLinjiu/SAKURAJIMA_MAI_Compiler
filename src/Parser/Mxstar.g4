@@ -56,33 +56,33 @@ lambada : LAMBDA_START parameter_list? ARROW suite sentence_list;
 sentence_list : '(' (expression (',' expression)*)? ')';
 
 expression
-    : expression '[' expression ']'
-    | expression sentence_list //函数调用
-    | expression '.' expression
-    | <assoc=right> (ADD | MINUS) expression
-    | <assoc=right> (SELF_MINUS | SELF_PLUS) expression
-    | <assoc=right> expression (SELF_PLUS | SELF_MINUS)
-    | <assoc=right> (NOT | FAN) expression
-    | <assoc=right> NEW newor
-    | expression STAR expression
-    | expression DIVIDE expression
-    | expression MOD expression
-    | expression ADD expression
-    | expression MINUS expression
-    | expression (LEFT_SHIFT | RIGHT_SHIFT) expression
-    | expression (GREATER | LESS | GREATER_E | LESS_E) expression
-    | expression (EQUAL | NOT_EQUAL) expression
-    | expression (AND | XOR | OR) expression
-    | expression (AND_AND | OR_OR) expression
-    | <assoc=right> expression ASSIGN expression
-    | Identifier
-    | THIS
-    | NULL
-    | INT_CHOICE
-    | BOOL_CHOICE
-    | STRING_CHOICE
-    | lambada
-    | sentence_list
+    : expression (SELF_PLUS | SELF_MINUS)                #prePLUSMINUS
+    | expression '[' expression ']'                      #arrayexpr
+    | expression sentence_list                           #hanshudiaoyong
+    | expression '.' expression                          #binaryexpr
+    | <assoc=right> (ADD | MINUS) expression             #unaryexpr
+    | <assoc=right> expression (SELF_PLUS | SELF_MINUS)  #backPLUSMINUS
+    | <assoc=right> (NOT | FAN) expression               #unaryexpr
+    | <assoc=right> NEW newor                            #newexpr
+    | expression STAR expression                         #binaryexpr
+    | expression DIVIDE expression                       #binaryexpr
+    | expression MOD expression                          #binaryexpr
+    | expression ADD expression                          #binaryexpr
+    | expression MINUS expression                        #binaryexpr
+    | expression (LEFT_SHIFT | RIGHT_SHIFT) expression   #binaryexpr
+    | expression (GREATER | LESS | GREATER_E | LESS_E) expression #binaryexpr
+    | expression (EQUAL | NOT_EQUAL) expression          #binaryexpr
+    | expression (AND | XOR | OR) expression             #binaryexpr
+    | expression (AND_AND | OR_OR) expression            #binaryexpr
+    | <assoc=right> expression ASSIGN expression         #binaryexpr
+    | Identifier                                         #basicexpr
+    | THIS                                               #basicexpr
+    | NULL                                               #basicexpr
+    | INT_CHOICE                                         #basicexpr
+    | BOOL_CHOICE                                        #basicexpr
+    | STRING_CHOICE                                      #basicexpr
+    | lambada                                            #lambadaexpr
+    | '(' expression ')'                                 #bracketxpr
     ;
 
 

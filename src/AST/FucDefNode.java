@@ -15,4 +15,9 @@ public class FucDefNode extends DefNode{
          parameterListNode = parameterListNode_;
          suiteNode = suiteNode_;
     }
+
+    @Override
+    public void accept(ASTvisitor visitor) {
+        visitor.visit(this);
+    }
 }

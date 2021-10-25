@@ -19,4 +19,9 @@ public class VarDefSentenceNode extends ASTNode{
         exprNode = exprNode_;
         initialed_or_not = true;
     }
+
+    @Override
+    public void accept(ASTvisitor visitor) {
+        visitor.visit(this);
+    }
 }

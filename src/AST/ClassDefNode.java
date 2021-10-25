@@ -12,8 +12,8 @@ public class ClassDefNode extends DefNode {
 
 
     public ClassDefNode(position pos, String name_){
-        name = name_;
         super(pos);
+        name = name_;
         funcDef = new ArrayList<FucDefNode>();
         varDef = new ArrayList<VarDefNode>();
     }
