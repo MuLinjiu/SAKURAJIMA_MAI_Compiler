@@ -9,16 +9,21 @@ public class NewerNode extends ExprNode{
     public Boolean basictype_or_not;
     public BasicTypeNode basicTypeNode;
     public ArrayList<ExprNode>sizeofdim;
-    public NewerNode(position pos, String Classname_){
+    int dims;
+    public NewerNode(position pos, String Classname_,int dims_){
         super(pos);
         Classname = Classname_;
         basictype_or_not = false;
+        sizeofdim = new ArrayList<>();
+        dims = dims_;
     }
 
-    public NewerNode(position pos, BasicTypeNode basicTypeNode_){
+    public NewerNode(position pos, BasicTypeNode basicTypeNode_,int dims_){
         super(pos);
         basicTypeNode = basicTypeNode_;
         basictype_or_not = true;
+        sizeofdim = new ArrayList<>();
+        dims = dims_;
     }
 
     @Override

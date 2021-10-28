@@ -11,7 +11,7 @@ public class BinaryExprNode extends ExprNode{
     }
 
     public enum binarysign{STAR, DIVIDE, MOD, ADD, MINUS, LEFT_SHIFT, RIGHT_SHIFT, GREATER, LESS, GREATER_E, LESS_E,EQUAL,
-        NOT_EQUAL, AND , XOR , OR, AND_AND , OR_OR, ASSIGN}
+        NOT_EQUAL, AND , XOR , OR, AND_AND , OR_OR, ASSIGN, DOT}
     public binarysign sign;
 
     public BinaryExprNode(position pos, ExprNode lhs_, ExprNode rhs_, binarysign sign_){

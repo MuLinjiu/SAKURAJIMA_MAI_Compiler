@@ -7,9 +7,12 @@ public interface ASTvisitor {
     void visit(BasicExprNode it);
     void visit(BasicTypeNode it);
     void visit(BinaryExprNode it);
+    void visit(BlockNode it);
     void visit(BracketExprNode it);
+    void visit(BreakNode it);
     void visit(ClassDefNode it);
     void visit(ConstruDefNode it);
+    void visit(ContinueNode it);
     void visit(ElseStmtNode it);
     void visit(ForfinishNode it);
     void visit(ForstartNode it);

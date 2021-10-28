@@ -1,5 +1,6 @@
 package AST;
 
+import Util.Type;
 import Util.position;
 
 public class BasicTypeNode extends ASTNode{
@@ -8,10 +9,8 @@ public class BasicTypeNode extends ASTNode{
         visitor.visit(this);
     }
 
-    public enum basic_type{INT , BOOL , STRING}
-
-    public basic_type basicType;
-    public BasicTypeNode(position pos, basic_type basicType_){
+    public Type.Type_kind basicType;
+    public BasicTypeNode(position pos, Type.Type_kind basicType_){
         super(pos);
         basicType = basicType_;
     }

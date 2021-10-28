@@ -3,13 +3,13 @@ package AST;
 import Util.position;
 
 public class LambadaExprNode extends ExprNode{
-    public ParameterNode parameterNode;
+    public ParameterListNode parameterListNode;
     public SuiteNode suiteNode;
     public Sentence_ListNode sentence_listNode;
 
-    public LambadaExprNode(position pos, ParameterNode parameterNode_, SuiteNode suiteNode_, Sentence_ListNode sentence_listNode_){
+    public LambadaExprNode(position pos, ParameterListNode parameterListNode_, SuiteNode suiteNode_, Sentence_ListNode sentence_listNode_){
         super(pos);
-        parameterNode = parameterNode_;
+        parameterListNode = parameterListNode_;
         suiteNode = suiteNode_;
         sentence_listNode = sentence_listNode_;
     }

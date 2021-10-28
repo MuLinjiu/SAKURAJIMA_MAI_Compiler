@@ -12,9 +12,9 @@ public class UnaryExprNode extends ExprNode{
     public ExprNode expr;
     public unarysign sign;
 
-    public UnaryExprNode(position pos, ExprNode expr_, unarysign sign_){
+    public UnaryExprNode(position pos, ExprNode expr_){
         super(pos);
         expr = expr_;
-        sign = sign_;
+        //sign = sign_;
     }
 }

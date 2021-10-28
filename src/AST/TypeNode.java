@@ -3,18 +3,26 @@ package AST;
 import Util.position;
 
 public class TypeNode extends ASTNode{
-    public String returntype;
+    public String ID;
     public BasicTypeNode basicTypeNode;
     boolean shuzu_or_not;
     int dimension;
 
-    public TypeNode(position pos, String a, BasicTypeNode basicTypeNode_, int b){
+    public TypeNode(position pos, String a, int b){
         super(pos);
-        returntype = a;
-        basicTypeNode = basicTypeNode_;
+        ID = a;
+        //basicTypeNode = basicTypeNode_;
         dimension = b;
-        shuzu_or_not = b >= 2;
+        shuzu_or_not = b >= 1;
     }
+
+    public TypeNode(position pos, BasicTypeNode basicTypeNode_, int d){
+        super(pos);
+        basicTypeNode = basicTypeNode_;
+        dimension = d;
+        shuzu_or_not = d >= 1;
+    }
+
 
     @Override
     public void accept(ASTvisitor visitor) {
