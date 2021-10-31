@@ -330,10 +330,10 @@ public class SementicChecker implements ASTvisitor {
         it.suite_stmtNode.accept(this);
         currentscope = currentscope.parentScope();
 
-        re = (re && checker.return_or_not) ? true : false;
+        re = checker.return_or_not;
         if(it.elseStmtNode != null){
             checker.return_or_not = false;
-            it.exprNode.accept(this);
+            it.elseStmtNode.accept(this);
             re = (re && checker.return_or_not) ? true : false;
         }
         checker.return_or_not = re;
@@ -412,7 +412,9 @@ public class SementicChecker implements ASTvisitor {
 
     @Override
     public void visit(ReturnNode it) {
-        if(it.expr != null) it.expr.accept(this);
+        if(it.expr != null) {
+            it.expr.accept(this);
+        }
         else retType = new Type(Type.Type_kind.VOID,0,false);
         checker.special_judge(it.pos,globalscope,retType);
 
