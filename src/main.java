@@ -19,8 +19,8 @@ import java.io.InputStream;
 public class main {
     public static void main(String[] args) throws Exception{
         String name = "test.mx";
-        InputStream raw = System.in;
-        //InputStream raw = new FileInputStream(name);
+        //InputStream raw = System.in;
+        InputStream raw = new FileInputStream(name);
         try{
             CharStream input = CharStreams.fromStream(raw);
             MxstarLexer lexer = new MxstarLexer(input);

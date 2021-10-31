@@ -19,6 +19,9 @@ public class SementicChecker implements ASTvisitor {
     private Select select;
     private boolean have_main = false;
 
+
+
+
     public SementicChecker(globalScope scope){
         select = new Select();
         globalscope = scope;
@@ -217,7 +220,7 @@ public class SementicChecker implements ASTvisitor {
         globalscope.addfunc(it.pos, it.name, currentscope,new Type(Type.Type_kind.VOID,0,false),new ArrayList<>());
         if(it.suiteNode != null)it.suiteNode.accept(this);
         else throw new semanticError("no suite node",it.pos);
-        if(retType.Type_name != Type.Type_kind.VOID)throw new semanticError("sf", it.pos);
+        //if(retType.Type_name != Type.Type_kind.VOID)throw new semanticError("sf", it.pos);
         currentscope = currentscope.parentScope();
     }
 
