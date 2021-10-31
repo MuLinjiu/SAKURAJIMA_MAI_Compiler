@@ -186,7 +186,7 @@ public class SementicChecker implements ASTvisitor {
     @Override
     public void visit(BreakNode it) {
         if(loop_number == 0)throw new semanticError("no loop to break",it.pos);
-        loop_number--;
+        //loop_number--;
     }
 
     @Override
@@ -199,7 +199,7 @@ public class SementicChecker implements ASTvisitor {
             }else {
                 it.construDefNode.accept(this);
             }
-        }else throw new semanticError("no constructor",it.pos);
+        }
 
         it.funcDef.forEach(x -> {
             if(Objects.equals(x.name, it.name))throw new semanticError("function name is the same with class name",x.pos);
@@ -225,7 +225,7 @@ public class SementicChecker implements ASTvisitor {
     @Override
     public void visit(ContinueNode it) {
         if(loop_number == 0)throw new semanticError("no loop to continue",it.pos);
-        loop_number--;
+       // loop_number--;
     }
 
     @Override

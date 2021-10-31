@@ -412,18 +412,6 @@ public interface MxstarListener extends ParseTreeListener {
 	 */
 	void exitArrayexpr(MxstarParser.ArrayexprContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code binaryexpr}
-	 * labeled alternative in {@link MxstarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterBinaryexpr(MxstarParser.BinaryexprContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code binaryexpr}
-	 * labeled alternative in {@link MxstarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitBinaryexpr(MxstarParser.BinaryexprContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code prePLUSMINUS}
 	 * labeled alternative in {@link MxstarParser#expression}.
 	 * @param ctx the parse tree
@@ -435,6 +423,18 @@ public interface MxstarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitPrePLUSMINUS(MxstarParser.PrePLUSMINUSContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code binaryexpr}
+	 * labeled alternative in {@link MxstarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterBinaryexpr(MxstarParser.BinaryexprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code binaryexpr}
+	 * labeled alternative in {@link MxstarParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitBinaryexpr(MxstarParser.BinaryexprContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code bracketxpr}
 	 * labeled alternative in {@link MxstarParser#expression}.

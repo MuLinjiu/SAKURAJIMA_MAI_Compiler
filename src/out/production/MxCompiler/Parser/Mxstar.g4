@@ -9,7 +9,7 @@ define : class_define | function_define | global_var_def_stmt;
 
 global_var_def_stmt : var_define_wufen ';';
 
-class_define : CLASS Identifier '{' (constructor_define)? (var_define_youfen | function_define)* '}' ';';
+class_define : CLASS Identifier '{' (var_define_youfen | function_define)* (constructor_define)? (var_define_youfen | function_define)* '}' ';';
 
 constructor_define : Identifier '(' ')' suite;
 
@@ -73,10 +73,10 @@ sentence_list : '(' (expression (',' expression)*)? ')';
 expression
     : expression '.' expression                          #binaryexpr
     | expression sentence_list                           #hanshudiaoyong
-    | expression (SELF_PLUS | SELF_MINUS)                #prePLUSMINUS
+    | expression (SELF_PLUS | SELF_MINUS)                #backPLUSMINUS
     | expression '[' expression ']'                      #arrayexpr
     | <assoc=right> (ADD | MINUS) expression             #unaryexpr
-    | <assoc=right>(SELF_PLUS | SELF_MINUS) expression   #backPLUSMINUS
+    | <assoc=right>(SELF_PLUS | SELF_MINUS) expression   #prePLUSMINUS
     | <assoc=right> (NOT | FAN) expression               #unaryexpr
     | <assoc=right> NEW newor                            #newexpr
     | expression STAR expression                         #binaryexpr

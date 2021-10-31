@@ -283,8 +283,8 @@ public class SymbolCollector implements ASTvisitor {
     @Override
     public void visit(TypeNode it) {
         if(it.ID != null){
-            if(globalscope.findclass(it.ID)){
-                throw new semanticError("Semantic Error : cannot find the class : " + it.ID, it.pos);
+            if(!globalscope.findclass(it.ID)){
+                throw new semanticError("Semantic Error : cannot find the class1 : " + it.ID, it.pos);
             }
             retType = new Type(it.ID, it.dimension,true);
         }

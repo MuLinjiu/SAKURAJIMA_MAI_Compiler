@@ -290,14 +290,14 @@ public class MxstarBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitBinaryexpr(MxstarParser.BinaryexprContext ctx) { return visitChildren(ctx); }
+	@Override public T visitPrePLUSMINUS(MxstarParser.PrePLUSMINUSContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitPrePLUSMINUS(MxstarParser.PrePLUSMINUSContext ctx) { return visitChildren(ctx); }
+	@Override public T visitBinaryexpr(MxstarParser.BinaryexprContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

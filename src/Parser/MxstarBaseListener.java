@@ -484,18 +484,6 @@ public class MxstarBaseListener implements MxstarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterBinaryexpr(MxstarParser.BinaryexprContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitBinaryexpr(MxstarParser.BinaryexprContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterPrePLUSMINUS(MxstarParser.PrePLUSMINUSContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -503,6 +491,18 @@ public class MxstarBaseListener implements MxstarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitPrePLUSMINUS(MxstarParser.PrePLUSMINUSContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterBinaryexpr(MxstarParser.BinaryexprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitBinaryexpr(MxstarParser.BinaryexprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
