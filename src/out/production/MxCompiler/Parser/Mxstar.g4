@@ -57,9 +57,9 @@ for_finish : expression;
 
 return_stmt : RETURN expression? ';';
 
-continue_stmt : CONITNUE;
+continue_stmt : CONITNUE ';';
 
-break_stmt : BREAK;
+break_stmt : BREAK ';' ;
 
 newor : (Identifier | basic_type) ('(' ')' | creator_size*);
 
