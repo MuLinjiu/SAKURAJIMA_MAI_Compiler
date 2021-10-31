@@ -279,7 +279,7 @@ public class SementicChecker implements ASTvisitor {
         if(!Objects.equals(checker.fucname, "main")){
             retType = globalscope.getretTypefromfuc(it.pos,it.name);
             if(retType.Type_name != Type.Type_kind.VOID && !checker.return_or_not){
-                throw new semanticError("teshu1",it.pos);
+                //throw new semanticError("teshu1",it.pos);
             }
         }
         currentscope = currentscope.parentScope();
@@ -341,8 +341,34 @@ public class SementicChecker implements ASTvisitor {
 
     @Override
     public void visit(LambadaExprNode it) {
-        //Lambada_Returnchecker check1 = checker;
 
+
+        currentscope = new Scope(currentscope);
+        ArrayList<Type> fucparameters = new ArrayList<>();
+        if(it.parameterListNode != null){
+            for(ParameterNode ele : it.parameterListNode.parameterNodes){
+                ele.typeNode.accept(this);
+                currentscope.addVariable(ele.pos, ele.name, retType);
+                fucparameters.add(retType);
+            }
+        }
+        Lambada_Returnchecker check1 = checker;
+        checker = new Lambada_Returnchecker("Lambda");
+        it.suiteNode.accept(this);
+        if(!checker.return_or_not){
+            throw new semanticError("lamda1",it.pos);
+        }
+        Type rettype = new Type(checker.retType);
+        checker = check1;
+        currentscope = currentscope.parentScope();
+        if(it.sentence_listNode.exprNodes.size() != fucparameters.size())throw new semanticError("sdfa",it.pos);
+        for(int i = 0 ; i < it.sentence_listNode.exprNodes.size();i++){
+            it.sentence_listNode.exprNodes.get(i).accept(this);
+            Type fuccc = fucparameters.get(i);
+            fuccc.assigncheck(it.sentence_listNode.pos,globalscope,retType);
+        }
+        retType = rettype;
+        retType.value = false;
     }
 
     @Override

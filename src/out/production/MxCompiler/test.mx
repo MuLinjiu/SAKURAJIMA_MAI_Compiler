@@ -1,18 +1,23 @@
 /*
 Test Package: Sema_Local_Preview
-Test Target: Classes
-Author: 15' Lianming Zheng
+Test Target: Misc
+Author: 09' Xiao Jia
 Time: 2019-10-20
-Verdict: Fail
-Comment: cannot return any value in a constructor
-Origin Package: Semantic Extended
+Verdict: Success
+Origin Package: Semantic Pretest
 */
-A get() { return new A; } // this is valid
+int tak(int x, int y, int z) {
+	if ( y < x ) return 1 + tak( tak(x-1, y, z), tak(y-1, z, x), tak(z-1, x, y) );
+	else return z;
+}
 
-class A {
-    A() {
-        return get(); // cannot return any value in a constructor
-    }
-};
-
-int main() { return 0; }
+int main(){
+	int a;
+	int b;
+	int c;
+	a=getInt();
+	b=getInt();
+	c=getInt();
+	println(toString(tak(a,b,c)));
+	return 0;
+}
