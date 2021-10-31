@@ -5,7 +5,9 @@ program : define* EOF;
 
 //main_suite : INT MAIN suite;
 
-define : class_define | function_define | var_define_youfen;
+define : class_define | function_define | global_var_def_stmt;
+
+global_var_def_stmt : var_define_wufen ';';
 
 class_define : CLASS Identifier '{' (constructor_define)? (var_define_youfen | function_define)* '}' ';';
 
@@ -35,7 +37,7 @@ func_type : type | VOID;
 
 statement : var_define_youfen | expression_stmt | if_stmt | while_stmt | for_stmt | return_stmt | continue_stmt | break_stmt;
 
-expression_stmt : expression? ';';
+expression_stmt : expression ';';
 
 if_stmt : IF '(' expression ')' suite_statement else_stmt?;
 
@@ -59,11 +61,10 @@ continue_stmt : CONITNUE;
 
 break_stmt : BREAK;
 
-newor : Identifier | basic_type | ((Identifier | basic_type) ('[' expression ']')+ ('[' ']')*);
+newor : (Identifier | basic_type) ('(' ')' | creator_size*);
 
-newor1 : (Identifier | basic_type)  ('['expression']')+ ('['']')+ ('['expression']')+ ;
+creator_size : '[' expression? ']';
 
-newor2 : (Identifier | basic_type) ('[' ']')+ ( '[' expression ']')* ;
 
 lambada : LAMBDA_START parameter_list? ARROW suite sentence_list;
 
@@ -75,11 +76,9 @@ expression
     | expression (SELF_PLUS | SELF_MINUS)                #prePLUSMINUS
     | expression '[' expression ']'                      #arrayexpr
     | <assoc=right> (ADD | MINUS) expression             #unaryexpr
-    | <assoc=right> expression (SELF_PLUS | SELF_MINUS)  #backPLUSMINUS
+    | <assoc=right>(SELF_PLUS | SELF_MINUS) expression   #backPLUSMINUS
     | <assoc=right> (NOT | FAN) expression               #unaryexpr
     | <assoc=right> NEW newor                            #newexpr
-    | <assoc=right> NEW newor1                           #newwrong1
-    | <assoc=right> NEW newor2                           #newwrong2
     | expression STAR expression                         #binaryexpr
     | expression DIVIDE expression                       #binaryexpr
     | expression MOD expression                          #binaryexpr

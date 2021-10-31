@@ -13,12 +13,15 @@ public class ASTbuilder extends MxstarBaseVisitor<ASTNode> {
         ctx.define().forEach(x -> root.defNodes.add((DefNode)(visit(x))));
         return root;
     }
-
-    @Override public ASTNode visitDefine(MxstarParser.DefineContext ctx) {
-        if(ctx.class_define() != null)return visit(ctx.class_define());
-        else if(ctx.function_define() != null)return visit(ctx.function_define());
-        else return visit(ctx.var_define_youfen());
+    @Override public ASTNode visitGlobal_var_def_stmt(MxstarParser.Global_var_def_stmtContext ctx) {
+        return new Global_var_define_youfen(new position(ctx),(VarDefNode) visit(ctx.var_define_wufen()));
     }
+
+//    @Override public ASTNode visitDefine(MxstarParser.DefineContext ctx) {
+//        if(ctx.class_define() != null)return visit(ctx.class_define());
+//        else if(ctx.function_define() != null)return visit(ctx.function_define());
+//        else return visit(ctx.global_var_def_stmt());
+//    }
 
     @Override public ASTNode visitClass_define(MxstarParser.Class_defineContext ctx) {
         ClassDefNode classDefNode = new ClassDefNode(new position(ctx), ctx.Identifier().toString());
@@ -42,11 +45,14 @@ public class ASTbuilder extends MxstarBaseVisitor<ASTNode> {
     }
 
     @Override public ASTNode visitBlock(MxstarParser.BlockContext ctx) {
-        if(ctx.statement() != null){
-            BlockNode blockNode = new BlockNode(new position(ctx),(StmtNode) visit(ctx.statement()));
-            return blockNode;
-        }
-        else return new BlockNode(new position(ctx),(SuiteNode) visit(ctx.suite()));
+//        if(ctx.statement() != null){
+//            BlockNode blockNode = new BlockNode(new position(ctx),(StmtNode) visit(ctx.statement()));
+//            return blockNode;
+//        }
+//        else return new BlockNode(new position(ctx),(SuiteNode) visit(ctx.suite()));
+        SuiteNode suiteNode = ctx.suite() != null ? (SuiteNode) visit(ctx.suite()) : null;
+        StmtNode stmtNode = ctx.statement() !=  null ? (StmtNode) visit(ctx.statement()) : null;
+        return new BlockNode(new position(ctx),suiteNode,stmtNode);
     }
 
 
@@ -141,9 +147,9 @@ public class ASTbuilder extends MxstarBaseVisitor<ASTNode> {
     }
 
     @Override public ASTNode visitSuite_statement(MxstarParser.Suite_statementContext ctx) {
-        if(ctx.suite() != null){
-            return new Suite_StmtNode(new position(ctx),(SuiteNode) visit(ctx.suite()));
-        }else return new Suite_StmtNode(new position(ctx),(StmtNode) visit(ctx.statement()));
+        SuiteNode suiteNode = ctx.suite() != null ? (SuiteNode) visit(ctx.suite()) : null;
+        StmtNode stmtNode = ctx.statement() !=  null ? (StmtNode) visit(ctx.statement()) : null;
+        return new Suite_StmtNode(new position(ctx),suiteNode,stmtNode);
     }
 
     @Override public ASTNode visitWhile_stmt(MxstarParser.While_stmtContext ctx) {
@@ -158,9 +164,9 @@ public class ASTbuilder extends MxstarBaseVisitor<ASTNode> {
     }
 
     @Override public ASTNode visitFor_start(MxstarParser.For_startContext ctx) {
-        if(ctx.expression() != null){
-            return new ForstartNode(new position(ctx),(ExprNode) visit(ctx.expression()));
-        }else return new ForstartNode(new position(ctx),(VarDefNode) visit(ctx.var_define_wufen()));
+        if(ctx.var_define_wufen() != null){
+            return new ForstartNode(new position(ctx),(VarDefNode) visit(ctx.var_define_wufen()));
+        }else return new ForstartNode(new position(ctx),(ExprNode) visit(ctx.expression()));
     }
 
     @Override public ASTNode visitFor_finish(MxstarParser.For_finishContext ctx) {
@@ -180,32 +186,23 @@ public class ASTbuilder extends MxstarBaseVisitor<ASTNode> {
     }
 
     @Override public ASTNode visitNewor(MxstarParser.NeworContext ctx) {
-        int dims = ctx.LEFT_BRACK().size();
+        NewerNode newerNode;
         if(ctx.Identifier() != null){
-            NewerNode newerNode = new NewerNode(new position(ctx),ctx.Identifier().toString(),dims);
-            if(dims >= 1) {
-                for (MxstarParser.ExpressionContext expr : ctx.expression())
-                    newerNode.sizeofdim.add((ExprNode) visit(expr));
-            }
-            return newerNode;
-        }else{
-            NewerNode newerNode = new NewerNode(new position(ctx),(BasicTypeNode) visit(ctx.basic_type()),dims);
-            if(dims >= 1){
-                for(MxstarParser.ExpressionContext expr: ctx.expression())
-                    newerNode.sizeofdim.add((ExprNode) visit(expr));
-            }
-            return newerNode;
-        }
+            newerNode = new NewerNode(new position(ctx), ctx.Identifier().toString(),null);
+        }else newerNode = new NewerNode(new position(ctx),null,(BasicTypeNode) visit(ctx.basic_type()));
+
+        ctx.creator_size().forEach(x -> {
+            newerNode.neworsize.add((NewersizeNode) visit(x));
+        });
+        return newerNode;
+    }
+
+    @Override public ASTNode visitCreator_size(MxstarParser.Creator_sizeContext ctx) {
+      return new NewersizeNode(new position(ctx),ctx.expression() != null ? (ExprNode) visit(ctx.expression()) : null);
     }
 
 
-    @Override public ASTNode visitNewor1(MxstarParser.Newor1Context ctx) {
-       throw new semanticError("NEWER1",new position(ctx));
-    }
 
-    @Override public ASTNode visitNewor2(MxstarParser.Newor2Context ctx) {
-        throw new semanticError("NEWER2",new position(ctx));
-    }
 
     @Override public ASTNode visitLambada(MxstarParser.LambadaContext ctx) {
         ParameterListNode parameterListNode = ctx.parameter_list() == null ? null : (ParameterListNode) visit(ctx.parameter_list());
@@ -272,13 +269,6 @@ public class ASTbuilder extends MxstarBaseVisitor<ASTNode> {
         return new ArrayExprNode(new position(ctx),(ExprNode) visit(ctx.expression(0)),(ExprNode) visit(ctx.expression(1)));
     }
 
-    @Override public ASTNode visitNewwrong2(MxstarParser.Newwrong2Context ctx) {
-        return visit(ctx.newor2());
-    }
-
-    @Override public ASTNode visitNewwrong1(MxstarParser.Newwrong1Context ctx) {
-        return visit(ctx.newor1());
-    }
 
     @Override public ASTNode visitBinaryexpr(MxstarParser.BinaryexprContext ctx) {
         BinaryExprNode binaryExprNode = new BinaryExprNode(new position(ctx),(ExprNode) visit(ctx.expression(0)),(ExprNode) visit(ctx.expression(1)),null);

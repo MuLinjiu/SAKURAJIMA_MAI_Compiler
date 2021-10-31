@@ -216,6 +216,11 @@ public class SymbolCollector implements ASTvisitor {
     }
 
     @Override
+    public void visit(Global_var_define_youfen it) {
+
+    }
+
+    @Override
     public void visit(HanshuDiaoyongExprNode it) {
 
     }
@@ -312,6 +317,11 @@ public class SymbolCollector implements ASTvisitor {
 
     @Override
     public void visit(WhileStmtNode it) {
+
+    }
+
+    @Override
+    public void visit(NewersizeNode newersizeNode) {
 
     }
 }

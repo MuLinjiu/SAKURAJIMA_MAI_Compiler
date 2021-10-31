@@ -28,6 +28,16 @@ public interface MxstarListener extends ParseTreeListener {
 	 */
 	void exitDefine(MxstarParser.DefineContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link MxstarParser#global_var_def_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void enterGlobal_var_def_stmt(MxstarParser.Global_var_def_stmtContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MxstarParser#global_var_def_stmt}.
+	 * @param ctx the parse tree
+	 */
+	void exitGlobal_var_def_stmt(MxstarParser.Global_var_def_stmtContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link MxstarParser#class_define}.
 	 * @param ctx the parse tree
 	 */
@@ -288,25 +298,15 @@ public interface MxstarListener extends ParseTreeListener {
 	 */
 	void exitNewor(MxstarParser.NeworContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link MxstarParser#newor1}.
+	 * Enter a parse tree produced by {@link MxstarParser#creator_size}.
 	 * @param ctx the parse tree
 	 */
-	void enterNewor1(MxstarParser.Newor1Context ctx);
+	void enterCreator_size(MxstarParser.Creator_sizeContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link MxstarParser#newor1}.
+	 * Exit a parse tree produced by {@link MxstarParser#creator_size}.
 	 * @param ctx the parse tree
 	 */
-	void exitNewor1(MxstarParser.Newor1Context ctx);
-	/**
-	 * Enter a parse tree produced by {@link MxstarParser#newor2}.
-	 * @param ctx the parse tree
-	 */
-	void enterNewor2(MxstarParser.Newor2Context ctx);
-	/**
-	 * Exit a parse tree produced by {@link MxstarParser#newor2}.
-	 * @param ctx the parse tree
-	 */
-	void exitNewor2(MxstarParser.Newor2Context ctx);
+	void exitCreator_size(MxstarParser.Creator_sizeContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link MxstarParser#lambada}.
 	 * @param ctx the parse tree
@@ -411,30 +411,6 @@ public interface MxstarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitArrayexpr(MxstarParser.ArrayexprContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code newwrong2}
-	 * labeled alternative in {@link MxstarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterNewwrong2(MxstarParser.Newwrong2Context ctx);
-	/**
-	 * Exit a parse tree produced by the {@code newwrong2}
-	 * labeled alternative in {@link MxstarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitNewwrong2(MxstarParser.Newwrong2Context ctx);
-	/**
-	 * Enter a parse tree produced by the {@code newwrong1}
-	 * labeled alternative in {@link MxstarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterNewwrong1(MxstarParser.Newwrong1Context ctx);
-	/**
-	 * Exit a parse tree produced by the {@code newwrong1}
-	 * labeled alternative in {@link MxstarParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitNewwrong1(MxstarParser.Newwrong1Context ctx);
 	/**
 	 * Enter a parse tree produced by the {@code binaryexpr}
 	 * labeled alternative in {@link MxstarParser#expression}.

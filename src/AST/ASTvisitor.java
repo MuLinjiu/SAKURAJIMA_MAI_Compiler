@@ -19,6 +19,7 @@ public interface ASTvisitor {
     void visit(ForStmtNode it);
     void visit(FucDefNode it);
     void visit(FucTypeNode it);
+    void visit(Global_var_define_youfen it);
     void visit(HanshuDiaoyongExprNode it);
     void visit(IfStmtNode it);
     void visit(LambadaExprNode it);
@@ -36,4 +37,5 @@ public interface ASTvisitor {
     void visit(VarDefSentenceNode it);
     void visit(WhileStmtNode it);
 
+    void visit(NewersizeNode newersizeNode);
 }

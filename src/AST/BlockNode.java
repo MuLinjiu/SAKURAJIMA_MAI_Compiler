@@ -6,9 +6,10 @@ public class BlockNode extends ASTNode{
     public StmtNode stmtNode;
     public SuiteNode suiteNode;
 
-    public BlockNode(position pos, SuiteNode suiteNode_){
+    public BlockNode(position pos, SuiteNode suiteNode_,StmtNode stmtNode_){
         super(pos);
         suiteNode = suiteNode_;
+        stmtNode = stmtNode_;
     }
 
     public BlockNode(position pos, StmtNode stmtNode_){

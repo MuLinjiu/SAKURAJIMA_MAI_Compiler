@@ -27,9 +27,12 @@ public class SementicChecker implements ASTvisitor {
     }
     @Override
     public void visit(RootNode it) {
-        it.defNodes.forEach(x -> {
-            x.accept(this);
-        });
+//        it.defNodes.forEach(x -> {
+//            x.accept(this);
+//        });
+        for(DefNode ele : it.defNodes){
+            ele.accept(this);
+        }
         if(!globalscope.findfunc("main",false))throw new semanticError("no main fucntion",it.pos);
         retType = globalscope.getretTypefromfuc(it.pos,"main");
         if(retType.Type_name != Type.Type_kind.INT || retType.dims != 0)throw new semanticError("main function define error",it.pos);
@@ -172,7 +175,7 @@ public class SementicChecker implements ASTvisitor {
             currentscope = currentscope.parentScope();
         }else if(it.stmtNode != null){
             it.stmtNode.accept(this);
-        }else throw new semanticError("visit blocknode default error", it.pos);
+        }
     }
 
     @Override
@@ -277,6 +280,11 @@ public class SementicChecker implements ASTvisitor {
     }
 
     @Override
+    public void visit(Global_var_define_youfen it) {
+        it.varDefNode.accept(this);
+    }
+
+    @Override
     public void visit(HanshuDiaoyongExprNode it) {
         fucid = true;
         it.expr.accept(this);
@@ -322,14 +330,20 @@ public class SementicChecker implements ASTvisitor {
     public void visit(NewerNode it) {
         Type type;
         if(it.Classname != null){
-            type = new Type(it.Classname, it.sizeofdim.size(),true);
-        }else type = new Type(it.basicTypeNode.basicType,it.sizeofdim.size(),true);
+            type = new Type(it.Classname, it.neworsize.size(),true);
+        }else type = new Type(it.basicTypeNode.basicType,it.neworsize.size(),true);
         boolean exp = false;
-        if(it.sizeofdim.size() > 0)exp = true;
-        for(int i = 0; i < it.sizeofdim.size();i++){
-            ExprNode exprNode = it.sizeofdim.get(i);
-            exprNode.accept(this);
-            if(retType.Type_name != Type.Type_kind.INT || retType.dims > 0)throw new semanticError("newor",it.pos);
+        if(it.neworsize.size() > 0)exp = true;
+        for(int i = 0; i < it.neworsize.size();i++){
+            NewersizeNode x = it.neworsize.get(i);
+            if(x.expr == null)exp = false;
+            else{
+                if(!exp){
+                    throw new semanticError("new1",x.pos);
+                }
+                x.expr.accept(this);
+                if(retType.Type_name != Type.Type_kind.INT || retType.dims > 0)throw new semanticError("new2",x.pos);
+            }
         }
         retType = type;
     }
@@ -372,7 +386,7 @@ public class SementicChecker implements ASTvisitor {
             currentscope = currentscope.parentScope();
         }else if(it.stmtNode != null){
             it.stmtNode.accept(this);
-        }else throw new semanticError("visit suit_stmt node default error", it.pos);
+        }
     }
 
     @Override
@@ -437,5 +451,10 @@ public class SementicChecker implements ASTvisitor {
         it.suite_stmtNode.accept(this);
         currentscope = currentscope.parentScope();
         loop_number--;
+    }
+
+    @Override
+    public void visit(NewersizeNode newersizeNode) {
+
     }
 }

@@ -40,6 +40,18 @@ public class MxstarBaseListener implements MxstarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterGlobal_var_def_stmt(MxstarParser.Global_var_def_stmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitGlobal_var_def_stmt(MxstarParser.Global_var_def_stmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterClass_define(MxstarParser.Class_defineContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -352,25 +364,13 @@ public class MxstarBaseListener implements MxstarListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNewor1(MxstarParser.Newor1Context ctx) { }
+	@Override public void enterCreator_size(MxstarParser.Creator_sizeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNewor1(MxstarParser.Newor1Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterNewor2(MxstarParser.Newor2Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitNewor2(MxstarParser.Newor2Context ctx) { }
+	@Override public void exitCreator_size(MxstarParser.Creator_sizeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -479,30 +479,6 @@ public class MxstarBaseListener implements MxstarListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitArrayexpr(MxstarParser.ArrayexprContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterNewwrong2(MxstarParser.Newwrong2Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitNewwrong2(MxstarParser.Newwrong2Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterNewwrong1(MxstarParser.Newwrong1Context ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitNewwrong1(MxstarParser.Newwrong1Context ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

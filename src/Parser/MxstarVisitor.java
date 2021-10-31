@@ -23,6 +23,12 @@ public interface MxstarVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitDefine(MxstarParser.DefineContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link MxstarParser#global_var_def_stmt}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitGlobal_var_def_stmt(MxstarParser.Global_var_def_stmtContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link MxstarParser#class_define}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -179,17 +185,11 @@ public interface MxstarVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitNewor(MxstarParser.NeworContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link MxstarParser#newor1}.
+	 * Visit a parse tree produced by {@link MxstarParser#creator_size}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitNewor1(MxstarParser.Newor1Context ctx);
-	/**
-	 * Visit a parse tree produced by {@link MxstarParser#newor2}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNewor2(MxstarParser.Newor2Context ctx);
+	T visitCreator_size(MxstarParser.Creator_sizeContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link MxstarParser#lambada}.
 	 * @param ctx the parse tree
@@ -251,20 +251,6 @@ public interface MxstarVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitArrayexpr(MxstarParser.ArrayexprContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code newwrong2}
-	 * labeled alternative in {@link MxstarParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNewwrong2(MxstarParser.Newwrong2Context ctx);
-	/**
-	 * Visit a parse tree produced by the {@code newwrong1}
-	 * labeled alternative in {@link MxstarParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNewwrong1(MxstarParser.Newwrong1Context ctx);
 	/**
 	 * Visit a parse tree produced by the {@code binaryexpr}
 	 * labeled alternative in {@link MxstarParser#expression}.
