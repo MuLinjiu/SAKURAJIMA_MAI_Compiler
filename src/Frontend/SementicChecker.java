@@ -19,7 +19,7 @@ public class SementicChecker implements ASTvisitor {
     private Select select;
     private boolean have_main = false;
 
-
+    public Lambada_Returnchecker checker;
 
 
     public SementicChecker(globalScope scope){
@@ -218,6 +218,7 @@ public class SementicChecker implements ASTvisitor {
     public void visit(ConstruDefNode it) {
         currentscope = new Scope(currentscope);
         globalscope.addfunc(it.pos, it.name, currentscope,new Type(Type.Type_kind.VOID,0,false),new ArrayList<>());
+        checker = new Lambada_Returnchecker(it.name);
         if(it.suiteNode != null)it.suiteNode.accept(this);
         else throw new semanticError("no suite node",it.pos);
         //if(retType.Type_name != Type.Type_kind.VOID)throw new semanticError("sf", it.pos);
@@ -267,12 +268,20 @@ public class SementicChecker implements ASTvisitor {
     @Override
     public void visit(FucDefNode it) {
         currentscope = globalscope.getscopefromfuc(it.pos,it.name);
+        checker = new Lambada_Returnchecker(it.name);
         it.suiteNode.accept(this);
 
         if(Objects.equals(it.name, "main") && have_main){
             throw new semanticError("function == main",it.pos);
         }
         if(Objects.equals(it.name, "main") && !have_main)have_main = true;
+
+        if(!Objects.equals(checker.fucname, "main")){
+            retType = globalscope.getretTypefromfuc(it.pos,it.name);
+            if(retType.Type_name != Type.Type_kind.VOID && !checker.return_or_not){
+                throw new semanticError("teshu1",it.pos);
+            }
+        }
         currentscope = currentscope.parentScope();
     }
 
@@ -315,16 +324,24 @@ public class SementicChecker implements ASTvisitor {
             throw new semanticError("if condition not bool",it.pos);
         }
         if(retType.dims > 0)throw new semanticError("if condition return not shuzu",it.pos);
+        boolean re = true;
+        checker.return_or_not = false;
         currentscope = new Scope(currentscope);
         it.suite_stmtNode.accept(this);
         currentscope = currentscope.parentScope();
+
+        re = (re && checker.return_or_not) ? true : false;
         if(it.elseStmtNode != null){
+            checker.return_or_not = false;
             it.exprNode.accept(this);
+            re = (re && checker.return_or_not) ? true : false;
         }
+        checker.return_or_not = re;
     }
 
     @Override
     public void visit(LambadaExprNode it) {
+        //Lambada_Returnchecker check1 = checker;
 
     }
 
@@ -371,7 +388,7 @@ public class SementicChecker implements ASTvisitor {
     public void visit(ReturnNode it) {
         if(it.expr != null) it.expr.accept(this);
         else retType = new Type(Type.Type_kind.VOID,0,false);
-
+        checker.special_judge(it.pos,globalscope,retType);
 
     }
 
