@@ -5,7 +5,7 @@ import Util.position;
 public class VarDefSentenceNode extends ASTNode{
     public String name;
     public ExprNode exprNode;
-    boolean initialed_or_not;
+    public boolean initialed_or_not;
 
     public VarDefSentenceNode(position pos, String name_){
         super(pos);

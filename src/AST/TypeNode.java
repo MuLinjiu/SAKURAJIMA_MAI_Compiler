@@ -5,8 +5,8 @@ import Util.position;
 public class TypeNode extends ASTNode{
     public String ID;
     public BasicTypeNode basicTypeNode;
-    boolean shuzu_or_not;
-    int dimension;
+    public boolean shuzu_or_not;
+    public int dimension;
 
     public TypeNode(position pos, String a, int b){
         super(pos);
@@ -18,6 +18,7 @@ public class TypeNode extends ASTNode{
 
     public TypeNode(position pos, BasicTypeNode basicTypeNode_, int d){
         super(pos);
+        ID = null;
         basicTypeNode = basicTypeNode_;
         dimension = d;
         shuzu_or_not = d >= 1;

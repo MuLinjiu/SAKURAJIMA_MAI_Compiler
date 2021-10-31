@@ -4,7 +4,7 @@ import Util.position;
 
 public class FucTypeNode extends ASTNode{
     public TypeNode typeNode;
-    boolean void_or_not;
+    public boolean void_or_not;
 
     public FucTypeNode(position pos, boolean void_or_not_){
         super(pos);
