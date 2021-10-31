@@ -5,7 +5,7 @@ import Util.position;
 
 import java.util.ArrayList;
 
-public class VarDefNode extends StmtNode{
+public class VarDefNode extends DefNode{
     //public position pos;
     public TypeNode typeNode;
     public ArrayList<VarDefSentenceNode> varDefSentenceNodes;

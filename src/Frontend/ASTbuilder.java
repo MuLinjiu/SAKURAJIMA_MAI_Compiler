@@ -102,9 +102,9 @@ public class ASTbuilder extends MxstarBaseVisitor<ASTNode> {
 
     @Override public ASTNode visitFunc_type(MxstarParser.Func_typeContext ctx) {
         if(ctx.VOID() == null){
-            return new FucTypeNode(new position(ctx),true);
+            return new FucTypeNode(new position(ctx),false, (TypeNode) visit(ctx.type()));
         }else{
-            return new FucTypeNode(new position(ctx), true,(TypeNode) visit(ctx.type()));
+            return new FucTypeNode(new position(ctx), true);
         }
     }
 
@@ -124,6 +124,7 @@ public class ASTbuilder extends MxstarBaseVisitor<ASTNode> {
 
 
     @Override public ASTNode visitExpression_stmt(MxstarParser.Expression_stmtContext ctx) {
+
         return visit(ctx.expression());
     }
 

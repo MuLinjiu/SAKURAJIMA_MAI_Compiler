@@ -9,12 +9,22 @@ import java.util.Objects;
 
 public class SementicChecker implements ASTvisitor {
 
+
+
     private globalScope globalscope;
     private Scope currentscope;
     private Type retType;
     private int loop_number = 0;
     private boolean fucid;
     private Select select;
+    private boolean have_main = false;
+
+    public SementicChecker(globalScope scope){
+        select = new Select();
+        globalscope = scope;
+        currentscope = scope;
+        fucid = false;
+    }
     @Override
     public void visit(RootNode it) {
         it.defNodes.forEach(x -> {
@@ -253,7 +263,11 @@ public class SementicChecker implements ASTvisitor {
     public void visit(FucDefNode it) {
         currentscope = globalscope.getscopefromfuc(it.pos,it.name);
         it.suiteNode.accept(this);
-        if(Objects.equals(it.name, "main"))throw new semanticError("function == main",it.pos);
+
+        if(Objects.equals(it.name, "main") && have_main){
+            throw new semanticError("function == main",it.pos);
+        }
+        if(Objects.equals(it.name, "main") && !have_main)have_main = true;
         currentscope = currentscope.parentScope();
     }
 
