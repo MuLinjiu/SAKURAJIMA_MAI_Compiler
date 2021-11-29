@@ -1,4 +1,5 @@
 import AST.RootNode;
+import Backend.*;
 import Frontend.ASTbuilder;
 import Frontend.SementicChecker;
 import Frontend.SymbolCollector;
@@ -15,12 +16,13 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import MIR.*;
 
 public class main {
     public static void main(String[] args) throws Exception{
         String name = "test.mx";
-        InputStream raw = System.in;
-        //InputStream raw = new FileInputStream(name);
+        //InputStream raw = System.in;
+        InputStream raw = new FileInputStream(name);
         try{
             CharStream input = CharStreams.fromStream(raw);
             MxstarLexer lexer = new MxstarLexer(input);
@@ -37,7 +39,11 @@ public class main {
 
             globalScope gScope = new globalScope();
             new SymbolCollector(gScope).visit(ASTRoot);
-            new SementicChecker(gScope).visit(ASTRoot);
+            //new SementicChecker(gScope).visit(ASTRoot);
+
+            mainFn f = new mainFn();
+            new IRBuilder(f, gScope).visit(ASTRoot);
+            new IRPrinter().visitFn(f);
         } catch(error er) {
             System.err.println(er.toString());
             throw new RuntimeException();

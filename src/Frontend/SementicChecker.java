@@ -278,9 +278,6 @@ public class SementicChecker implements ASTvisitor {
 
         if(!Objects.equals(checker.fucname, "main")){
             retType = globalscope.getretTypefromfuc(it.pos,it.name);
-            if(retType.Type_name != Type.Type_kind.VOID && !checker.return_or_not){
-                //throw new semanticError("teshu1",it.pos);
-            }
         }
         currentscope = currentscope.parentScope();
     }
