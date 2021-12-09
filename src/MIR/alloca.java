@@ -1,16 +1,16 @@
 package MIR;
 
 public class alloca extends statement{
-    int Identifier;
+    register reg;
     IRTYPE type;
-    public alloca(int identifier, IRTYPE ty){
-        Identifier = identifier;
+    public alloca(register reg_, IRTYPE ty){
+        reg = reg_;
         type = ty;
     }
 
 
     @Override 
     public String toString(){
-        return "%" + Identifier + " = alloca" + " " + type;
+        return reg + " = alloca" + " " + type;
     }
 }

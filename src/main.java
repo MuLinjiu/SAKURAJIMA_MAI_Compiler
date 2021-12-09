@@ -39,11 +39,12 @@ public class main {
 
             globalScope gScope = new globalScope();
             new SymbolCollector(gScope).visit(ASTRoot);
-            //new SementicChecker(gScope).visit(ASTRoot);
+            new SementicChecker(gScope).visit(ASTRoot);
 
             mainFn f = new mainFn();
-            new IRBuilder(f, gScope).visit(ASTRoot);
-            new IRPrinter().visitFn(f);
+            Global_def global_def = new Global_def();
+            new IRBuilder(global_def, gScope).visit(ASTRoot);
+            new IRPrinter().visitGlobal_var_def_stmt(global_def);
         } catch(error er) {
             System.err.println(er.toString());
             throw new RuntimeException();

@@ -27,3 +27,10 @@
 //         // Now, op1 is either register or zero
 //     }
 // }
+package MIR;
+
+public class binary extends statement{
+    public enum opType{
+
+    }
+}

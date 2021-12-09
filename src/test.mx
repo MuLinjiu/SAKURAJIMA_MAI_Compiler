@@ -1,3 +1,5 @@
 int a = 1;
-int b = 3;
-bool flag = false;
+int main(){
+
+    return 0;
+}

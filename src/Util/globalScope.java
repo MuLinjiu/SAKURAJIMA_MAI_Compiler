@@ -1,6 +1,7 @@
 package Util;
 
 import Util.error.semanticError;
+import MIR.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,13 +13,16 @@ public class globalScope extends Scope {
     private HashMap<String, Type> fucretType = new HashMap<>();
     private HashMap<String, ArrayList<Type>>fucParameters = new HashMap<>();
 
+   // public function global_function;
     public globalScope(){
         scopename = "Global";
+        ///global_function = new function();
     }
 
     public globalScope(Scope scope, String name){
         super(scope);
         scopename = name;
+        //global_function = new function();
     }
 
     public void addclass(position pos, String name, globalScope scope){

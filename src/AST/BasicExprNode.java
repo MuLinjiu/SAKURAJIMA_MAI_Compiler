@@ -14,9 +14,6 @@ public class BasicExprNode extends ExprNode{
     public option opt;
     public String contex;
 //    public String Identifier_name;
-//    public int int_num;
-//    public boolean bool_num;
-//    public String string_name;
 
     public BasicExprNode(position pos, option opt_, String contex_){
         super(pos);

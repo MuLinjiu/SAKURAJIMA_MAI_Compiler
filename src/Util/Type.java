@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class Type {
-    public enum Type_kind{INT, BOOL, STRING,VOID, CLASS, FUNC, THIS, NULL}
+    public enum Type_kind{INT, BOOL, STRING, VOID, CLASS, FUNC, THIS, NULL,Identifier}
     public Type_kind Type_name;
     public boolean value;
     public int dims;
@@ -19,6 +19,13 @@ public class Type {
         Type_name = type_kind;
         dims = dim_;
         value = value_;
+        name = null;
+    }
+    public Type(Type_kind type_kind, int dim_, boolean value_,String contex){//identifier
+        Type_name = type_kind;
+        dims = dim_;
+        value = value_;
+        name = contex;
     }
 
     public Type(String name_, int dim_, boolean value_){

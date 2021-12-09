@@ -1,6 +1,8 @@
 package Backend;
 
+import MIR.Global_def;
 import MIR.block;
+import MIR.function;
 import MIR.mainFn;
 
 public class IRPrinter {
@@ -10,5 +12,11 @@ public class IRPrinter {
 
     public void visitFn(mainFn fn){
         visitBlock(fn.rootBlock);
+    }
+
+    public void visitGlobal_var_def_stmt(Global_def g){
+        g.global_def_stmts.forEach(System.out::println);
+        System.out.println();
+        g.functions.forEach(function::print);
     }
 }

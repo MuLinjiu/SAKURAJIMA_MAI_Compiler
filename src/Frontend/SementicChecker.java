@@ -54,6 +54,7 @@ public class SementicChecker implements ASTvisitor {
         if(retType.dims < 0){
             throw new semanticError("dimensions not match",it.pos);
         }
+        it.type = new Type(retType);
     }
 
     @Override
@@ -312,6 +313,7 @@ public class SementicChecker implements ASTvisitor {
         }
         retType = new Type(fucretType);
         retType.value = false;
+        it.type = new Type(retType);
     }
 
     @Override
@@ -366,6 +368,7 @@ public class SementicChecker implements ASTvisitor {
         }
         retType = rettype;
         retType.value = false;
+
     }
 
     @Override
@@ -388,6 +391,7 @@ public class SementicChecker implements ASTvisitor {
             }
         }
         retType = type;
+        it.type = new Type(retType);
     }
 
     @Override
@@ -422,6 +426,11 @@ public class SementicChecker implements ASTvisitor {
 //over
     }
 
+//    @Override
+//    public void visit(StmtNode it) {
+//
+//    }
+
     @Override
     public void visit(Suite_StmtNode it) {
         if(it.suiteNode != null){
@@ -445,7 +454,11 @@ public class SementicChecker implements ASTvisitor {
         if(it.ID != null){
             if(!globalscope.findclass(it.ID))throw new semanticError("cannot find class : " + it.ID,it.pos);
             retType = new Type(it.ID,it.dimension,true);
-        }else retType = new Type(it.basicTypeNode.basicType,it.dimension,true);
+            it.type = new Type(retType);
+        }else {
+            retType = new Type(it.basicTypeNode.basicType,it.dimension,true);
+            it.type = new Type(retType);
+        }
 
     }
 
@@ -462,11 +475,13 @@ public class SementicChecker implements ASTvisitor {
             }
         }
         retType.value = false;
+        it.type = new Type(retType);
     }
 
     @Override
     public void visit(VarDefNode it) {
         it.typeNode.accept(this);
+        it.type = new Type(retType);
         Type type= retType;
         it.varDefSentenceNodes.forEach(x -> {
             if(globalscope.findclass(x.name))throw new semanticError("var rename with class",x.pos);

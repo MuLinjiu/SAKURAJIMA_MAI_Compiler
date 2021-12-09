@@ -29,6 +29,7 @@ public interface ASTvisitor {
     void visit(PrePLUSMINUSExpr it);
     void visit(ReturnNode it);
     void visit(Sentence_ListNode it);
+    //void visit(StmtNode it);
     void visit(Suite_StmtNode it);
     void visit(SuiteNode it);
     void visit(TypeNode it);

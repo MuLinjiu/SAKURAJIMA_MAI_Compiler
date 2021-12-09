@@ -12,8 +12,8 @@ public class block {
     public block(String identifier) {
         Identifier = identifier;
     }
-    public void push_back(alloca alloca) {
-        stmts.add(alloca);
+    public void push_back(statement s) {
+        stmts.add(s);
     }
     public ArrayList<statement> stmts() {
         return new ArrayList<>(stmts);
