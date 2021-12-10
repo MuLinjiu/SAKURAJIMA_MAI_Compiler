@@ -94,6 +94,7 @@ public class SementicChecker implements ASTvisitor {
             boolean fucid_ = fucid;
             fucid = false;
             it.lhs.accept(this);
+            it.lhs.type = new Type(retType);
             if(!retType.yinyong()){
                 throw new semanticError("no inner content",it.pos);
             }
@@ -109,12 +110,15 @@ public class SementicChecker implements ASTvisitor {
             }
             currentscope = globalscope;
             it.rhs.accept(this);
+            it.rhs.type = new Type(retType);
             currentscope = currentscope_;
             globalscope = globalscope_;
         }else{
             it.lhs.accept(this);
+            it.lhs.type = new Type(retType);
             Type lhstype = retType;
             it.rhs.accept(this);
+            it.rhs.type = new Type(retType);
             Type rhstype = retType;
             if(it.sign == BinaryExprNode.binarysign.ASSIGN){
                 lhstype.assigncheck(it.pos,globalscope,rhstype);
@@ -183,6 +187,7 @@ public class SementicChecker implements ASTvisitor {
     @Override
     public void visit(BracketExprNode it) {
         it.expr.accept(this);
+        it.expr.type = new Type(retType);
     }
 
     @Override
@@ -242,6 +247,7 @@ public class SementicChecker implements ASTvisitor {
     @Override
     public void visit(ForfinishNode it) {
         it.exprNode.accept(this);
+        it.exprNode.type = new Type(retType);
         if(retType.Type_name != Type.Type_kind.BOOL){
             throw new semanticError("for condition not bool",it.pos);
         }
@@ -251,7 +257,10 @@ public class SementicChecker implements ASTvisitor {
     @Override
     public void visit(ForstartNode it) {
         if(it.varDefNode != null)it.varDefNode.accept(this);
-        if(it.exprNode != null)it.exprNode.accept(this);
+        if(it.exprNode != null){
+            it.exprNode.accept(this);
+            it.exprNode.type = new Type(retType);
+        }
     }
 
     @Override
@@ -260,7 +269,10 @@ public class SementicChecker implements ASTvisitor {
         currentscope = new Scope(currentscope);
         if(it.forstartNode != null)it.forstartNode.accept(this);
         if(it.forfinishNode != null)it.forfinishNode.accept(this);
-        if(it.exprNode != null)it.exprNode.accept(this);
+        if(it.exprNode != null){
+            it.exprNode.accept(this);
+            it.exprNode.type = new Type(retType);
+        }
         it.suite_stmtNode.accept(this);
         currentscope = currentscope.parentScope();
         loop_number--;
@@ -297,6 +309,7 @@ public class SementicChecker implements ASTvisitor {
     public void visit(HanshuDiaoyongExprNode it) {
         fucid = true;
         it.expr.accept(this);
+        //it.expr.type = new Type(retType);
         if(retType.Type_name != Type.Type_kind.FUNC){
             throw new semanticError("cannot call sa fuc",it.pos);
         }
@@ -319,6 +332,7 @@ public class SementicChecker implements ASTvisitor {
     @Override
     public void visit(IfStmtNode it) {
         it.exprNode.accept(this);
+        it.exprNode.type = new Type(retType);
         if(retType.Type_name != Type.Type_kind.BOOL){
             throw new semanticError("if condition not bool",it.pos);
         }
@@ -368,7 +382,7 @@ public class SementicChecker implements ASTvisitor {
         }
         retType = rettype;
         retType.value = false;
-
+        it.type = new Type(retType);
     }
 
     @Override
@@ -415,6 +429,7 @@ public class SementicChecker implements ASTvisitor {
     public void visit(ReturnNode it) {
         if(it.expr != null) {
             it.expr.accept(this);
+            it.expr.type = new Type(retType);
         }
         else retType = new Type(Type.Type_kind.VOID,0,false);
         checker.special_judge(it.pos,globalscope,retType);
@@ -465,6 +480,7 @@ public class SementicChecker implements ASTvisitor {
     @Override
     public void visit(UnaryExprNode it) {
         it.expr.accept(this);
+        it.expr.type = new Type(retType);
         if(it.sign == UnaryExprNode.unarysign.NOT){
             if(retType.Type_name != Type.Type_kind.BOOL || retType.dims > 0){
                 throw new semanticError("unarray1",it.pos);
@@ -501,6 +517,7 @@ public class SementicChecker implements ASTvisitor {
     @Override
     public void visit(WhileStmtNode it) {
         it.exprNode.accept(this);
+        it.exprNode.type = new Type(retType);
         if(retType.Type_name != Type.Type_kind.BOOL){
             throw new semanticError("while condition not bool",it.pos);
         }

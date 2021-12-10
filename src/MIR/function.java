@@ -12,7 +12,7 @@ public class function {
         identifier = name;
         rootblock = new block(name);
         //blocks.add(rootblock);
-        register_id = 0;
+        register_id = 1;
     }
 
     public function(){

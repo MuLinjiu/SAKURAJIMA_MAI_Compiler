@@ -1,6 +1,6 @@
 package Util;
 
-//import MIR.register;
+import MIR.*;
 import MIR.register;
 import Util.error.semanticError;
 
@@ -8,7 +8,7 @@ import java.util.HashMap;
 
 public class Scope {
     private HashMap<String, Type> members;
-    public HashMap<String, register> entities = new HashMap<>();
+    public HashMap<String, entity> entities = new HashMap<>();
     private Scope parentScope;
 //
 //
@@ -59,7 +59,7 @@ public class Scope {
 
 
 
-    public register getEntity(String name, boolean lookUpon) {
+    public entity getEntity(String name, boolean lookUpon) {
         if (entities.containsKey(name)) return entities.get(name);
         else if (parentScope != null && lookUpon)
             return parentScope.getEntity(name, true);

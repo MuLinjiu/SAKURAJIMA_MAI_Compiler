@@ -1,7 +1,7 @@
 package MIR;
 
 public class register extends entity{
-    private int reg_number;
+    public int reg_number;//-1 gloabl
     public IRTYPE type;
     public register(int number , IRTYPE type_) {
         super();

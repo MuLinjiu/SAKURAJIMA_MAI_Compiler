@@ -1,7 +1,7 @@
 package MIR;
 
 public class INT_TYPE extends IRTYPE{
-    int width;
+    public int width = 0;
     public INT_TYPE(int width_){//bool = int 8
         super();
         width = width_;

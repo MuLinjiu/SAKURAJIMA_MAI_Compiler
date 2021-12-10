@@ -4,6 +4,7 @@ import AST.*;
 import MIR.*;
 import Util.*;
 import Util.Type.Type_kind;
+import org.antlr.v4.runtime.Parser;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -16,7 +17,30 @@ public class IRBuilder implements ASTvisitor{
     private function curfunction;
     private globalScope gScope;
     private entity returnentity;
+    private String global_return_value;
 
+    private boolean need_copy;
+
+
+    public void type_transfer(entity from, entity to){
+        int from_w = ((INT_TYPE)((register)from).type).width;
+        int to_w = ((INT_TYPE)((register)to).type).width;
+
+        if(from_w > to_w){
+            currentblock.push_back(new trunc(((register)from).type,((register)to).type,from,to));
+        }else if(from_w < to_w){
+            currentblock.push_back(new zext(((register)from).type,((register)to).type,from,to));
+        }
+    }
+
+    public boolean compare(BinaryExprNode.binarysign op){
+        return op == BinaryExprNode.binarysign.GREATER || op == BinaryExprNode.binarysign.GREATER_E || op == BinaryExprNode.binarysign.LESS ||
+                op == BinaryExprNode.binarysign.LESS_E || op == BinaryExprNode.binarysign.EQUAL || op == BinaryExprNode.binarysign.NOT_EQUAL;
+    }
+
+    public boolean aritnmatic(BinaryExprNode.binarysign op){
+        return !compare(op) && op != BinaryExprNode.binarysign.ASSIGN && op != BinaryExprNode.binarysign.AND_AND && op != BinaryExprNode.binarysign.OR_OR && op != BinaryExprNode.binarysign.DOT;
+    }
 
 
     public boolean ifgloabl = false;
@@ -30,6 +54,7 @@ public class IRBuilder implements ASTvisitor{
         //currentScope = scope;
         gScope = globalscope;
         currentScope = globalscope;
+        need_copy = true;
         //currentblock = mainfn.rootBlock;
         //returntype = type_;
         //var_num = 0;
@@ -80,18 +105,32 @@ public class IRBuilder implements ASTvisitor{
     //System.out.println("");
         if(it.opt == BasicExprNode.option.INT){
             returnentity = new constant(Integer.parseInt(it.contex));
+            if(ifgloabl)global_return_value = it.contex;
         } else if(it.opt == BasicExprNode.option.BOOL){
-            if(it.contex == "true"){
+            if(Objects.equals(it.contex, "true")){
                 returnentity = new constant(1);
-            }else returnentity = new constant(1);
+                if(ifgloabl)global_return_value = "1";
+            }else {
+                returnentity = new constant(0);
+                if(ifgloabl)global_return_value = "0";
+            }
         } else {
             if(it.opt == BasicExprNode.option.Identifier){
-                entity varentity = currentScope.getEntity(it.contex,true);//读出的地方
-                IRTYPE irtype_ = ((register)varentity).type;
-                //returnentity = varentity;/////////////
-                returnentity = new register((curfunction.register_id),irtype_);
-                currentblock.push_back(new load(irtype_,varentity,new register(curfunction.register_id++,irtype_)));
+                if(!ifgloabl) {
+                    entity varentity = currentScope.getEntity(it.contex, true);//读出的地方
+                    IRTYPE irtype_ = ((register) varentity).type;
+                    //returnentity = varentity;/////////////
+                    if(need_copy) {
+                        returnentity = new register((curfunction.register_id), irtype_);
+                        currentblock.push_back(new load(irtype_, varentity, new register(curfunction.register_id++, irtype_)));
 
+                    }else{
+                        returnentity = varentity;
+                    }
+
+                    }else{
+// init 函数
+                }
             }
         }
 //        if(it.opt == BasicExprNode.option.THIS){
@@ -134,12 +173,58 @@ public class IRBuilder implements ASTvisitor{
     @Override
     public void visit(BinaryExprNode it) {
         // TODO Auto-generated method stub
+        if(compare(it.sign)){
+            it.lhs.accept(this);
+            Type lhs_type = it.lhs.type;
+            entity left = returnentity;
+            it.rhs.accept(this);
+            Type rhs_type = it.rhs.type;
+            entity right = returnentity;
+
+            if(lhs_type.Type_name == Type_kind.INT){
+                //还需加global or not
+                currentblock.push_back(new binary(type_to_irtype(lhs_type),left,right,new register(curfunction.register_id,type_to_irtype(lhs_type)), binary.opType.values()[it.sign.ordinal()]));
+                curfunction.register_id++;
+                returnentity = new register(curfunction.register_id - 1,new INT_TYPE(1));
+            }//String left
+        }else if(aritnmatic(it.sign)){
+            it.lhs.accept(this);
+            Type lhs_type = it.lhs.type;
+            entity left = returnentity;
+            it.rhs.accept(this);
+            Type rhs_type = it.rhs.type;
+            entity right = returnentity;
+
+            if(lhs_type.Type_name == Type_kind.INT){
+                //还需加global or not
+                currentblock.push_back(new binary(type_to_irtype(lhs_type),left,right,new register(curfunction.register_id,type_to_irtype(lhs_type)), binary.opType.values()[it.sign.ordinal()]));
+                curfunction.register_id++;
+                returnentity = new register(curfunction.register_id - 1,type_to_irtype(lhs_type));
+            }//String left
+        } else if(it.sign == BinaryExprNode.binarysign.ASSIGN){
+            need_copy = false;
+            it.lhs.accept(this);
+            Type lhs_type = it.lhs.type;
+            entity left = returnentity;
+            need_copy = true;
+            it.rhs.accept(this);
+            Type rhs_type = it.rhs.type;
+            entity right = returnentity;
+            currentblock.push_back(new store(right,left,type_to_irtype(lhs_type)));
+            returnentity = right;
+        } else if(it.sign == BinaryExprNode.binarysign.AND_AND){
+
+        }else if(it.sign == BinaryExprNode.binarysign.OR_OR){
+
+        }else if(it.sign == BinaryExprNode.binarysign.DOT){
+
+        }
     }
 
     @Override
     public void visit(BlockNode it) {
         // TODO Auto-generated method stub
-        it.stmtNode.accept(this);
+        if(it.stmtNode != null)it.stmtNode.accept(this);
         if(it.suiteNode != null)it.suiteNode.accept(this);
         
     }
@@ -177,6 +262,8 @@ public class IRBuilder implements ASTvisitor{
     @Override
     public void visit(ElseStmtNode it) {
         // TODO Auto-generated method stub
+        it.suite_stmtNode.accept(this);
+
         
     }
 
@@ -234,6 +321,70 @@ public class IRBuilder implements ASTvisitor{
     @Override
     public void visit(IfStmtNode it) {
         // TODO Auto-generated method stub
+        it.exprNode.accept(this);
+        if(returnentity instanceof register && ((INT_TYPE)((register)returnentity).type).width != 1){
+            register i1 = new register(curfunction.register_id++,new INT_TYPE(1));
+            type_transfer(returnentity,i1);
+            returnentity = i1;
+        }
+        //保证已经为i1
+
+        label true_label = new label(curfunction.register_id++);
+        label false_label = new label(curfunction.register_id++);
+        //label outif = new label(curfunction.register_id++);
+        branch branch_ = new branch(true_label,false_label,returnentity);//dizhi
+        currentblock.push_back(branch_);
+        if(it.elseStmtNode != null) {// if else
+            label outif = new label(curfunction.register_id++);
+            block true_block = new block(Integer.toString(curfunction.register_id - 3));
+            block false_block = new block(Integer.toString(curfunction.register_id - 2));
+            block outif_block = new block(Integer.toString(curfunction.register_id - 1));
+
+
+            currentblock = true_block;
+            currentScope = new Scope(currentScope);
+            it.suite_stmtNode.accept(this);
+            currentblock.push_back(new branch(outif));
+            currentScope = currentScope.parentScope();
+            curfunction.blocks.add(true_block);
+
+
+            currentblock = false_block;
+            currentScope = new Scope(currentScope);
+            it.elseStmtNode.accept(this);
+            currentblock.push_back(new branch(outif));
+            currentScope = currentScope.parentScope();
+            curfunction.blocks.add(false_block);
+
+            curfunction.blocks.add(outif_block);
+
+
+            currentblock = outif_block;
+//            currentblock.push_back(new branch(outif));
+//            currentScope = currentScope.parentScope();
+        }else{
+            block true_block = new block(Integer.toString(curfunction.register_id - 2));
+            block false_block = new block(Integer.toString(curfunction.register_id - 1));
+
+
+            currentScope = new Scope(currentScope);
+            currentblock = true_block;
+            it.suite_stmtNode.accept(this);
+            currentblock.push_back(new branch(false_label));//跳转到false
+            currentScope = currentScope.parentScope();
+            curfunction.blocks.add(true_block);
+
+            curfunction.blocks.add(false_block);
+            currentblock = false_block;
+
+        }
+
+
+
+
+
+
+
         
     }
 
@@ -282,7 +433,8 @@ public class IRBuilder implements ASTvisitor{
     @Override
     public void visit(Suite_StmtNode it) {
         // TODO Auto-generated method stub
-        
+        if(it.stmtNode != null)it.stmtNode.accept(this);
+        if(it.suiteNode != null)it.suiteNode.accept(this);
     }
 
     @Override
@@ -322,49 +474,59 @@ public class IRBuilder implements ASTvisitor{
 //            irtype = new INT_TYPE(13);
 //        }
         // TODO Auto-generated method stub
-        it.varDefSentenceNodes.forEach(x -> {
-            int reg_id = 0;
-            if(!ifgloabl) {
-                reg_id = curfunction.register_id;
-            }
-            register reg = new register(reg_id,irtype);
-            currentScope.entities.put(x.name,reg);
-            currentblock.push_back(new alloca(reg,irtype));
-            curfunction.register_id++;
-            if(x.initialed_or_not){
-                x.exprNode.accept(this);
-                ////////////
-
-                currentblock.push_back(new store(returnentity,reg,irtype));
-
-            }
-
-//            currentblock.push_back(new alloca(var_num++, irtype));
-//            if(x.exprNode != null){
-//                x.exprNode.accept(this);
-//                if(returntype.Type_name == Type_kind.INT){
-//                    if(returntype.name == null) {
-//                        currentScope.add_ID_REG(x.name, var_num - 1);
-//                        currentblock.push_back(new store(0, return_value_int, "NO_FROM", currentScope.Identifier_to_reg.get(x.name).toString(), irtype));
-//
-//                    }else {
-//                        currentScope.add_ID_REG(x.name, var_num - 1);
-//                        currentblock.push_back(new load(var_num++,irtype,returntype.name));
-//                        currentblock.push_back(new store(1, return_value_int, Integer.toString(var_num - 1), currentScope.Identifier_to_reg.get(x.name).toString(), irtype));
-//                    }
-//                }else if(returntype.Type_name == Type_kind.BOOL){
-//                    if(returntype.name == null) {
-//                        currentScope.add_ID_REG(x.name, var_num - 1);
-//                        currentblock.push_back(new store(0, return_value_int, "NO_FROM", currentScope.Identifier_to_reg.get(x.name).toString(), irtype));
-//                    }else{
-//                        currentScope.add_ID_REG(x.name, var_num - 1);
-//                        currentblock.push_back(new load(var_num++,irtype,returntype.name));
-//                        currentblock.push_back(new store(1, return_value_int, Integer.toString(var_num - 1), currentScope.Identifier_to_reg.get(x.name).toString(), irtype));
-//
-//                    }
+        if(!ifgloabl) {
+            it.varDefSentenceNodes.forEach(x -> {
+                int reg_id = curfunction.register_id;
+                register reg = new register(reg_id, irtype);
+                currentScope.entities.put(x.name, reg);
+                currentblock.push_back(new alloca(reg, irtype));
+                curfunction.register_id++;
+                if (x.initialed_or_not) {
+                    x.exprNode.accept(this);
+                    ////////////
+                    if(returnentity instanceof register){
+                        type_transfer(returnentity,reg);
+                    }
+                    currentblock.push_back(new store(returnentity, reg, irtype));
+                }
+            });
+        } else {//global
+            it.varDefSentenceNodes.forEach(x -> {
+                if(ret.Type_name == Type_kind.INT){
+                    if(x.initialed_or_not){
+                        x.exprNode.accept(this);//获取变量名之类
+                        Global_register global_register = new Global_register(irtype,x.name);
+                        gScope.entities.put(x.name,global_register);
+                        global_def.global_def_stmts.add(new dso_local_global(global_register,irtype,Integer.parseInt(global_return_value)));
+                    }else {
+                        Global_register global_register = new Global_register(irtype,x.name);
+                        gScope.entities.put(x.name,global_register);
+                        global_def.global_def_stmts.add(new dso_local_global(global_register,irtype,0));
+                    }
+                }else if(ret.Type_name == Type_kind.BOOL){
+                    if(x.initialed_or_not){
+                        x.exprNode.accept(this);//获取变量名之类
+                        Global_register global_register = new Global_register(irtype,x.name);
+                        gScope.entities.put(x.name,global_register);
+                        global_def.global_def_stmts.add(new dso_local_global(global_register,irtype,Integer.parseInt(global_return_value)));
+                    }else{
+                        Global_register global_register = new Global_register(irtype,x.name);
+                        gScope.entities.put(x.name,global_register);
+                        global_def.global_def_stmts.add(new dso_local_global(global_register,irtype,0));
+                    }
+                }
+//                int reg_id = curfunction.register_id;
+//                register reg = new register(reg_id, irtype);
+//                currentScope.entities.put(x.name, reg);
+//                currentblock.push_back(new alloca(reg, irtype));
+//                curfunction.register_id++;
+//                if (x.initialed_or_not) {
+//                    x.exprNode.accept(this);
+//                    ////////////
+//                    currentblock.push_back(new store(returnentity, reg, irtype));
 //                }
-//            }
-        });
+            });
+        }
         
     }
 
