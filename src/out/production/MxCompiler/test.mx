@@ -1,11 +1,15 @@
 
 int main(){
 
-int a = 1;
-    if(a > 2){
-     a = 3;
-    }else{
-    a = 4;
+    for(int i = 1 ; i < 10 ; i++){
+        if(i > 3){
+         int b = i;
+         while(b > 2){
+            b = 4;
+         }
+        }else{
+            int x = 2;
+        }
     }
-    a = 5;
+
 }
