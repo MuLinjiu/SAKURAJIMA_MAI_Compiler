@@ -430,9 +430,9 @@ public class IRBuilder implements ASTvisitor{
                 x.push_back(new branch(new label(Integer.parseInt(currentblock.Identifier))));
             });
 //        }
-
-        //currentblock.push_back(new load(curfunction.ret_.irtype,new register(id,curfunction.ret_.irtype),new register(curfunction.register_id++,curfunction.ret_.irtype)));
-
+        register r = new register(curfunction.register_id++,curfunction.ret_.irtype);
+        currentblock.push_back(new load(curfunction.ret_.irtype,new register(id,curfunction.ret_.irtype),r));
+        curfunction.ret_ = new ret(r,curfunction.ret_.irtype);
         return_collector = return_collector_origin;
     }
 
