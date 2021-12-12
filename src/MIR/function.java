@@ -7,6 +7,7 @@ public class function {
     public block rootblock;
     public ArrayList<block>blocks = new ArrayList<>();
     public int register_id;
+    public ret ret_;
 
     public function(String name){
         identifier = name;
@@ -18,7 +19,7 @@ public class function {
     public function(){
         identifier = "Global";
         rootblock = new block(identifier);
-        register_id = 0;
+        register_id = 1;
     }
 
     public void print(){

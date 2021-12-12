@@ -7,8 +7,14 @@ import Util.position;
 import java.util.ArrayList;
 
 public class block {
-    private String Identifier;
+    public String Identifier;
     private ArrayList<statement> stmts = new ArrayList<>();
+
+    public enum Flow_Type{
+        BREAK,CONTINUE,RETURN
+    }
+    public Flow_Type flow_type = null;
+
     public block(String identifier) {
         Identifier = identifier;
     }

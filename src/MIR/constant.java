@@ -5,7 +5,7 @@ public class constant extends entity{
         INT, BOOLi8,BOOLi1
     }
 
-    private constant_op op;
+    public constant_op op;
     private int value;
 
     public constant(int value,constant_op op_){

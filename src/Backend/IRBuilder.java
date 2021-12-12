@@ -11,6 +11,8 @@ import java.util.Objects;
 
 public class IRBuilder implements ASTvisitor{
     private Global_def global_def;
+    private ArrayList<block> flow_collector = new ArrayList<>();
+    private ArrayList<block> return_collector = new ArrayList<>();
     private block currentblock;
     private mainFn mainfn;
     private Scope currentScope;
@@ -18,6 +20,8 @@ public class IRBuilder implements ASTvisitor{
     private globalScope gScope;
     private entity returnentity;
     private String global_return_value;
+
+    //private IRTYPE type;
 
     private boolean need_copy;
 
@@ -245,9 +249,17 @@ public class IRBuilder implements ASTvisitor{
     @Override
     public void visit(BlockNode it) {
         // TODO Auto-generated method stub
-        if(it.stmtNode != null)it.stmtNode.accept(this);
-        if(it.suiteNode != null)it.suiteNode.accept(this);
-        
+        if(it.suiteNode != null) {
+            currentScope = new Scope(currentScope);
+            it.suiteNode.accept(this);
+            currentScope = currentScope.parentScope();
+        }
+        if(it.stmtNode != null){
+            if(currentblock.flow_type == null)it.stmtNode.accept(this);
+        }
+
+
+
     }
 
     @Override
@@ -259,6 +271,7 @@ public class IRBuilder implements ASTvisitor{
     @Override
     public void visit(BreakNode it) {
         // TODO Auto-generated method stub
+        currentblock.flow_type = block.Flow_Type.BREAK;
         
     }
 
@@ -277,7 +290,7 @@ public class IRBuilder implements ASTvisitor{
     @Override
     public void visit(ContinueNode it) {
         // TODO Auto-generated method stub
-        
+        currentblock.flow_type = block.Flow_Type.CONTINUE;
     }
 
     @Override
@@ -304,14 +317,16 @@ public class IRBuilder implements ASTvisitor{
     @Override
     public void visit(ForStmtNode it) {
         // TODO Auto-generated method stub
+        ArrayList<block> flow_collector_orgin = flow_collector;
+        flow_collector = new ArrayList<>();
+
+
         currentScope = new Scope(currentScope);//
         it.forstartNode.accept(this);//init
         //currentScope = currentScope.parentScope();放最后
 
         label for_condition_label = new label(curfunction.register_id++);
         block for_condition_block = new block(Integer.toString(curfunction.register_id - 1));
-
-
 
         branch init_branch = new branch(for_condition_label);
         currentblock.push_back(init_branch);
@@ -321,7 +336,6 @@ public class IRBuilder implements ASTvisitor{
         it.forfinishNode.accept(this);
         block for_condition_block_ = currentblock;
         entity conditon_entity = returnentity;
-
 
         label for_contains_label = new label(curfunction.register_id++);
         block for_contains_block = new block(Integer.toString(curfunction.register_id - 1));
@@ -342,32 +356,38 @@ public class IRBuilder implements ASTvisitor{
             for_end_block_ = currentblock;
         }
 
-
-
-
         label for_out_label = new label(curfunction.register_id++);
         block for_out_block = new block(Integer.toString(curfunction.register_id - 1));
 
         for_condition_block_.push_back(new branch(for_contains_label,for_out_label,conditon_entity));
 //        curfunction.blocks.add(for_condition_block);
 
-        for_contains_block_.push_back(new branch(for_end_label));
+        if(for_condition_block_.flow_type == null){
+            for_contains_block_.push_back(new branch(for_end_label));
+        }else{
+            if(for_condition_block_.flow_type == block.Flow_Type.RETURN){
+                flow_collector.add(for_contains_block_);
+                return_collector.add(for_condition_block_);
+            }
+            else flow_collector.add(for_contains_block_);
+        }
 //        curfunction.blocks.add(for_contains_block);
 
         for_end_block_.push_back(new branch(for_condition_label));
-//        curfunction.blocks.add(for_end_block);
-
 
         currentblock = for_out_block;
 
         curfunction.blocks.add(for_out_block);
+
+        flow_collector.forEach(x -> {
+            if(x.flow_type == block.Flow_Type.BREAK){
+                x.push_back(new branch(for_out_label));
+            }else if(x.flow_type == block.Flow_Type.CONTINUE){
+                x.push_back(new branch(for_contains_label));
+            }
+        });
         currentScope = currentScope.parentScope();// zuihou
-
-
-
-
-
-
+        flow_collector = flow_collector_orgin;
     }
 
     @Override
@@ -376,11 +396,44 @@ public class IRBuilder implements ASTvisitor{
         function func = new function(it.name);
         curfunction = func;
         global_def.functions.add(func);
+        int id = curfunction.register_id;
+        if(it.fucTypeNode.void_or_not){
+            func.ret_ = new ret();
+        }else {
+            it.fucTypeNode.typeNode.accept(this);
+            IRTYPE irtype;
+            if(((constant)returnentity).op == constant.constant_op.INT){
+                irtype = new INT_TYPE(32);
+            }else if(((constant)returnentity).op == constant.constant_op.BOOLi1){
+                irtype = new INT_TYPE(1);
+            }else{
+                irtype = new INT_TYPE(32);//初始化而已，string class等要改
+            }
+            register reg = new register(curfunction.register_id++, irtype);
+            func.ret_ = new ret(reg,irtype);
+            func.rootblock.push_back(new alloca(reg,irtype));
+        }
         currentblock = func.rootblock;
+
+        ArrayList<block>return_collector_origin = return_collector;
+        return_collector = new ArrayList<>();
+
         currentScope = gScope.getscopefromfuc(it.pos,it.name);
         it.suiteNode.accept(this);
         currentScope = currentScope.parentScope();
-        
+
+//        if(it.fucTypeNode.void_or_not){
+//
+//        }
+//        else {
+            return_collector.forEach(x -> {
+                x.push_back(new branch(new label(Integer.parseInt(currentblock.Identifier))));
+            });
+//        }
+
+        //currentblock.push_back(new load(curfunction.ret_.irtype,new register(id,curfunction.ret_.irtype),new register(curfunction.register_id++,curfunction.ret_.irtype)));
+
+        return_collector = return_collector_origin;
     }
 
     @Override
@@ -415,8 +468,6 @@ public class IRBuilder implements ASTvisitor{
         //保证已经为i1
 
         label true_label = new label(curfunction.register_id++);
-
-
         if(it.elseStmtNode != null) {// if else
 
             block true_block = new block(Integer.toString(curfunction.register_id - 1));
@@ -431,7 +482,6 @@ public class IRBuilder implements ASTvisitor{
             block true_block_ = currentblock;
             currentScope = currentScope.parentScope();
 
-
             label false_label = new label(curfunction.register_id++);
             block false_block = new block(Integer.toString(curfunction.register_id - 1));
             curfunction.blocks.add(false_block);
@@ -441,33 +491,36 @@ public class IRBuilder implements ASTvisitor{
             it.elseStmtNode.accept(this);
             block false_block_ = currentblock;
             currentScope = currentScope.parentScope();
-
-
             //label outif = new label(curfunction.register_id++);
             branch branch_ = new branch(true_label,false_label,returnentity);//dizhi
-//            true_block.push_back(branch_);
-//            false_block.push_back(branch_);
+
             ori_current_block.push_back(branch_);
-
-
 
             label outif = new label(curfunction.register_id++);
             block outif_block = new block(Integer.toString(curfunction.register_id - 1));
             curfunction.blocks.add(outif_block);
 
-            true_block_.push_back(new branch(outif));
-            false_block_.push_back(new branch(outif));
-
-
-            //currentScope = currentScope.parentScope();
-            //curfunction.blocks.add(false_block);
-
-
-//            currentblock.push_back(new branch(outif));
+            if(true_block_.flow_type == null){
+                true_block_.push_back(new branch(outif));
+            }else {
+                if(true_block_.flow_type == block.Flow_Type.RETURN){
+                    flow_collector.add(true_block_);
+                    return_collector.add(true_block_);
+                }
+                else flow_collector.add(true_block_);
+            }
+            if(false_block_.flow_type == null){
+                false_block_.push_back(new branch(outif));
+            }else {
+                if(false_block_.flow_type == block.Flow_Type.RETURN){
+                    flow_collector.add(false_block_);
+                    return_collector.add(false_block_);
+                }
+                else flow_collector.add(false_block_);
+            }
 
             currentblock = outif_block;
-//            currentblock.push_back(new branch(outif));
-//            currentScope = currentScope.parentScope();
+
         }else{
             block ori_current_block = currentblock;
             block true_block = new block(Integer.toString(curfunction.register_id - 1));
@@ -490,7 +543,15 @@ public class IRBuilder implements ASTvisitor{
 //            false_block.push_back(branch_);
             ori_current_block.push_back(branch_);
 
-            true_block_.push_back(new branch(false_label));
+            if(true_block_.flow_type == null){
+                true_block_.push_back(new branch(false_label));
+            }else {
+                if(true_block_.flow_type == block.Flow_Type.RETURN){
+                    flow_collector.add(true_block_);
+                    return_collector.add(true_block_);
+                }
+                else flow_collector.add(true_block_);
+            }
 
 
 
@@ -565,6 +626,14 @@ public class IRBuilder implements ASTvisitor{
     @Override
     public void visit(ReturnNode it) {
         // TODO Auto-generated method stub
+        if(it.expr == null){//void
+
+        }else{
+            it.expr.accept(this);
+        }
+        currentblock.flow_type = block.Flow_Type.RETURN;
+        if(it.expr != null)currentblock.push_back(new store(returnentity,curfunction.ret_.reg,curfunction.ret_.irtype));
+        //return_collector.add(currentblock);
         
     }
 
@@ -577,8 +646,14 @@ public class IRBuilder implements ASTvisitor{
     @Override
     public void visit(Suite_StmtNode it) {
         // TODO Auto-generated method stub
-        if(it.stmtNode != null)it.stmtNode.accept(this);
-        if(it.suiteNode != null)it.suiteNode.accept(this);
+        if(it.suiteNode != null) {
+            currentScope = new Scope(currentScope);
+            it.suiteNode.accept(this);
+            currentScope = currentScope.parentScope();
+        }
+        if(it.stmtNode != null){
+            if(currentblock.flow_type == null)it.stmtNode.accept(this);
+        }
     }
 
     @Override
@@ -593,9 +668,16 @@ public class IRBuilder implements ASTvisitor{
     @Override
     public void visit(TypeNode it) {
         // TODO Auto-generated method stub
-//        if(it.ID != null){
-//            returntype = new Type(it.ID, it.dimension, true);
-//        }else returntype = new Type(it.basicTypeNode.basicType, it.dimension, true);
+        if(it.basicTypeNode != null){
+            if(it.basicTypeNode.basicType == Type_kind.INT){
+                returnentity = new constant(0, constant.constant_op.INT);
+            }else if(it.basicTypeNode.basicType == Type_kind.BOOL){
+                returnentity = new constant(0,constant.constant_op.BOOLi1);
+            }else {//string
+
+            }
+            //zhizhen
+        }//class
     }
 
     @Override
@@ -710,6 +792,9 @@ public class IRBuilder implements ASTvisitor{
     @Override
     public void visit(WhileStmtNode it) {
         // TODO Auto-generated method stub
+        ArrayList<block> flow_collector_origin = flow_collector;
+        flow_collector = new ArrayList<>();
+
         label condition_label = new label(curfunction.register_id++);
         block condition_block = new block(Integer.toString(curfunction.register_id - 1));
         branch condition_branch = new branch(condition_label);
@@ -737,12 +822,31 @@ public class IRBuilder implements ASTvisitor{
         currentScope = new Scope(currentScope);
         it.suite_stmtNode.accept(this);
         currentScope = currentScope.parentScope();
-        currentblock.push_back(new branch(condition_label));
+        //currentblock.push_back(new branch(condition_label));
+
+        block bbexit = currentblock;
 
         label false_label = new label(curfunction.register_id++);
         block false_block = new block(Integer.toString(curfunction.register_id - 1));
         curfunction.blocks.add(false_block);
 
+        if(bbexit.flow_type == null){
+            bbexit.push_back(new branch(condition_label));
+        }else{
+            if(bbexit.flow_type == block.Flow_Type.RETURN){
+                flow_collector.add(bbexit);
+                return_collector.add(bbexit);
+            }
+            else flow_collector.add(bbexit);
+        }
+
+        flow_collector.forEach(x -> {
+            if(x.flow_type == block.Flow_Type.BREAK){
+                x.push_back(new branch(false_label));
+            }else if(x.flow_type == block.Flow_Type.CONTINUE){
+                x.push_back(new branch(condition_label));
+            }
+        });
         branch true_branch = new branch(true_label,false_label,returnentity);
         condition_block_.push_back(true_branch);
 
@@ -750,6 +854,7 @@ public class IRBuilder implements ASTvisitor{
 //        curfunction.blocks.add(true_block);
 
         currentblock = false_block;
+        flow_collector = flow_collector_origin;
 //        curfunction.blocks.add(false_block);
 
 
