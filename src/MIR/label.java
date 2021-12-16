@@ -1,15 +1,15 @@
 package MIR;
 
-public class label extends entity{
+public class label{
     public int label_id;
 
     public label(int label_id_){
-        super();
+        //super();
         label_id = label_id_;
     }
 
     @Override
     public String toString(){
-        return "%" + label_id;
+        return "%my_" + label_id;
     }
 }

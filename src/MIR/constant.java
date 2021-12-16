@@ -8,11 +8,17 @@ public class constant extends entity{
     public constant_op op;
     private int value;
 
-    public constant(int value,constant_op op_){
-        super();
+    public constant(int value,constant_op op_,IRTYPE irtype){
+        super(irtype);
         this.value = value;
         op = op_;
     }
+
+    public constant(int value,IRTYPE irtype){
+        super(irtype);
+        this.value = value;
+    }
+
     public int value() {
         return value;
     }

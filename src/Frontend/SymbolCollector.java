@@ -208,6 +208,7 @@ public class SymbolCollector implements ASTvisitor {
         it.parameterListNode.accept(this);
         currentscope = currentscope.parentScope();
         ((globalScope) currentscope).addfunc(it.pos,it.name,newscope,type,parameters);
+        it.type = type;
     }
 
     @Override
@@ -291,6 +292,7 @@ public class SymbolCollector implements ASTvisitor {
         else{
             retType = new Type(it.basicTypeNode.basicType,it.dimension,true);
         }
+        it.type = retType;
     }
 
     @Override
