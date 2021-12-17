@@ -131,9 +131,15 @@ public class IRBuilder implements ASTvisitor{
     @Override
     public void visit(ArrayExprNode it) {
         // TODO Auto-generated method stub
-//        it.name.accept(this);
-//        Entity arr_ptr = new arrptr_type()
-        
+        ifarray = true;
+        it.name.accept(this);
+        register reg = (register) returnentity;
+        it.index.accept(this);
+        constant arrayind = (constant) returnentity;
+        register retreg = new register(curfunction.register_id++, ((ptr_type)reg.type).irtype);
+        currentblock.push_back(new getelement(reg,retreg,arrayind));
+        returnentity = retreg;
+        ifarray = false;
     }
 
     @Override
@@ -648,6 +654,25 @@ public class IRBuilder implements ASTvisitor{
     @Override
     public void visit(NewerNode it) {
         // TODO Auto-generated method stub
+        int index_max = it.neworsize.size() - 1;
+        for(int i = 0 ; i < it.neworsize.size(); i++){
+            if(it.neworsize.get(i).expr == null){
+                index_max = i - 1;
+                break;
+            }
+        }
+        Type base = new Type(it.type);
+        base.dims = 0;
+        IRTYPE curirtype = type_to_irtype(base);
+        for(int i = index_max; i >= 0 ; i--){
+            it.neworsize.get(i).expr.accept(this);
+            curirtype = new arrptr_type(((constant)returnentity).value,curirtype);
+        }
+        register reg = new register(curfunction.register_id++, curirtype);
+        currentblock.push_back(new alloca(reg,curirtype));
+        curirtype = new ptr_type(curirtype);
+        reg.type = curirtype;
+        returnentity = reg;
         
     }
 
