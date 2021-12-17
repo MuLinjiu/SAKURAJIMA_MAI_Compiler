@@ -11,6 +11,7 @@ public class register extends entity{
 
     @Override
     public String toString(){
+        if(this.type instanceof NULL_PTR)return "null";
         return "%my_" + reg_number;
     }
 }

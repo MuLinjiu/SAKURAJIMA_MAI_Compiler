@@ -27,20 +27,33 @@ public class IRBuilder implements ASTvisitor{
     //private IRTYPE type;
 
     private boolean need_copy,isfunction_id;
-    public boolean ifgloabl = false;
+    public boolean ifgloabl = false,ifarray = false;
 
 //    public entity loadptr(entity ptr){
 //        register val = new register()
 //    }
 
     public void type_transfer(entity from, entity to){
-        int from_w = ((INT_TYPE)((register)from).type).width;
-        int to_w = ((INT_TYPE)((register)to).type).width;
-
-        if(from_w > to_w){
-            currentblock.push_back(new trunc(((register)from).type,((register)to).type,from,to));
-        }else if(from_w < to_w){
-            currentblock.push_back(new zext(((register)from).type,((register)to).type,from,to));
+            returnentity = from;
+        if(from.type instanceof INT_TYPE && to.type instanceof INT_TYPE) {
+            int from_w = ((INT_TYPE) ((register) from).type).width;
+            int to_w = ((INT_TYPE) ((register) to).type).width;
+            if(from_w == to_w)return;
+            register retreg = new register(curfunction.register_id++,to.type);
+            if (from_w > to_w) {
+                currentblock.push_back(new trunc(((register) from).type, ((register) to).type, from, retreg));
+            } else if (from_w < to_w) {
+                currentblock.push_back(new zext(((register) from).type, ((register) to).type, from, retreg));
+            }
+            returnentity = retreg;
+        }else{
+            if(from.type instanceof NULL_PTR){
+                //returnentity = from;
+            }else {
+                register retreg = new register(curfunction.register_id++,to.type);
+                currentblock.push_back(new bitcast((register) from,retreg,to.type));
+                returnentity = retreg;
+            }
         }
     }
 
@@ -76,13 +89,32 @@ public class IRBuilder implements ASTvisitor{
     public IRTYPE type_to_irtype(Type type){
         IRTYPE irtype_;
         if(type.Type_name == Type_kind.INT){
-            irtype_ = new INT_TYPE(32);
+            if(type.dims == 0)irtype_ = new INT_TYPE(32);
+            else{
+                IRTYPE int_type = new INT_TYPE(32);
+                IRTYPE cur = int_type;
+                for (int i = 1; i <= type.dims; i++) {
+                    cur = new ptr_type(cur);
+                }
+                irtype_ = cur;
+            }
             //System.out.println(32);
         }else if(type.Type_name == Type_kind.BOOL){
-            irtype_ = new INT_TYPE(8);
+            //irtype_ = new INT_TYPE(8);
+            if(type.dims == 0)irtype_ = new INT_TYPE(8);
+            else{
+                IRTYPE int_type = new INT_TYPE(8);
+                IRTYPE cur = int_type;
+                for (int i = 1; i <= type.dims; i++) {
+                    cur = new ptr_type(cur);
+                }
+                irtype_ = cur;
+            }
             //System.out.println(8);
         }else if(type.Type_name == Type_kind.VOID){
             irtype_ = new irvoidtype();
+        }else if(type.Type_name == Type_kind.NULL){
+            irtype_ = new NULL_PTR();
         }else irtype_ = new INT_TYPE(32);
         return irtype_;
     }
@@ -146,6 +178,8 @@ public class IRBuilder implements ASTvisitor{
                 returnentity = new constant(0, constant.constant_op.BOOLi8,new INT_TYPE(8));
                 if(ifgloabl)global_return_value = "0";
             }
+        }else if(it.opt == BasicExprNode.option.NULL){
+            returnentity = new register(0,new NULL_PTR());
         } else {
             if(it.opt == BasicExprNode.option.Identifier){
 //                if(!ifgloabl) {
@@ -176,7 +210,7 @@ public class IRBuilder implements ASTvisitor{
                 }else{
                     entity var_entity = currentScope.getEntity(it.contex,true);
                     IRTYPE irtype = var_entity.type;
-                    if(need_copy){
+                    if(need_copy || ifarray){
                         returnentity = new register(curfunction.register_id,irtype);
                         currentblock.push_back(new load(irtype,var_entity,new register(curfunction.register_id++,irtype)));
                     }else{
@@ -234,11 +268,10 @@ public class IRBuilder implements ASTvisitor{
             it.rhs.accept(this);
             Type rhs_type = it.rhs.type;
             entity right = returnentity;
-            if(lhs_type != rhs_type && right instanceof register){
-                register reg = new register(curfunction.register_id++,type_to_irtype(lhs_type));
-                type_transfer(right,reg);
-
-                right = reg;
+            if(right instanceof register){
+                //register reg = new register(curfunction.register_id++,type_to_irtype(lhs_type));
+                type_transfer(right,left);
+                //right = reg;
             }
             currentblock.push_back(new store(right,left,type_to_irtype(lhs_type)));
             returnentity = right;
@@ -312,9 +345,9 @@ public class IRBuilder implements ASTvisitor{
         // TODO Auto-generated method stub
         it.exprNode.accept(this);
         if(returnentity instanceof register && ((INT_TYPE)returnentity.type).width != 1){
-            register reg = new register(curfunction.register_id++, new INT_TYPE(1));
+            register reg = new register(0, new INT_TYPE(1));
             type_transfer(returnentity,reg);
-            returnentity = reg;
+            //returnentity = reg;
         }
     }
 
@@ -489,9 +522,9 @@ public class IRBuilder implements ASTvisitor{
         // TODO Auto-generated method stub
         it.exprNode.accept(this);
         if(returnentity instanceof register && ((INT_TYPE)((register)returnentity).type).width != 1){
-            register i1 = new register(curfunction.register_id++,new INT_TYPE(1));
+            register i1 = new register(0,new INT_TYPE(1));
             type_transfer(returnentity,i1);
-            returnentity = i1;
+           // returnentity = i1;
         }
         //保证已经为i1
 
@@ -788,44 +821,44 @@ public class IRBuilder implements ASTvisitor{
             });
         } else {//global
             it.varDefSentenceNodes.forEach(x -> {
-//                if(ret.Type_name == Type_kind.INT){
-//                    if(x.initialed_or_not){
-//                        x.exprNode.accept(this);//获取变量名之类
-//                        Global_register global_register = new Global_register(irtype,x.name);
-//                        gScope.entities.put(x.name,global_register);
-//                        global_def.global_def_stmts.add(new dso_local_global(global_register,irtype,Integer.parseInt(global_return_value)));
-//                    }else {
-//                        Global_register global_register = new Global_register(irtype,x.name);
-//                        gScope.entities.put(x.name,global_register);
-//                        global_def.global_def_stmts.add(new dso_local_global(global_register,irtype,0));
-//                    }
-//                }else if(ret.Type_name == Type_kind.BOOL){
-//                    if(x.initialed_or_not){
-//                        x.exprNode.accept(this);//获取变量名之类
-//                        Global_register global_register = new Global_register(irtype,x.name);
-//                        gScope.entities.put(x.name,global_register);
-//                        global_def.global_def_stmts.add(new dso_local_global(global_register,irtype,Integer.parseInt(global_return_value)));
-//                    }else{
-//                        Global_register global_register = new Global_register(irtype,x.name);
-//                        gScope.entities.put(x.name,global_register);
-//                        global_def.global_def_stmts.add(new dso_local_global(global_register,irtype,0));
-//                    }
-//                }
-                Global_register reg = new Global_register(irtype,x.name);
-                //register reg = new register(reg_id, irtype);
-                currentScope.entities.put(x.name, reg);
-                //currentblock.push_back(new alloca(reg, irtype));
-                //curfunction.register_id++;
-                if (x.initialed_or_not) {
-                    x.exprNode.accept(this);
-                    if(returnentity instanceof constant){
-                        global_def.global_def_stmts.add(new global_def_stmt(reg,(constant)returnentity));
+                if(ret.Type_name == Type_kind.INT){
+                    if(x.initialed_or_not){
+                        x.exprNode.accept(this);//获取变量名之类
+                        Global_register global_register = new Global_register(irtype,x.name);
+                        gScope.entities.put(x.name,global_register);
+                        global_def.global_def_stmts.add(new dso_local_global(global_register,irtype,Integer.parseInt(global_return_value)));
                     }else {
-                        global_def.global_def_stmts.add(new global_def_stmt(reg));
+                        Global_register global_register = new Global_register(irtype,x.name);
+                        gScope.entities.put(x.name,global_register);
+                        global_def.global_def_stmts.add(new dso_local_global(global_register,irtype,0));
                     }
-                    ////////////
-                    //currentblock.push_back(new store(returnentity, reg, irtype));
+                }else if(ret.Type_name == Type_kind.BOOL){
+                    if(x.initialed_or_not){
+                        x.exprNode.accept(this);//获取变量名之类
+                        Global_register global_register = new Global_register(irtype,x.name);
+                        gScope.entities.put(x.name,global_register);
+                        global_def.global_def_stmts.add(new dso_local_global(global_register,irtype,Integer.parseInt(global_return_value)));
+                    }else{
+                        Global_register global_register = new Global_register(irtype,x.name);
+                        gScope.entities.put(x.name,global_register);
+                        global_def.global_def_stmts.add(new dso_local_global(global_register,irtype,0));
+                    }
                 }
+//                Global_register reg = new Global_register(irtype,x.name);
+//                //register reg = new register(reg_id, irtype);
+//                currentScope.entities.put(x.name, reg);
+//                //currentblock.push_back(new alloca(reg, irtype));
+//                //curfunction.register_id++;
+//                if (x.initialed_or_not) {
+//                    x.exprNode.accept(this);
+//                    if(returnentity instanceof constant){
+//                        global_def.global_def_stmts.add(new global_def_stmt(reg,(constant)returnentity));
+//                    }else {
+//                        global_def.global_def_stmts.add(new global_def_stmt(reg));
+//                    }
+//                    ////////////
+//                    //currentblock.push_back(new store(returnentity, reg, irtype));
+//                }
             });
         }
         
@@ -854,9 +887,9 @@ public class IRBuilder implements ASTvisitor{
         block condition_block_ = currentblock;
 
         if(returnentity instanceof register && ((INT_TYPE)(returnentity).type).width != 1){
-            register i1 = new register(curfunction.register_id++,new INT_TYPE(1));
+            register i1 = new register(0,new INT_TYPE(1));
             type_transfer(returnentity,i1);
-            returnentity = i1;
+            //returnentity = i1;
         }
        // curfunction.blocks.add(condition_block);
 

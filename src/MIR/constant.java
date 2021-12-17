@@ -6,7 +6,7 @@ public class constant extends entity{
     }
 
     public constant_op op;
-    private int value;
+    public int value;
 
     public constant(int value,constant_op op_,IRTYPE irtype){
         super(irtype);
