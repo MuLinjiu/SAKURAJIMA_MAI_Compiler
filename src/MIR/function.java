@@ -16,17 +16,19 @@ public class function {
         rootblock = new block(name);
         //alloca_block = new block(name)
         //blocks.add(rootblock);
-        register_id = 0;
+        register_id = 1;
     }
 
     public function(){
         identifier = "Global";
         rootblock = new block(identifier);
-        register_id = 0;
+        register_id = 1;
     }
 
     public void print(){
-        System.out.print ("define " + ret_.irtype + " @" + identifier + '(') ;
+        if(ret_.irtype != null)
+            System.out.print ("define " + ret_.irtype + " @" + identifier + '(') ;
+        else System.out.print ("define " + "void" + " @" + identifier + '(') ;
         for(int i = 0 ; i < parameter_list.size();i++){
             if(parameter_list.size() != 0){
                 if(i == parameter_list.size() - 1) {

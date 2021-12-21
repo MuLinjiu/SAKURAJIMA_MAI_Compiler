@@ -38,7 +38,8 @@ public class block {
     // }
 
     public void print(boolean printidentifier){
-        if(printidentifier)System.out.println("my_" + Identifier + ": ");
+        //if(printidentifier)System.out.println("my_" + Identifier + ": ");
+        System.out.println("my_" + Identifier + ": ");
         alloca_stmts.forEach(x -> {
             System.out.println(x.toString());
         });

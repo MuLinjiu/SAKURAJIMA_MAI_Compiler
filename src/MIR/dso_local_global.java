@@ -14,6 +14,6 @@ public class dso_local_global extends statement{
 
     @Override
     public String toString(){
-        return global_register + " = dso_local global " + irtype + " " + value;
+        return global_register + " = global " + irtype + " " + value;
     }
 }

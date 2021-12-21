@@ -1,37 +1,27 @@
-define i32 @a(i32 %my_1) {
-%my_0 = alloca i32
-%my_2 = alloca i32
-store i32 %my_1, i32* %my_2
-%my_3 = load i32, i32* %my_2
-store i32 %my_3, i32* %my_0
-%my_4 = load i32, i32* %my_0
-ret i32 %my_4
-}
+@my_a = global i32 1
+@my_b = global i32 0
+
 define i32 @main() {
-%my_0 = alloca i32
-%my_1 = alloca i32
-%my_6 = alloca i32
-store i32 1, i32* %my_1
-br label %my_2
-my_2: 
-%my_3 = load i32, i32* %my_1
-%my_4 = icmp slt i32 %my_3, 10
-br i1 %my_4, label %my_5, label %my_12
+my_main: 
+%my_3 = alloca i32
+%my_4 = alloca i8
+%my_1 = load i32, i32* @my_a
+%my_2 = sub nsw i32 %my_1, 1
+store i32 %my_2, i32* @my_b
+%my_5 = load i32, i32* @my_a
+%my_6 = icmp eq i32 %my_5, 1
+br i1 %my_6, label %my_6AND_AND_TRUE, label %my_6AND_AND_OUT
+my_6AND_AND_TRUE: 
+%my_7 = load i32, i32* @my_b
+%my_8 = icmp eq i32 %my_7, 0
+br label %my_6AND_AND_OUT
 
-my_5: 
-%my_7 = load i32, i32* %my_1
-%my_8 = call i32 @a(i32 %my_7)
-store i32 %my_8, i32* %my_6
-br label %my_9
+my_6AND_AND_OUT: 
+%my_9 = phi i1 [ 0, %my_main ], [ %my_8, %my_6AND_AND_TRUE ]
+%my_10 = zext i1 %my_9 to i8
+store i8 %my_10, i8* %my_4
+store i32 0, i32* %my_3
+%my_11 = load i32, i32* %my_3
 
-my_9: 
-%my_10 = load i32, i32* %my_1
-%my_11 = add nsw i32 %my_10, 1
-store i32 %my_11, i32* %my_1
-br label %my_2
-
-my_12: 
-%my_13 = load i32, i32* %my_0
-
-ret i32 %my_13
+ret i32 %my_11
 }
