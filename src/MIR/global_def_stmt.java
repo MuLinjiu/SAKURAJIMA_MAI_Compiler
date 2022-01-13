@@ -16,6 +16,6 @@ public class global_def_stmt extends statement{
 
     @Override
     public String toString(){
-        return global_register + " = global" + ((ptr_type)global_register.type).irtype + " " + initconstant;
+        return global_register + " = global " + ((ptr_type)global_register.type).irtype + " " + initconstant;
     }
 }

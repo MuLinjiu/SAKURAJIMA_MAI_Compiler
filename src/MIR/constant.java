@@ -38,6 +38,8 @@ public class constant extends entity{
         else if(op == constant_op.BOOLi8){
             return Integer.toString(value);
         }
-        else return Integer.toString(value);//////
+        else if(type instanceof INT_TYPE && ((INT_TYPE) type).width != 1)return Integer.toString(value);
+        else if(type instanceof INT_TYPE && ((INT_TYPE) type).width == 1)return value == 1 ? "true" : "false";
+        else return "null";
     }
 }

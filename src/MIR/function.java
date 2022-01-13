@@ -10,6 +10,7 @@ public class function {
     public ArrayList<block>blocks = new ArrayList<>();
     public int register_id;
     public ret ret_;
+    public IRTYPE returntype;//buitlin yong
     public ArrayList<register>parameter_list = new ArrayList<>();
     public ArrayList<String> parameterid = new ArrayList<>();
     public boolean isbuiltin;
@@ -29,7 +30,7 @@ public class function {
 
     public void print(){
         if(isbuiltin){
-            System.out.println("declare " + ret_.irtype + " @" + identifier + "(");
+            System.out.print("declare " + returntype + " @" + identifier + "(");
         }
         else {
             System.out.print("define " + Objects.requireNonNullElse(ret_.irtype, "void") + " @" + identifier + '(');

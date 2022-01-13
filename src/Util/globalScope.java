@@ -13,6 +13,7 @@ public class globalScope extends Scope {
     private HashMap<String, Type> fucretType = new HashMap<>();
     private HashMap<String, ArrayList<Type>>fucParameters = new HashMap<>();
     public HashMap<String, IRTYPE> classtype = new HashMap<>();
+    public HashMap<String, ArrayList<IRTYPE>>functionIRparameters = new HashMap<>();
 
    // public function global_function;
     public globalScope(){
@@ -77,6 +78,13 @@ public class globalScope extends Scope {
             return fucParameters.get(name);
         }else if(this.parentScope() != null){
             return ((globalScope)this.parentScope()).getparameterlistfromfuc(pos, name);
+        }else throw new semanticError("Semantic Error : cannot find the function : " + name, pos);
+    }
+    public ArrayList<IRTYPE> getirparameterlistfromfuc(position pos, String name){
+        if(functionIRparameters.containsKey(name)){
+            return functionIRparameters.get(name);
+        }else if(this.parentScope() != null){
+            return ((globalScope)this.parentScope()).getirparameterlistfromfuc(pos, name);
         }else throw new semanticError("Semantic Error : cannot find the function : " + name, pos);
     }
 
