@@ -19,6 +19,12 @@ public class constant extends entity{
         this.value = value;
     }
 
+    public constant(constant other){
+        super(other.type);
+        op = other.op;
+        value = other.value;
+    }
+
     public int value() {
         return value;
     }

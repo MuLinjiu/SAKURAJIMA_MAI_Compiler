@@ -391,13 +391,13 @@ public class SementicChecker implements ASTvisitor {
         if(it.Classname != null){
             type = new Type(it.Classname, it.neworsize.size(),true);
         }else type = new Type(it.basicTypeNode.basicType,it.neworsize.size(),true);
-        boolean exp = false,exp2 = false;
+        boolean exp = false/*,exp2 = false*/;
         if(it.neworsize.size() > 0)exp = true;
         for(int i = 0; i < it.neworsize.size();i++){
             NewersizeNode x = it.neworsize.get(i);
             if(x.expr == null)exp = false;
             else{
-                exp2 = true;
+               // exp2 = true;
                 if(!exp){
                     throw new semanticError("new1",x.pos);
                 }
@@ -405,7 +405,7 @@ public class SementicChecker implements ASTvisitor {
                 if(retType.Type_name != Type.Type_kind.INT || retType.dims > 0)throw new semanticError("new2",x.pos);
             }
         }
-        if(!exp && !exp2)throw new semanticError("ir new",it.pos);//all empty
+        //if(!exp && !exp2)throw new semanticError("ir new",it.pos);//all empty
         retType = type;
         it.type = new Type(retType);
     }

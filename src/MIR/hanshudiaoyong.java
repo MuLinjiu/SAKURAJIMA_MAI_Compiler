@@ -9,6 +9,12 @@ public class hanshudiaoyong extends statement{
     public register dest_reg;
     public ArrayList<entity> parameters = new ArrayList<>();
 
+
+    public hanshudiaoyong(){
+        super();
+        function_name = new String();
+    }
+
     public hanshudiaoyong (String functionname_, IRTYPE rettype_) {
         super () ;
         function_name = functionname_;

@@ -10,6 +10,8 @@ public class Scope {
     private HashMap<String, Type> members;
     public HashMap<String, entity> entities = new HashMap<>();
     private Scope parentScope;
+    public int num = 0;
+    public HashMap<String, Integer>member_id = new HashMap<>();//class 中 成员在第几个顺序位置
 //
 //
     public HashMap<String,Integer> Identifier_to_reg = new HashMap<>();
@@ -34,7 +36,10 @@ public class Scope {
     public void addVariable(position pos, String name, Type type){
         if (members.containsKey(name))
             throw new semanticError("Semantic Error : redefined variable " + name, pos);
-        else members.put(name, type);
+        else {
+            members.put(name, type);
+            member_id.put(name,num++);
+        }
     }
 
 

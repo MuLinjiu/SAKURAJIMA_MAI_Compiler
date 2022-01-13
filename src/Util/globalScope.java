@@ -12,6 +12,7 @@ public class globalScope extends Scope {
     private HashMap<String, globalScope>classscope = new HashMap<>();
     private HashMap<String, Type> fucretType = new HashMap<>();
     private HashMap<String, ArrayList<Type>>fucParameters = new HashMap<>();
+    public HashMap<String, IRTYPE> classtype = new HashMap<>();
 
    // public function global_function;
     public globalScope(){
@@ -93,6 +94,11 @@ public class globalScope extends Scope {
         else if(lookup && this.parentScope() != null){
             return ((globalScope)this.parentScope()).findfunc(name, true);
         }else return false;
+    }
+
+    public IRTYPE find_ir_classtype(String name){
+        if(classtype.containsKey(name))return classtype.get(name);
+        else return ((globalScope)this.parentScope()).find_ir_classtype(name);
     }
 
     @Override

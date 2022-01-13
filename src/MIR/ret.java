@@ -10,6 +10,7 @@ public class ret extends statement{
     }
     public ret(){
         reg = null;
+        irtype = null;
     }
 
     @Override public String toString(){

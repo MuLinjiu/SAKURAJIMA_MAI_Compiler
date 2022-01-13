@@ -309,7 +309,7 @@ public class SymbolCollector implements ASTvisitor {
             currentscope.addVariable(x.pos,x.name,type);
             if(x.initialed_or_not)throw new semanticError("Semantic Error : variable cannot be initialized in class" + x.name, x.pos);
         });
-
+        it.type = type;
     }
 
     @Override
