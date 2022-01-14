@@ -68,7 +68,7 @@ public class binary extends statement{
         if(operator == opType.add || operator == opType.sub || operator == opType.mul){
             return to +" = " + operator + " nsw " + irtype + " " + lhs + ", " + rhs;
         }else if(operator == opType.sgt || operator == opType.slt || operator == opType.sge || operator == opType.sle || operator == opType.eq || operator == opType.ne){
-            return to + " = icmp " + operator.toString() + " " + irtype + " " + lhs + ", " + rhs;
+            return to + " = icmp " + operator + " " + irtype + " " + lhs + ", " + rhs;
         }else {
             return to + " = " + operator.toString() + " " + irtype + " " + lhs + ", " + rhs;
         }

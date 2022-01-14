@@ -234,6 +234,84 @@ public class IRBuilder implements ASTvisitor{
         gScope.functionIRparameters.put("string_greaterEqual",parameters);
         global_def.functions.add(newfunc);
 
+        parameters = new ArrayList<>();
+        newfunc = new function("malloc");
+        newfunc.isbuiltin = true;
+        newfunc.parameter_list.add(new register(newfunc.register_id++, new INT_TYPE(64)));
+        parameters.add(new INT_TYPE(64));
+        newfunc.returntype = new ptr_type(new INT_TYPE(8));
+        gScope.functionIRparameters.put("malloc",parameters);
+        global_def.functions.add(newfunc);
+
+
+    }
+
+    public entity malloc_array(ArrayList<entity> entities, int cur, IRTYPE basetype){
+        int dim = entities.size() - cur;
+        IRTYPE cur_ir_type = basetype;
+        for(int i = 0 ; i < dim ; i++){
+            cur_ir_type = new ptr_type(cur_ir_type);
+        }
+        entity arraysize = entities.get(cur);
+        int singlesize = ((ptr_type)cur_ir_type).irtype.size;
+        register mallocsize = new register(curfunction.register_id++, new INT_TYPE(64));
+        currentblock.push_back(new binary(mallocsize.type,arraysize,new constant(singlesize,new INT_TYPE(64)),mallocsize, binary.opType.mul));
+        register mallocptr = new register(curfunction.register_id++, new ptr_type(new INT_TYPE(8)));
+        hanshudiaoyong malloc_call = new hanshudiaoyong("malloc",mallocptr.type,mallocptr);
+        malloc_call.parameters.add(mallocsize);
+        currentblock.push_back(malloc_call);
+        register curarrayptr = new register(curfunction.register_id++, cur_ir_type);
+        currentblock.push_back(new bitcast(mallocptr,curarrayptr,curarrayptr.type));
+        if(dim == 1)return curarrayptr;
+
+        register loopvar = new register(curfunction.register_id++, new ptr_type(new INT_TYPE(32)));
+        currentblock.push_back(new alloca(loopvar,new INT_TYPE(32)));
+        currentblock.push_back(new store(new constant(0,new INT_TYPE(32)),loopvar,new INT_TYPE(32)));
+        label conditionlabel = new label("my_" + (curfunction.register_id - 1) + "_for_condition");
+        block condtion = new block(conditionlabel.label_name);
+
+        label suitelabel = new label("my_" + (curfunction.register_id - 1) + "_for_suite");
+        block suite = new block(suitelabel.label_name);
+
+        label finishlabel = new label("my_" + (curfunction.register_id - 1) + "_for_finish");
+        block finish = new block(finishlabel.label_name);
+
+        label forourlabel = new label("my_" + (curfunction.register_id - 1) + "_for_out");
+        block forour = new block(forourlabel.label_name);
+
+        curfunction.blocks.add(condtion);
+        currentblock = condtion;
+        register loopvar_value = new register(curfunction.register_id++, new INT_TYPE(32));
+        currentblock.push_back(new load(loopvar_value.type,loopvar,loopvar_value));
+        entity cur_ = entities.get(cur);
+        register cmpresvalue = new register(curfunction.register_id++, new INT_TYPE(1));
+        currentblock.push_back(new binary(loopvar_value.type,loopvar_value,cur_,cmpresvalue, binary.opType.slt));
+        currentblock.push_back(new branch(suitelabel,forourlabel,cmpresvalue));
+
+        curfunction.blocks.add(suite);
+        currentblock = suite;
+        loopvar_value = new register(curfunction.register_id++, new INT_TYPE(32));
+        currentblock.push_back(new load(loopvar_value.type,loopvar,loopvar_value));
+        register nextarray_ptr = new register(curfunction.register_id++, cur_ir_type);
+        getelement get_ptr = new getelement(curarrayptr,nextarray_ptr);
+        get_ptr.values.add(loopvar_value);
+        currentblock.push_back(get_ptr);
+        entity nextarray = malloc_array(entities, cur+1, basetype);
+        currentblock.push_back(new store(nextarray,nextarray_ptr,nextarray.type));
+        currentblock.push_back(new branch(finishlabel));
+
+        curfunction.blocks.add(finish);
+        currentblock = finish;
+        loopvar_value = new register(curfunction.register_id++, new INT_TYPE(32));
+        currentblock.push_back(new load(loopvar_value.type,loopvar,loopvar_value));
+        register nextloop_var_value = new register(curfunction.register_id++, new INT_TYPE(32));
+        currentblock.push_back(new binary(loopvar_value.type,loopvar_value,new constant(1,new INT_TYPE(32)),nextloop_var_value,binary.opType.add));
+        currentblock.push_back(new store(nextloop_var_value,loopvar,loopvar.type));
+        currentblock.push_back(new branch(conditionlabel));
+        curfunction.blocks.add(forour);
+        currentblock = forour;
+
+        return curarrayptr;
 
     }
 
@@ -251,13 +329,13 @@ public class IRBuilder implements ASTvisitor{
             }
             returnentity = retreg;
         }else{
-            if(from.type instanceof NULL_PTR || from.type.equals(totype)){
-                returnentity = from;
-            }else {
-                register retreg = new register(curfunction.register_id++,totype);
-                currentblock.push_back(new bitcast((register) from,retreg,totype));
-                returnentity = retreg;
-            }
+//            if(from.type instanceof NULL_PTR || from.type.equals(totype)){
+//                returnentity = from;
+//            }else {
+//                register retreg = new register(curfunction.register_id++,totype);
+//                currentblock.push_back(new bitcast((register) from,retreg,totype));
+//                returnentity = retreg;
+//            }
         }
     }
 
@@ -333,7 +411,7 @@ public class IRBuilder implements ASTvisitor{
             irtype_ = new NULL_PTR();
         }else if(type.Type_name == Type_kind.CLASS){
             IRTYPE tmp = gScope.find_ir_classtype(type.name);
-            irtype_ = toIRArrayType(tmp,type.dims);
+            irtype_ = toIRArrayType(new ptr_type(tmp),type.dims);
         }else if(type.Type_name == Type_kind.STRING){
             IRTYPE tmp = new ptr_type(new INT_TYPE(8));
             irtype_ = toIRArrayType(tmp,type.dims);
@@ -392,17 +470,17 @@ public class IRBuilder implements ASTvisitor{
         register varcopy = new register(curfunction.register_id++, ((ptr_type) returnentity.type).irtype) ;
         currentblock.push_back(new load(varcopy.type,returnentity,varcopy));
         if(it.sign == BackPLUSMINUSExpr.backsign.MINUS_MINUS){//--a
-            register tmpreg = new register(curfunction.register_id++, ((register)returnentity).type);//a = a - 1, a - 1暂存的reg
-            currentblock.push_back(new binary(((register)returnentity).type,ret,new constant(-1, constant.constant_op.INT,new INT_TYPE(32)),tmpreg, binary.opType.add));
+            register tmpreg = new register(curfunction.register_id++, new INT_TYPE(32));//a = a - 1, a - 1暂存的reg
+            currentblock.push_back(new binary(varcopy.type,varcopy,new constant(-1, constant.constant_op.INT,new INT_TYPE(32)),tmpreg, binary.opType.add));
             entity e = currentScope.getEntity(((BasicExprNode)it.lhs).contex,true);
-            currentblock.push_back(new store(tmpreg,e,((register)returnentity).type));
-            //returnentity = tmpreg;
+            currentblock.push_back(new store(tmpreg,e,varcopy.type));
+            returnentity = varcopy;
         }else{//++a
-            register tmpreg = new register(curfunction.register_id++, ((register)returnentity).type);//a = a - 1, a - 1暂存的reg
-            currentblock.push_back(new binary(((register)returnentity).type,ret,new constant(1, constant.constant_op.INT,new INT_TYPE(32)),tmpreg, binary.opType.add));
+            register tmpreg = new register(curfunction.register_id++, new INT_TYPE(32));//a = a - 1, a - 1暂存的reg
+            currentblock.push_back(new binary(varcopy.type,varcopy,new constant(1, constant.constant_op.INT,new INT_TYPE(32)),tmpreg, binary.opType.add));
             entity e = currentScope.getEntity(((BasicExprNode)it.lhs).contex,true);
-            currentblock.push_back(new store(tmpreg,e,((register)returnentity).type));
-            //returnentity = tmpreg;
+            currentblock.push_back(new store(tmpreg,e,varcopy.type));
+            returnentity = varcopy;
         }
         
     }
@@ -684,9 +762,11 @@ public class IRBuilder implements ASTvisitor{
             if(lefttype.Type_name == Type_kind.CLASS){
                 curclass = (register) left;
                 cur_class_irtype = (CLASS) gScope.find_ir_classtype(lefttype.name);
-                if(cur_function_call != null){
+                if(cur_function_call != null && isfunction_id){
                     cur_function_call.function_name += "class" + cur_class_irtype.class_name + "_" ;
-                    cur_function_call.parameters.add(curclass);
+                    register classload = new register(curfunction.register_id++, ((ptr_type)left.type).irtype);
+                    currentblock.push_back(new load(classload.type,left,classload));
+                    cur_function_call.parameters.add(classload);
                 }
                 globalScope gscop_ = gScope;
                 Scope currentscope_ = currentScope;
@@ -788,6 +868,7 @@ public class IRBuilder implements ASTvisitor{
         currentblock.push_back(new store(parareg,copyreg,copyreg.type));
         curclass = copyreg;
         it.suiteNode.accept(this);
+        curclass = null;
         global_def.functions.add(constructorfunc);
     }
 
@@ -1150,32 +1231,37 @@ public class IRBuilder implements ASTvisitor{
     @Override
     public void visit(NewerNode it) {
         // TODO Auto-generated method stub
+        Type curtype = it.type;
+        IRTYPE curirtype = type_to_irtype(curtype);
         if(it.neworsize.size() == 0){
-            var_store_or_not = false;
-            return;
-        }
-        int index_max = it.neworsize.size() - 1;
-        for(int i = 0 ; i < it.neworsize.size(); i++){
-            if(it.neworsize.get(i).expr == null){
-                index_max = i - 1;
-                break;
+            curirtype = ((ptr_type)curirtype).irtype;
+            register mallocreg = new register(curfunction.register_id++, new ptr_type(new INT_TYPE(8)));
+            hanshudiaoyong malloccall = new hanshudiaoyong("malloc", mallocreg.type,mallocreg);
+            malloccall.parameters.add(new constant(curirtype.size,new INT_TYPE(64)));
+            currentblock.push_back(malloccall);
+            register retreg = new register(curfunction.register_id++, new ptr_type(curirtype));
+            currentblock.push_back(new bitcast(mallocreg,retreg,retreg.type));
+            hanshudiaoyong classconstru = new hanshudiaoyong(it.type.name);
+            classconstru.parameters.add(retreg);
+            currentblock.push_back(classconstru);
+            returnentity = retreg;
+        }else {
+            ArrayList<entity>entities = new ArrayList<>();
+            it.neworsize.forEach(x -> {
+                if(x.expr == null)return;
+                boolean need_copy_ = need_copy;
+                x.expr.accept(this);
+                need_copy = need_copy_;
+                entities.add(returnentity);
+            });
+            Type base = new Type(curtype);
+            base.dims = 0;
+            IRTYPE baseirtypr = type_to_irtype(base);
+            for(int i = entities.size(); i < it.neworsize.size();i++){
+                baseirtypr = new ptr_type(baseirtypr);
             }
+            returnentity = malloc_array(entities,0,baseirtypr);
         }
-        Type base = new Type(it.type);
-        base.dims = 0;
-        IRTYPE curirtype = type_to_irtype(base);
-        for(int i = index_max + 1; i < it.neworsize.size() ;i++){
-            curirtype = new ptr_type(curirtype);
-        }
-        for(int i = index_max; i >= 0 ; i--){
-            it.neworsize.get(i).expr.accept(this);
-            curirtype = new arrptr_type(((constant)returnentity).value,curirtype);
-        }
-        register reg = new register(curfunction.register_id++, new ptr_type(curirtype));
-        curirtype = reg.type;
-        currentblock.push_back(new alloca(reg,curirtype));
-        returnentity = reg;
-        
     }
 
     @Override
@@ -1210,16 +1296,16 @@ public class IRBuilder implements ASTvisitor{
         register varcopy = new register(curfunction.register_id++, ((ptr_type) returnentity.type).irtype) ;
         currentblock.push_back(new load(varcopy.type,returnentity,varcopy));
         if(it.sign == PrePLUSMINUSExpr.presign.MINUS_MINUS){//--a
-            register tmpreg = new register(curfunction.register_id++, ((register)returnentity).type);//a = a - 1, a - 1暂存的reg
-            currentblock.push_back(new binary(((register)returnentity).type,ret,new constant(-1, constant.constant_op.INT,new INT_TYPE(32)),tmpreg, binary.opType.add));
+            register tmpreg = new register(curfunction.register_id++, new INT_TYPE(32));//a = a - 1, a - 1暂存的reg
+            currentblock.push_back(new binary(varcopy.type,varcopy,new constant(-1, constant.constant_op.INT,new INT_TYPE(32)),tmpreg, binary.opType.add));
             entity e = currentScope.getEntity(((BasicExprNode)it.rhs).contex,true);
-            currentblock.push_back(new store(tmpreg,e,((register)returnentity).type));
+            currentblock.push_back(new store(tmpreg,e,varcopy.type));
             returnentity = tmpreg;
         }else{//++a
-            register tmpreg = new register(curfunction.register_id++, ((register)returnentity).type);//a = a - 1, a - 1暂存的reg
-            currentblock.push_back(new binary(((register)returnentity).type,ret,new constant(1, constant.constant_op.INT,new INT_TYPE(32)),tmpreg, binary.opType.add));
+            register tmpreg = new register(curfunction.register_id++, new INT_TYPE(32));//a = a - 1, a - 1暂存的reg
+            currentblock.push_back(new binary(varcopy.type,varcopy,new constant(1, constant.constant_op.INT,new INT_TYPE(32)),tmpreg, binary.opType.add));
             entity e = currentScope.getEntity(((BasicExprNode)it.rhs).contex,true);
-            currentblock.push_back(new store(tmpreg,e,((register)returnentity).type));
+            currentblock.push_back(new store(tmpreg,e,varcopy.type));
             returnentity = tmpreg;
         }
         
@@ -1286,7 +1372,9 @@ public class IRBuilder implements ASTvisitor{
 
             }
             //zhizhen
-        }//class
+        }else{
+
+        }
     }
 
     @Override
@@ -1339,6 +1427,7 @@ public class IRBuilder implements ASTvisitor{
         if(isclassdef){
             it.varDefSentenceNodes.forEach(x -> {
                 cur_class_irtype.class_irtypes.add(irtype);
+                cur_class_irtype.size += irtype.size;
             });
         }
         else if(!ifgloabl) {
@@ -1354,18 +1443,14 @@ public class IRBuilder implements ASTvisitor{
                     var_store_or_not = true;
                     x.exprNode.accept(this);
                     ////////////
-                    if(var_store_or_not) {
-                        if (returnentity instanceof register) {
-                            type_transfer(returnentity, irtype);
-                        }
-                        currentblock.push_back(new store(returnentity, reg, irtype));
-                    }
+                   if(returnentity instanceof register)type_transfer(returnentity,irtype);
+                   currentblock.push_back(new store(returnentity,reg,irtype));
                 }
-                if(it.type.Type_name == Type_kind.CLASS){
-                    hanshudiaoyong cur_func_call = new hanshudiaoyong(it.type.name,new irvoidtype());
-                    cur_func_call.parameters.add(reg);
-                    currentblock.push_back(cur_func_call);
-                }
+//                if(it.type.Type_name == Type_kind.CLASS){
+//                    hanshudiaoyong cur_func_call = new hanshudiaoyong(it.type.name,new irvoidtype());
+//                    cur_func_call.parameters.add(reg);
+//                    currentblock.push_back(cur_func_call);
+//                }
             });
         } else {//global
             it.varDefSentenceNodes.forEach(x -> {
@@ -1469,7 +1554,7 @@ public class IRBuilder implements ASTvisitor{
         label true_label = new label(curfunction.register_id++);
         block true_block = new block(Integer.toString(curfunction.register_id - 1));
         curfunction.blocks.add(true_block);
-
+        entity i1entity = returnentity;
         //curfunction.blocks.add();
 
         currentblock = true_block;
@@ -1501,7 +1586,7 @@ public class IRBuilder implements ASTvisitor{
                 x.push_back(new branch(condition_label));
             }
         });
-        branch true_branch = new branch(true_label,false_label,returnentity);
+        branch true_branch = new branch(true_label,false_label,i1entity);
         condition_block_.push_back(true_branch);
 
         //true_block.push_back(new branch(condition_label));

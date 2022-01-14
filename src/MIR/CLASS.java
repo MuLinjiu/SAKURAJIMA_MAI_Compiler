@@ -7,6 +7,7 @@ public class CLASS extends IRTYPE{
     public ArrayList<IRTYPE>class_irtypes = new ArrayList<>();
     public CLASS(String calss_name_){
         class_name = calss_name_;
+        this.size = 0;
     }
 
     @Override

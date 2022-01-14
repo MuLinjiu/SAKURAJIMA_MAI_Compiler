@@ -15,12 +15,21 @@ public class hanshudiaoyong extends statement{
         function_name = new String();
     }
 
+    public hanshudiaoyong(String functionname){
+        super();
+        function_name = functionname;
+        void_or_not = true;
+        rettype = new irvoidtype();
+
+    }
+
     public hanshudiaoyong (String functionname_, IRTYPE rettype_) {
         super () ;
         function_name = functionname_;
         void_or_not = true;
         rettype =  rettype_;
     }
+
     public hanshudiaoyong (String functionname_, IRTYPE rettype_, register destreg_) {
         super () ;
         function_name = functionname_;
@@ -31,7 +40,7 @@ public class hanshudiaoyong extends statement{
 
     @Override
     public String toString(){
-        String str = new String();
+        String str;
         if(void_or_not){
             str = "call void @" + function_name + "(";
         }else {

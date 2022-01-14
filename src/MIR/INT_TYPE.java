@@ -5,6 +5,7 @@ public class INT_TYPE extends IRTYPE{
     public INT_TYPE(int width_){//bool = int 8
         super();
         width = width_;
+        this.size = width_ / 8;
     }
 
     @Override

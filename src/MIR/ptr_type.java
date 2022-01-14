@@ -6,6 +6,7 @@ public class ptr_type extends IRTYPE{
     public ptr_type(IRTYPE irtype_){
         super();
         irtype = irtype_;
+        this.size = 8;
     }
 
     @Override
