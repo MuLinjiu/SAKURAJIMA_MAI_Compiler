@@ -252,16 +252,33 @@ public class IRBuilder implements ASTvisitor{
         for(int i = 0 ; i < dim ; i++){
             cur_ir_type = new ptr_type(cur_ir_type);
         }
-        entity arraysize = entities.get(cur);
+        entity arraysizeentity = entities.get(cur);
+        entity arraysize = arraysizeentity;
+        if(!(arraysizeentity instanceof constant)){
+            arraysize = new register(curfunction.register_id++, new INT_TYPE(64));
+            currentblock.push_back(new zext(arraysizeentity.type,arraysize.type,arraysizeentity,arraysize));
+        }
         int singlesize = ((ptr_type)cur_ir_type).irtype.size;
         register mallocsize = new register(curfunction.register_id++, new INT_TYPE(64));
         currentblock.push_back(new binary(mallocsize.type,arraysize,new constant(singlesize,new INT_TYPE(64)),mallocsize, binary.opType.mul));
+        register mallocsize_4 = new register(curfunction.register_id++, new INT_TYPE(64));
+        currentblock.push_back(new binary(mallocsize_4.type,mallocsize,new constant(4,new INT_TYPE(64)),mallocsize_4, binary.opType.add));
+
         register mallocptr = new register(curfunction.register_id++, new ptr_type(new INT_TYPE(8)));
         hanshudiaoyong malloc_call = new hanshudiaoyong("malloc",mallocptr.type,mallocptr);
-        malloc_call.parameters.add(mallocsize);
+        malloc_call.parameters.add(mallocsize_4);
         currentblock.push_back(malloc_call);
+
+        register mallocptr32 = new register(curfunction.register_id++, new ptr_type(new INT_TYPE(32)));
+        currentblock.push_back(new bitcast(mallocptr,mallocptr32,mallocptr32.type));
+        currentblock.push_back(new store(arraysizeentity,mallocptr32,arraysizeentity.type));
+        register array_headptr = new register(curfunction.register_id++, mallocptr32.type);
+        getelement offset = new getelement(mallocptr32,array_headptr);
+        offset.values.add(new constant(1,new INT_TYPE(32)));
+        currentblock.push_back(offset);
+
         register curarrayptr = new register(curfunction.register_id++, cur_ir_type);
-        currentblock.push_back(new bitcast(mallocptr,curarrayptr,curarrayptr.type));
+        currentblock.push_back(new bitcast(array_headptr,curarrayptr,curarrayptr.type));
         if(dim == 1)return curarrayptr;
 
         register loopvar = new register(curfunction.register_id++, new ptr_type(new INT_TYPE(32)));
@@ -329,13 +346,13 @@ public class IRBuilder implements ASTvisitor{
             }
             returnentity = retreg;
         }else{
-//            if(from.type instanceof NULL_PTR || from.type.equals(totype)){
-//                returnentity = from;
-//            }else {
-//                register retreg = new register(curfunction.register_id++,totype);
-//                currentblock.push_back(new bitcast((register) from,retreg,totype));
-//                returnentity = retreg;
-//            }
+            if(from.type instanceof NULL_PTR || from.type.equals(totype)){
+                returnentity = from;
+            }else {
+                register retreg = new register(curfunction.register_id++,totype);
+                currentblock.push_back(new bitcast((register) from,retreg,totype));
+                returnentity = retreg;
+            }
         }
     }
 
@@ -511,7 +528,12 @@ public class IRBuilder implements ASTvisitor{
         } else if(it.opt == BasicExprNode.option.THIS){
             returnentity = curclass;
         }else if(it.opt == BasicExprNode.option.STRING){//left
-            global_string_constant curstr = new global_string_constant(it.contex.substring(1,it.contex.length() - 1));
+            String str = it.contex.substring(1,it.contex.length() - 1);
+            str = str .replace("\\\\","\\");
+            str = str .replace("\\n","\n");
+            str = str .replace("\\\"","\"");
+            str += "\0";
+            global_string_constant curstr = new global_string_constant(str);
             global_def.global_def_stmts.add(curstr);
             returnentity = curstr.reg;
         }else {
@@ -618,46 +640,50 @@ public class IRBuilder implements ASTvisitor{
                 curfunction.register_id++;
                 returnentity = new register(curfunction.register_id - 1,new INT_TYPE(1));
             } else if(lhs_type.Type_name == Type_kind.STRING){
+                type_transfer(left,new ptr_type(new INT_TYPE(8)));
+                register lstring = (register) returnentity;
+                type_transfer(right,new ptr_type(new INT_TYPE(8)));
+                register rstring = (register) returnentity;
                 if(it.sign == BinaryExprNode.binarysign.EQUAL){
                     register res = new register(curfunction.register_id++, new INT_TYPE(1));
                     hanshudiaoyong func = new hanshudiaoyong("string_equal",res.type,res);
-                    func.parameters.add(left);
-                    func.parameters.add(right);
+                    func.parameters.add(lstring);
+                    func.parameters.add(rstring);
                     currentblock.push_back(func);
                     returnentity = res;
                 }else if(it.sign == BinaryExprNode.binarysign.NOT_EQUAL){
                     register res = new register(curfunction.register_id++, new INT_TYPE(1));
                     hanshudiaoyong func = new hanshudiaoyong("string_not_Equal",res.type,res);
-                    func.parameters.add(left);
-                    func.parameters.add(right);
+                    func.parameters.add(lstring);
+                    func.parameters.add(rstring);
                     currentblock.push_back(func);
                     returnentity = res;
                 }else if(it.sign == BinaryExprNode.binarysign.LESS){
                     register res = new register(curfunction.register_id++, new INT_TYPE(1));
                     hanshudiaoyong func = new hanshudiaoyong("string_less",res.type,res);
-                    func.parameters.add(left);
-                    func.parameters.add(right);
+                    func.parameters.add(lstring);
+                    func.parameters.add(rstring);
                     currentblock.push_back(func);
                     returnentity = res;
                 }else if(it.sign == BinaryExprNode.binarysign.LESS_E){
                     register res = new register(curfunction.register_id++, new INT_TYPE(1));
                     hanshudiaoyong func = new hanshudiaoyong("string_lessEqual",res.type,res);
-                    func.parameters.add(left);
-                    func.parameters.add(right);
+                    func.parameters.add(lstring);
+                    func.parameters.add(rstring);
                     currentblock.push_back(func);
                     returnentity = res;
                 }else if(it.sign == BinaryExprNode.binarysign.GREATER){
                     register res = new register(curfunction.register_id++, new INT_TYPE(1));
                     hanshudiaoyong func = new hanshudiaoyong("string_greater",res.type,res);
-                    func.parameters.add(left);
-                    func.parameters.add(right);
+                    func.parameters.add(lstring);
+                    func.parameters.add(rstring);
                     currentblock.push_back(func);
                     returnentity = res;
                 }else if(it.sign == BinaryExprNode.binarysign.GREATER_E){
                     register res = new register(curfunction.register_id++, new INT_TYPE(1));
                     hanshudiaoyong func = new hanshudiaoyong("string_greaterEqual",res.type,res);
-                    func.parameters.add(left);
-                    func.parameters.add(right);
+                    func.parameters.add(lstring);
+                    func.parameters.add(rstring);
                     currentblock.push_back(func);
                     returnentity = res;
                 }
@@ -676,8 +702,14 @@ public class IRBuilder implements ASTvisitor{
                 curfunction.register_id++;
                 returnentity = new register(curfunction.register_id - 1,type_to_irtype(lhs_type));
             }else if(lhs_type.Type_name == Type_kind.STRING && it.sign == BinaryExprNode.binarysign.ADD){
+                type_transfer(left,new ptr_type(new INT_TYPE(8)));
+                register lstring = (register) returnentity;
+                type_transfer(right,new ptr_type(new INT_TYPE(8)));
+                register rstring = (register) returnentity;
                 register res = new register(curfunction.register_id++, new ptr_type(new INT_TYPE(8)));
                 hanshudiaoyong string_add = new hanshudiaoyong("string_add",res.type,res);
+                string_add.parameters.add(lstring);
+                string_add.parameters.add(rstring);
                 currentblock.push_back(string_add);
                 returnentity = res;
             }
@@ -690,6 +722,7 @@ public class IRBuilder implements ASTvisitor{
             it.rhs.accept(this);
             Type rhs_type = it.rhs.type;
             entity right = returnentity;
+            if(lhs_type.dims > 0)left.type = new ptr_type(right.type);
             if(right instanceof register){
                 //register reg = new register(curfunction.register_id++,type_to_irtype(lhs_type));
                 type_transfer(right,((ptr_type)left.type).irtype);
@@ -705,9 +738,11 @@ public class IRBuilder implements ASTvisitor{
 
             label outlabel = new label((curfunction.register_id - 1) + "AND_AND_OUT");
             block outblock = new block(outlabel.label_name);
+            if(returnentity instanceof register)type_transfer(returnentity,new INT_TYPE(1));
             currentblock.push_back(new branch(truelabel,outlabel,returnentity));
             currentblock = trueblock;
             it.rhs.accept(this);
+            if(returnentity instanceof register)type_transfer(returnentity,new INT_TYPE(1));
             currentblock.push_back(new branch(outlabel));
             currentblock = outblock;
 
@@ -731,10 +766,11 @@ public class IRBuilder implements ASTvisitor{
             label falselabel = new label((curfunction.register_id - 1) + "OR_OR_FALSE");
             block falseblock = new block(falselabel.label_name);
 
-
+            if(returnentity instanceof register)type_transfer(returnentity,new INT_TYPE(1));
             currentblock.push_back(new branch(outlabel,falselabel,returnentity));
             currentblock = falseblock;
             it.rhs.accept(this);
+            if(returnentity instanceof register)type_transfer(returnentity,new INT_TYPE(1));
             currentblock.push_back(new branch(outlabel));
             currentblock = outblock;
 
@@ -778,7 +814,11 @@ public class IRBuilder implements ASTvisitor{
                 curclass = null;
                 cur_class_irtype = null;
             } else if(lefttype.dims > 0){
-                if(cur_function_call != null)cur_function_call.parameters.add(left);
+                if(cur_function_call != null) {
+                    register classload = new register(curfunction.register_id++, ((ptr_type)left.type).irtype);
+                    currentblock.push_back(new load(classload.type,left,classload));
+                    cur_function_call.parameters.add(classload);
+                }
                 globalScope Gscope_ = gScope;
                 Scope curscope_ = currentScope;
                 gScope = (globalScope) gScope.getscopefromclass(it.pos, "_ARRAY");
@@ -788,9 +828,7 @@ public class IRBuilder implements ASTvisitor{
                 currentScope = curscope_;
             }else if(lefttype.Type_name == Type_kind.STRING){
                 if(cur_function_call != null){
-                    register lv = new register(curfunction.register_id++,((ptr_type)left.type).irtype);
-                    currentblock.push_back(new load(lv.type,left,lv));
-                    cur_function_call.parameters.add(lv);
+                    cur_function_call.parameters.add(left);
                 }
                 globalScope Gscope_ = gScope;
                 Scope curscope_ = currentScope;
@@ -940,6 +978,7 @@ public class IRBuilder implements ASTvisitor{
 
         curfunction.blocks.add(for_end_block);
         block for_end_block_ = for_end_block;
+
         if(it.exprNode != null){
             currentblock = for_end_block;
             it.exprNode.accept(this);
@@ -973,7 +1012,7 @@ public class IRBuilder implements ASTvisitor{
             if(x.flow_type == block.Flow_Type.BREAK){
                 x.push_back(new branch(for_out_label));
             }else if(x.flow_type == block.Flow_Type.CONTINUE){
-                x.push_back(new branch(for_contains_label));
+                x.push_back(new branch(for_end_label));
             }
         });
         currentScope = currentScope.parentScope();// zuihou
@@ -1051,14 +1090,16 @@ public class IRBuilder implements ASTvisitor{
 //retuen mei
         it.suiteNode.accept(this);
 
+        currentblock.push_back(new branch(new label(curfunction.returnblock.Identifier)));
+
         currentScope = currentScope.parentScope();
 
             return_collector.forEach(x -> {
-                x.push_back(new branch(new label(Integer.parseInt(currentblock.Identifier))));
+                x.push_back(new branch(new label(curfunction.returnblock.Identifier)));
             });
         if(!it.fucTypeNode.void_or_not) {
             register r = new register(curfunction.register_id++, curfunction.ret_.irtype);
-            currentblock.push_back(new load(curfunction.ret_.irtype, new register(id, new ptr_type(curfunction.ret_.irtype)), r));
+            curfunction.returnblock.push_back(new load(curfunction.ret_.irtype, new register(id, new ptr_type(curfunction.ret_.irtype)), r));
             curfunction.ret_ = new ret(r, curfunction.ret_.irtype);
             return_collector = return_collector_origin;
         }else{
@@ -1092,10 +1133,23 @@ public class IRBuilder implements ASTvisitor{
         it.expr.accept(this);
         isfunction_id = isfunction_id_;
         it.sen_list.accept(this);
-        register destreg = new register(curfunction.register_id++, cur_function_call.rettype);
-        cur_function_call.dest_reg = destreg;
-        currentblock.push_back(cur_function_call);
-        returnentity = destreg;
+        if(Objects.equals(cur_function_call.function_name, "size")){
+            register arr_reg = (register) cur_function_call.parameters.get(0);
+            register headptr = new register(curfunction.register_id++, new ptr_type(new INT_TYPE(32)));
+            currentblock.push_back(new bitcast(arr_reg,headptr, headptr.type));
+            register size_ptr = new register(curfunction.register_id++, new ptr_type(new INT_TYPE(32)));
+            getelement offset = new getelement(headptr,size_ptr);
+            offset.values.add(new constant(-1,new INT_TYPE(8)));
+            currentblock.push_back(offset);
+            register sizevalue = new register(curfunction.register_id++, new INT_TYPE(32));
+            currentblock.push_back(new load(sizevalue.type,size_ptr,sizevalue));
+            returnentity = sizevalue;
+        }else {
+            register destreg = new register(curfunction.register_id++, cur_function_call.rettype);
+            cur_function_call.dest_reg = destreg;
+            currentblock.push_back(cur_function_call);
+            returnentity = destreg;
+        }
         cur_function_call = function_call__;
         curfunction_call_parameters = parameters_;
     }
@@ -1113,7 +1167,7 @@ public class IRBuilder implements ASTvisitor{
 
         label true_label = new label(curfunction.register_id++);
         if(it.elseStmtNode != null) {// if else
-
+            entity returnentity_expr = returnentity;
             block true_block = new block(Integer.toString(curfunction.register_id - 1));
             curfunction.blocks.add(true_block);
 
@@ -1136,7 +1190,7 @@ public class IRBuilder implements ASTvisitor{
             block false_block_ = currentblock;
             currentScope = currentScope.parentScope();
             //label outif = new label(curfunction.register_id++);
-            branch branch_ = new branch(true_label,false_label,returnentity);//dizhi
+            branch branch_ = new branch(true_label,false_label,returnentity_expr);//dizhi
 
             ori_current_block.push_back(branch_);
 
@@ -1166,7 +1220,8 @@ public class IRBuilder implements ASTvisitor{
             currentblock = outif_block;
 
         }else{
-            block ori_current_block = currentblock;
+            block ori_current_block = currentblock;//expr 的 block
+            entity returnentity_expr = returnentity;
             block true_block = new block(Integer.toString(curfunction.register_id - 1));
             curfunction.blocks.add(true_block);
 
@@ -1182,7 +1237,7 @@ public class IRBuilder implements ASTvisitor{
             block false_block = new block(Integer.toString(curfunction.register_id - 1));
             curfunction.blocks.add(false_block);
 
-            branch branch_ = new branch(true_label,false_label,returnentity);//dizhi
+            branch branch_ = new branch(true_label,false_label,returnentity_expr);//dizhi
 //            true_block.push_back(branch_);
 //            false_block.push_back(branch_);
             ori_current_block.push_back(branch_);
@@ -1384,27 +1439,27 @@ public class IRBuilder implements ASTvisitor{
             it.expr.accept(this);
         }else if(it.sign == UnaryExprNode.unarysign.MINUS){
             it.expr.accept(this);
-            entity ret = new register(curfunction.register_id++,((register)returnentity).type);
-            currentblock.push_back(new binary((returnentity).type,new constant(0, constant.constant_op.INT,new INT_TYPE(32)),returnentity,ret, binary.opType.sub));
+            entity ret = new register(curfunction.register_id++,new INT_TYPE(32));
+            currentblock.push_back(new binary(new INT_TYPE(32),new constant(0, constant.constant_op.INT,new INT_TYPE(32)),returnentity,ret, binary.opType.sub));
             returnentity = ret;
         }else if(it.sign == UnaryExprNode.unarysign.NOT){
             it.expr.accept(this);
             //类型转换
 
             if(returnentity instanceof register){
-                entity newentity = new register(curfunction.register_id++, new INT_TYPE(1));
+                entity newentity = new register(curfunction.register_id++, new INT_TYPE(32));
 
                 type_transfer(returnentity,newentity.type);
                 returnentity = newentity;
             }
 
-            entity ret = new register(curfunction.register_id++,((register)returnentity).type);
-            currentblock.push_back(new binary((returnentity).type,new constant(1, constant.constant_op.BOOLi1,new INT_TYPE(1)),returnentity,ret, binary.opType.xor));
+            entity ret = new register(curfunction.register_id++,new INT_TYPE(32));
+            currentblock.push_back(new binary(new INT_TYPE(32),new constant(1, constant.constant_op.BOOLi1,new INT_TYPE(1)),returnentity,ret, binary.opType.xor));
             returnentity = ret;
         }else {//FAN
             it.expr.accept(this);
-            entity ret = new register(curfunction.register_id++,((register)returnentity).type);
-            currentblock.push_back(new binary(((register)returnentity).type,new constant(-1, constant.constant_op.INT,new INT_TYPE(32)),returnentity,ret, binary.opType.xor));
+            entity ret = new register(curfunction.register_id++,new INT_TYPE(1));
+            currentblock.push_back(new binary(new INT_TYPE(32),new constant(-1, constant.constant_op.INT,new INT_TYPE(32)),returnentity,ret, binary.opType.xor));
             returnentity = ret;
         }
         
@@ -1415,14 +1470,6 @@ public class IRBuilder implements ASTvisitor{
         it.typeNode.accept(this);
         Type ret = it.type;
         IRTYPE irtype = type_to_irtype(ret);
-//        if(ret.Type_name == Type_kind.INT){
-//            irtype = new INT_TYPE(32);
-//        }else if(ret.Type_name == Type_kind.BOOL){
-//            irtype = new INT_TYPE(8);
-//        }
-//        else {//continue
-//            irtype = new INT_TYPE(13);
-//        }
         // TODO Auto-generated method stub
         if(isclassdef){
             it.varDefSentenceNodes.forEach(x -> {
@@ -1443,8 +1490,9 @@ public class IRBuilder implements ASTvisitor{
                     var_store_or_not = true;
                     x.exprNode.accept(this);
                     ////////////
-                   if(returnentity instanceof register)type_transfer(returnentity,irtype);
-                   currentblock.push_back(new store(returnentity,reg,irtype));
+                    if(ret.dims > 0)reg.type = new ptr_type(returnentity.type);
+                    if(returnentity instanceof register)type_transfer(returnentity,irtype);
+                    currentblock.push_back(new store(returnentity,reg,irtype));
                 }
 //                if(it.type.Type_name == Type_kind.CLASS){
 //                    hanshudiaoyong cur_func_call = new hanshudiaoyong(it.type.name,new irvoidtype());
@@ -1501,6 +1549,7 @@ public class IRBuilder implements ASTvisitor{
                     curfunction = main_func;
                     currentblock = main_func.rootblock;
                     x.exprNode.accept(this);
+                    if(ret.dims > 0)reg.type = new ptr_type(returnentity.type);
                     if(returnentity instanceof constant){
                         global_def.global_def_stmts.add(new global_def_stmt(reg,(constant) returnentity));
                     }else {

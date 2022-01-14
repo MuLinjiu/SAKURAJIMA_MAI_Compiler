@@ -15,7 +15,7 @@ public class store extends statement{
 
     @Override
     public String toString(){
-        return "store " + from.type + " " + from + ", " + to.type + " " + to;
+        return "store " + ((ptr_type)to.type).irtype + " " + from + ", " + to.type + " " + to;
     }
 
 }

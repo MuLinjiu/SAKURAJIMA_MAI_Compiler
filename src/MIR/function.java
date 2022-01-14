@@ -10,6 +10,7 @@ public class function {
     public ArrayList<block>blocks = new ArrayList<>();
     public int register_id;
     public ret ret_;
+    public block returnblock;
     public IRTYPE returntype;//buitlin yong
     public ArrayList<register>parameter_list = new ArrayList<>();
     public ArrayList<String> parameterid = new ArrayList<>();
@@ -17,6 +18,7 @@ public class function {
     public function(String name){
         identifier = name;
         rootblock = new block(name);
+        returnblock = new block(name + "return_block");
         //alloca_block = new block(name)
         //blocks.add(rootblock);
         register_id = 1;
@@ -51,7 +53,7 @@ public class function {
                 x.print();
                 System.out.println();
             });
-
+            if(returnblock != null)returnblock.print();
             System.out.println(ret_.toString());
             System.out.println("}");
         }

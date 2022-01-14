@@ -6,8 +6,10 @@ public class global_string_constant extends statement{
     public String string_constant;
 
     public global_string_constant(String str){
-        reg = new register(".str." + (stringId++),new ptr_type(new arrptr_type(str.length() + 1,new INT_TYPE(8))),true);
-        string_constant = str + "\\00";
+
+
+        reg = new register(".str." + (stringId++),new ptr_type(new arrptr_type(str.length(),new INT_TYPE(8))),true);
+        string_constant = str.replace("\\","\\5C").replace("\n","\\0A").replace("\"","\\22").replace("\0","\\00");
     }
 
     @Override

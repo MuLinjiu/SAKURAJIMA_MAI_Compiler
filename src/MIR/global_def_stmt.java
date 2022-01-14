@@ -6,7 +6,7 @@ public class global_def_stmt extends statement{
 
     public global_def_stmt(register global_register_){
         global_register = global_register_;
-        initconstant = new constant(0,global_register_.type);
+        initconstant = new constant(0,((ptr_type)global_register_.type).irtype);
     }
 
     public global_def_stmt(register global_register_, constant initconstant_){
