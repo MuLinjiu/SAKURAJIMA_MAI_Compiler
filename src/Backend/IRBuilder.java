@@ -587,27 +587,39 @@ public class IRBuilder implements ASTvisitor{
                         }else{
                             returnentity = var_entity;
                         }
-                    }else{
+                    }else {
 //                        register retreg = new register(curfunction.register_id++, new ptr_type(type_to_irtype(gScope.getType(it.pos,it.contex,true))));
 //                        getelement cur = new getelement(curclass,retreg);
 
-                        register classreg = new register(curfunction.register_id++,((ptr_type)curclass.type).irtype);
-                        currentblock.push_back(new load(classreg.type,curclass,classreg));
-                        register retreg_ptr = new register(curfunction.register_id++, new ptr_type(type_to_irtype(gScope.getType(it.pos,it.contex,true))));
-                        getelement cur = new getelement(classreg,retreg_ptr);
+                        entity varentity = currentScope.getEntity(it.contex, true);
+                        if (varentity != null) {
+                            IRTYPE irtype = ((ptr_type) varentity.type).irtype;
+                            if (need_copy || ifarray) {
+                                returnentity = new register(curfunction.register_id, irtype);
+                                currentblock.push_back(new load(irtype, varentity, new register(curfunction.register_id++, irtype)));
+                            } else {
+                                returnentity = varentity;
+                            }
+                        } else {
 
-                        cur.values.add(new constant(0,new INT_TYPE(32)));
-                        cur.values.add(new constant(reg_id,new INT_TYPE(32)));
+                            register classreg = new register(curfunction.register_id++, ((ptr_type) curclass.type).irtype);
+                            currentblock.push_back(new load(classreg.type, curclass, classreg));
+                            register retreg_ptr = new register(curfunction.register_id++, new ptr_type(type_to_irtype(currentScope.getType(it.pos, it.contex, true))));
+                            getelement cur = new getelement(classreg, retreg_ptr);
+
+                            cur.values.add(new constant(0, new INT_TYPE(32)));
+                            cur.values.add(new constant(reg_id, new INT_TYPE(32)));
 //                        register class_reg = new register(curfunction.register_id++,cur_class_irtype);
 //                        currentblock.push_back(new getelement(curclass,class_reg,new constant(0,new INT_TYPE(32))));
 //                        register ret_reg = new register(curfunction.register_id++, gScope.getEntity(it.contex,true).type);
 //                        currentblock.push_back(new getelement(class_reg,ret_reg,new constant(reg_id,new INT_TYPE(32))));
-                        currentblock.push_back(cur);
-                        if(need_copy || ifarray){
-                            register retirnreg = new register(curfunction.register_id++, ((ptr_type)retreg_ptr.type).irtype);
-                            currentblock.push_back(new load(retirnreg.type,retreg_ptr,retirnreg));
-                            returnentity = retirnreg;
-                        }else returnentity = retreg_ptr;
+                            currentblock.push_back(cur);
+                            if (need_copy || ifarray) {
+                                register retirnreg = new register(curfunction.register_id++, ((ptr_type) retreg_ptr.type).irtype);
+                                currentblock.push_back(new load(retirnreg.type, retreg_ptr, retirnreg));
+                                returnentity = retirnreg;
+                            } else returnentity = retreg_ptr;
+                        }
                     }
                 }
             }
@@ -828,7 +840,13 @@ public class IRBuilder implements ASTvisitor{
                 currentScope = curscope_;
             }else if(lefttype.Type_name == Type_kind.STRING){
                 if(cur_function_call != null){
-                    cur_function_call.parameters.add(left);
+                    if(((ptr_type)left.type).irtype instanceof INT_TYPE)
+                        cur_function_call.parameters.add(left);
+                    else{
+                        register lv = new register(curfunction.register_id++, ((ptr_type)left.type).irtype);
+                        currentblock.push_back(new load(lv.type,left,lv));
+                        cur_function_call.parameters.add(lv);
+                    }
                 }
                 globalScope Gscope_ = gScope;
                 Scope curscope_ = currentScope;
@@ -950,7 +968,7 @@ public class IRBuilder implements ASTvisitor{
 
 
         currentScope = new Scope(currentScope);//
-        it.forstartNode.accept(this);//init
+        if(it.forstartNode != null)it.forstartNode.accept(this);//init
         //currentScope = currentScope.parentScope();放最后
 
         label for_condition_label = new label(curfunction.register_id++);
@@ -961,7 +979,7 @@ public class IRBuilder implements ASTvisitor{
 
         currentblock = for_condition_block;
         curfunction.blocks.add(for_condition_block);
-        it.forfinishNode.accept(this);
+        if(it.forfinishNode!=null)it.forfinishNode.accept(this);
         block for_condition_block_ = currentblock;
         entity conditon_entity = returnentity;
 
@@ -987,8 +1005,8 @@ public class IRBuilder implements ASTvisitor{
 
         label for_out_label = new label(curfunction.register_id++);
         block for_out_block = new block(Integer.toString(curfunction.register_id - 1));
-
-        for_condition_block_.push_back(new branch(for_contains_label,for_out_label,conditon_entity));
+        if(it.forfinishNode==null) for_condition_block_.push_back(new branch(for_contains_label));
+        else for_condition_block_.push_back(new branch(for_contains_label,for_out_label,conditon_entity));
 //        curfunction.blocks.add(for_condition_block);
 
         if(for_condition_block_.flow_type == null){
@@ -1043,14 +1061,14 @@ public class IRBuilder implements ASTvisitor{
                 func.ret_ = new ret();
             } else {// 非 void
                 it.fucTypeNode.typeNode.accept(this);
-                IRTYPE irtype;
-                if (((constant) returnentity).op == constant.constant_op.INT) {
-                    irtype = new INT_TYPE(32);
-                } else if (((constant) returnentity).op == constant.constant_op.BOOLi1) {
-                    irtype = new INT_TYPE(1);
-                } else {
-                    irtype = new INT_TYPE(32);//初始化而已，string class等要改
-                }
+                IRTYPE irtype = type_to_irtype(it.fucTypeNode.typeNode.type);
+//                if (((constant) returnentity).op == constant.constant_op.INT) {
+//                    irtype = new INT_TYPE(32);
+//                } else if (((constant) returnentity).op == constant.constant_op.BOOLi1) {
+//                    irtype = new INT_TYPE(1);
+//                } else {
+//                    irtype = new INT_TYPE(32);//初始化而已，string class等要改
+//                }
 //                if(curclass != null){
 //                    irtype = curclass.type;////////
 //                }
@@ -1353,14 +1371,14 @@ public class IRBuilder implements ASTvisitor{
         if(it.sign == PrePLUSMINUSExpr.presign.MINUS_MINUS){//--a
             register tmpreg = new register(curfunction.register_id++, new INT_TYPE(32));//a = a - 1, a - 1暂存的reg
             currentblock.push_back(new binary(varcopy.type,varcopy,new constant(-1, constant.constant_op.INT,new INT_TYPE(32)),tmpreg, binary.opType.add));
-            entity e = currentScope.getEntity(((BasicExprNode)it.rhs).contex,true);
-            currentblock.push_back(new store(tmpreg,e,varcopy.type));
+            //entity e = currentScope.getEntity(((BasicExprNode)it.rhs).contex,true);
+            currentblock.push_back(new store(tmpreg,returnentity,varcopy.type));
             returnentity = tmpreg;
         }else{//++a
             register tmpreg = new register(curfunction.register_id++, new INT_TYPE(32));//a = a - 1, a - 1暂存的reg
             currentblock.push_back(new binary(varcopy.type,varcopy,new constant(1, constant.constant_op.INT,new INT_TYPE(32)),tmpreg, binary.opType.add));
-            entity e = currentScope.getEntity(((BasicExprNode)it.rhs).contex,true);
-            currentblock.push_back(new store(tmpreg,e,varcopy.type));
+            //entity e = currentScope.getEntity(((BasicExprNode)it.rhs).contex,true);
+            currentblock.push_back(new store(tmpreg,returnentity,varcopy.type));
             returnentity = tmpreg;
         }
         
@@ -1447,18 +1465,18 @@ public class IRBuilder implements ASTvisitor{
             //类型转换
 
             if(returnentity instanceof register){
-                entity newentity = new register(curfunction.register_id++, new INT_TYPE(32));
+                entity newentity = new register(curfunction.register_id++, new INT_TYPE(1));
 
                 type_transfer(returnentity,newentity.type);
-                returnentity = newentity;
+               // returnentity = newentity;
             }
 
-            entity ret = new register(curfunction.register_id++,new INT_TYPE(32));
-            currentblock.push_back(new binary(new INT_TYPE(32),new constant(1, constant.constant_op.BOOLi1,new INT_TYPE(1)),returnentity,ret, binary.opType.xor));
+            entity ret = new register(curfunction.register_id++,new INT_TYPE(1));
+            currentblock.push_back(new binary(new INT_TYPE(1),new constant(1, constant.constant_op.BOOLi1,new INT_TYPE(1)),returnentity,ret, binary.opType.xor));
             returnentity = ret;
         }else {//FAN
             it.expr.accept(this);
-            entity ret = new register(curfunction.register_id++,new INT_TYPE(1));
+            entity ret = new register(curfunction.register_id++,new INT_TYPE(32));
             currentblock.push_back(new binary(new INT_TYPE(32),new constant(-1, constant.constant_op.INT,new INT_TYPE(32)),returnentity,ret, binary.opType.xor));
             returnentity = ret;
         }

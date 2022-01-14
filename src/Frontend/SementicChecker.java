@@ -269,7 +269,7 @@ public class SementicChecker implements ASTvisitor {
         currentscope = new Scope(currentscope);
         if(it.forstartNode != null)it.forstartNode.accept(this);
         if(it.forfinishNode != null)it.forfinishNode.accept(this);
-        else throw new semanticError("for condition empty",it.pos);
+        //else throw new semanticError("for condition empty",it.pos);
         if(it.exprNode != null){
             it.exprNode.accept(this);
             it.exprNode.type = new Type(retType);

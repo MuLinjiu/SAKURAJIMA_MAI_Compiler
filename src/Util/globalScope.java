@@ -106,7 +106,10 @@ public class globalScope extends Scope {
 
     public IRTYPE find_ir_classtype(String name){
         if(classtype.containsKey(name))return classtype.get(name);
-        else return ((globalScope)this.parentScope()).find_ir_classtype(name);
+        else {
+            if(this.parentScope() == null)return null;
+            return ((globalScope)this.parentScope()).find_ir_classtype(name);
+        }
     }
 
     @Override

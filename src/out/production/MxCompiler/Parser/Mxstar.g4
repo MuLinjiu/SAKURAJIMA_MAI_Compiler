@@ -79,11 +79,11 @@ expression
     | <assoc=right>(SELF_PLUS | SELF_MINUS) expression   #prePLUSMINUS
     | <assoc=right> (NOT | FAN) expression               #unaryexpr
     | <assoc=right> NEW newor                            #newexpr
-    | expression STAR expression                         #binaryexpr
-    | expression DIVIDE expression                       #binaryexpr
-    | expression MOD expression                          #binaryexpr
-    | expression ADD expression                          #binaryexpr
-    | expression MINUS expression                        #binaryexpr
+//    | expression STAR expression                         #binaryexpr
+    | expression (DIVIDE | MOD | STAR) expression                       #binaryexpr
+//    | expression MOD expression                          #binaryexpr
+//    | expression ADD expression                          #binaryexpr
+    | expression (MINUS | ADD) expression                        #binaryexpr
     | expression (LEFT_SHIFT | RIGHT_SHIFT) expression   #binaryexpr
     | expression (GREATER | LESS | GREATER_E | LESS_E) expression #binaryexpr
     | expression (EQUAL | NOT_EQUAL) expression          #binaryexpr
