@@ -3,7 +3,7 @@ package MIR;
 import java.util.ArrayList;
 
 public class hanshudiaoyong extends statement{
-    public String function_name;
+    public String function_name,real_function_name;
     public IRTYPE rettype;
     public boolean void_or_not;
     public register dest_reg;

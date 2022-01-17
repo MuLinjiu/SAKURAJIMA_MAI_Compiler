@@ -31,7 +31,7 @@ public class IRBuilder implements ASTvisitor{
 
     //private IRTYPE type;
 
-    private boolean need_copy,isfunction_id,var_store_or_not;
+    private boolean need_copy,isfunction_id,var_store_or_not,hasAddFunctionName;
     public boolean ifgloabl = false,ifarray = false, isclassdef = false;
 
 //    public entity loadptr(entity ptr){
@@ -159,7 +159,7 @@ public class IRBuilder implements ASTvisitor{
         parameters = new ArrayList<>();
         newfunc = new function("ord");
         newfunc.isbuiltin = true;
-        newfunc.returntype = new INT_TYPE(8);
+        newfunc.returntype = new INT_TYPE(32);
         newfunc.parameter_list.add(new register(newfunc.register_id++, new ptr_type(new INT_TYPE(8))));
         newfunc.parameter_list.add(new register(newfunc.register_id++, new INT_TYPE(32)));
         parameters.add(new ptr_type(new INT_TYPE(8)));
@@ -295,6 +295,7 @@ public class IRBuilder implements ASTvisitor{
 
         label forourlabel = new label("my_" + (curfunction.register_id - 1) + "_for_out");
         block forour = new block(forourlabel.label_name);
+        currentblock.push_back(new branch (conditionlabel)) ;
 
         curfunction.blocks.add(condtion);
         currentblock = condtion;
@@ -427,8 +428,17 @@ public class IRBuilder implements ASTvisitor{
         }else if(type.Type_name == Type_kind.NULL){
             irtype_ = new NULL_PTR();
         }else if(type.Type_name == Type_kind.CLASS){
-            IRTYPE tmp = gScope.find_ir_classtype(type.name);
-            irtype_ = toIRArrayType(new ptr_type(tmp),type.dims);
+            IRTYPE tmp = new ptr_type(new CLASS(type.name));
+            tmp.size = 0;
+            Scope class_scope = gScope.getscopefromclass(new position(0,0),type.name);
+            for(String key : class_scope.member_id.keySet()){
+                Type curtype = class_scope.members.get(key);
+                if(curtype.Type_name == Type_kind.BOOL)tmp.size += 1;
+                else if(curtype.Type_name == Type_kind.INT && curtype.dims == 0)tmp.size += 4;
+                else tmp.size += 8;
+            }
+
+            irtype_ = toIRArrayType(tmp,type.dims);
         }else if(type.Type_name == Type_kind.STRING){
             IRTYPE tmp = new ptr_type(new INT_TYPE(8));
             irtype_ = toIRArrayType(tmp,type.dims);
@@ -489,14 +499,15 @@ public class IRBuilder implements ASTvisitor{
         if(it.sign == BackPLUSMINUSExpr.backsign.MINUS_MINUS){//--a
             register tmpreg = new register(curfunction.register_id++, new INT_TYPE(32));//a = a - 1, a - 1暂存的reg
             currentblock.push_back(new binary(varcopy.type,varcopy,new constant(-1, constant.constant_op.INT,new INT_TYPE(32)),tmpreg, binary.opType.add));
-            entity e = currentScope.getEntity(((BasicExprNode)it.lhs).contex,true);
-            currentblock.push_back(new store(tmpreg,e,varcopy.type));
+            //entity e = currentScope.getEntity(((BasicExprNode)it.rhs).contex,true);
+            currentblock.push_back(new store(tmpreg,returnentity,varcopy.type));
+
             returnentity = varcopy;
         }else{//++a
             register tmpreg = new register(curfunction.register_id++, new INT_TYPE(32));//a = a - 1, a - 1暂存的reg
             currentblock.push_back(new binary(varcopy.type,varcopy,new constant(1, constant.constant_op.INT,new INT_TYPE(32)),tmpreg, binary.opType.add));
-            entity e = currentScope.getEntity(((BasicExprNode)it.lhs).contex,true);
-            currentblock.push_back(new store(tmpreg,e,varcopy.type));
+            //entity e = currentScope.getEntity(((BasicExprNode)it.lhs).contex,true);
+            currentblock.push_back(new store(tmpreg,returnentity,varcopy.type));
             returnentity = varcopy;
         }
         
@@ -556,18 +567,30 @@ public class IRBuilder implements ASTvisitor{
                 if(isfunction_id){
                     Type func_ret_type = gScope.getretTypefromfuc(it.pos,it.contex);
                     IRTYPE irtype = type_to_irtype(func_ret_type);
-                    //hanshudiaoyong func_call;
+                    //hanshudiaoyong func_call;\\
+                    if(curclass != null && !hasAddFunctionName && gScope.getfunction_in_class(it.pos,it.contex)){
+                        cur_function_call.function_name += "class" + cur_class_irtype.class_name + "_";
+                        register classvalue = new register(curfunction.register_id++, ((ptr_type)curclass.type).irtype);
+                        currentblock.push_back(new load(classvalue.type,curclass,classvalue));
+                        cur_function_call.parameters.add(classvalue);
+                    }
                     if(func_ret_type.Type_name == Type_kind.VOID){
                         //func_call = new hanshudiaoyong(it.contex,irtype);
+                        cur_function_call.real_function_name = it.contex;
                         cur_function_call.function_name += it.contex;
                         cur_function_call.void_or_not = true;
                     }else{
                         //func_call = new hanshudiaoyong(it.contex,irtype,null);
+                        cur_function_call.real_function_name = it.contex;
                         cur_function_call.function_name += it.contex;
                         cur_function_call.rettype = irtype;
                     }
-                    curfunction_call_parameters = gScope.getirparameterlistfromfuc(it.pos, cur_function_call.function_name);
-                   //cur_function_call = func_call;
+                    ArrayList<Type> parameterslist = gScope.getparameterlistfromfuc(it.pos,cur_function_call.real_function_name);
+                    curfunction_call_parameters = new ArrayList<>();
+                    for (Type type : parameterslist) {
+                        curfunction_call_parameters.add(type_to_irtype(type));
+                    }
+                     //cur_function_call = func_call;
                 }else{
 //                    entity var_entity = currentScope.getEntity(it.contex,true);
 //                    IRTYPE irtype = var_entity.type;
@@ -592,7 +615,7 @@ public class IRBuilder implements ASTvisitor{
 //                        getelement cur = new getelement(curclass,retreg);
 
                         entity varentity = currentScope.getEntity(it.contex, true);
-                        if (varentity != null) {
+                        if (reg_id == null) {
                             IRTYPE irtype = ((ptr_type) varentity.type).irtype;
                             if (need_copy || ifarray) {
                                 returnentity = new register(curfunction.register_id, irtype);
@@ -734,13 +757,13 @@ public class IRBuilder implements ASTvisitor{
             it.rhs.accept(this);
             Type rhs_type = it.rhs.type;
             entity right = returnentity;
-            if(lhs_type.dims > 0)left.type = new ptr_type(right.type);
+            //if(lhs_type.dims > 0)left.type = new ptr_type(right.type);
             if(right instanceof register){
                 //register reg = new register(curfunction.register_id++,type_to_irtype(lhs_type));
                 type_transfer(right,((ptr_type)left.type).irtype);
                 //right = reg;
             }
-            currentblock.push_back(new store(right,left,((ptr_type)left.type).irtype));
+            currentblock.push_back(new store(returnentity,left,((ptr_type)left.type).irtype));
             returnentity = right;
         } else if(it.sign == BinaryExprNode.binarysign.AND_AND){
             it.lhs.accept(this);
@@ -807,7 +830,7 @@ public class IRBuilder implements ASTvisitor{
             isfunction_id = isfunctionid_;
             Type lefttype = it.lhs.type;
             entity left = returnentity;
-            if(lefttype.Type_name == Type_kind.CLASS){
+            /*if(lefttype.Type_name == Type_kind.CLASS){
                 curclass = (register) left;
                 cur_class_irtype = (CLASS) gScope.find_ir_classtype(lefttype.name);
                 if(cur_function_call != null && isfunction_id){
@@ -825,19 +848,55 @@ public class IRBuilder implements ASTvisitor{
                 currentScope = currentscope_;
                 curclass = null;
                 cur_class_irtype = null;
-            } else if(lefttype.dims > 0){
+         }*/if(lefttype.dims > 0){
                 if(cur_function_call != null) {
                     register classload = new register(curfunction.register_id++, ((ptr_type)left.type).irtype);
                     currentblock.push_back(new load(classload.type,left,classload));
                     cur_function_call.parameters.add(classload);
                 }
+
                 globalScope Gscope_ = gScope;
                 Scope curscope_ = currentScope;
+                register curclass_ = curclass;
+                CLASS cur_class_irtype_backup = cur_class_irtype;
+                curclass = null;
+                cur_class_irtype = null;
                 gScope = (globalScope) gScope.getscopefromclass(it.pos, "_ARRAY");
                 currentScope = gScope;
                 it.rhs.accept(this);
                 gScope = Gscope_;
                 currentScope = curscope_;
+                curclass = curclass_;
+                cur_class_irtype = cur_class_irtype_backup;
+            }else if(lefttype.Type_name == Type_kind.CLASS || lefttype.Type_name == Type_kind.THIS){
+                register curclass_ = curclass;
+                CLASS cur_class_irtype_ = cur_class_irtype;
+                boolean hasaddfunctionname = hasAddFunctionName;
+                curclass = (register) left;
+                String classname;
+                if(((ptr_type)curclass.type).irtype instanceof CLASS)classname = ((CLASS)((ptr_type)curclass.type).irtype).class_name;
+                else classname = ((CLASS)((ptr_type)((ptr_type)curclass.type).irtype).irtype).class_name;
+                cur_class_irtype = new CLASS(classname);
+                if(cur_function_call != null && isfunction_id){
+                    hasAddFunctionName = true;
+                    cur_function_call.function_name += "class" + cur_class_irtype.class_name + "_";
+                    if(((ptr_type)left.type).irtype instanceof ptr_type){
+                        register classvalue = new register(curfunction.register_id++, ((ptr_type)left.type).irtype);
+                        currentblock.push_back(new load(classvalue.type,left,classvalue));
+                        cur_function_call.parameters.add(classvalue);
+                    }else {
+                        cur_function_call.parameters.add(curclass);
+                    }
+                }
+                globalScope gscope_ = gScope;
+                Scope currentscope_ = currentScope;
+                gScope = (globalScope) gScope.getscopefromclass(it.pos,classname);
+                currentScope = gScope;
+                it.rhs.accept(this);
+                gScope = gscope_;
+                currentScope = currentscope_;
+                curclass = curclass_;cur_class_irtype = cur_class_irtype_;
+                hasAddFunctionName = hasaddfunctionname;
             }else if(lefttype.Type_name == Type_kind.STRING){
                 if(cur_function_call != null){
                     if(((ptr_type)left.type).irtype instanceof INT_TYPE)
@@ -899,6 +958,22 @@ public class IRBuilder implements ASTvisitor{
         cur_class_irtype = classtype;
         it.varDef.forEach(x -> x.accept(this));
         if(it.construDefNode != null)it.construDefNode.accept(this);
+        else{
+            function constructorfunc = new function(it.name);
+            constructorfunc.ret_ = new ret();
+            curfunction = constructorfunc;
+            currentblock = curfunction.rootblock;
+            register parereg = new register(curfunction.register_id++, new ptr_type(cur_class_irtype));
+            curfunction.parameterid.add("__class_ptr");
+            curfunction.parameter_list.add(parereg);
+            register copyreg = new register(curfunction.register_id++, new ptr_type(parereg.type));
+            currentblock.push_back(new alloca(copyreg, parereg.type));
+            currentblock.push_back(new store(parereg,copyreg,copyreg.type));
+            currentblock.push_back(new branch(new label(curfunction.returnblock.Identifier)));
+            global_def.functions.add(constructorfunc);
+            curfunction = null;
+            currentblock = null;
+        }
         it.funcDef.forEach(x -> x.accept(this));
         global_def.global_def_stmts.add(new class_define_stmt(classtype));
         gScope = (globalScope) gScope.parentScope();
@@ -924,6 +999,7 @@ public class IRBuilder implements ASTvisitor{
         currentblock.push_back(new store(parareg,copyreg,copyreg.type));
         curclass = copyreg;
         it.suiteNode.accept(this);
+        currentblock.push_back(new branch(new label(curfunction.returnblock.Identifier)));
         curclass = null;
         global_def.functions.add(constructorfunc);
     }
@@ -1306,8 +1382,10 @@ public class IRBuilder implements ASTvisitor{
         // TODO Auto-generated method stub
         Type curtype = it.type;
         IRTYPE curirtype = type_to_irtype(curtype);
+        int curirtype_size = curirtype.size;
         if(it.neworsize.size() == 0){
             curirtype = ((ptr_type)curirtype).irtype;
+            curirtype.size = curirtype_size;
             register mallocreg = new register(curfunction.register_id++, new ptr_type(new INT_TYPE(8)));
             hanshudiaoyong malloccall = new hanshudiaoyong("malloc", mallocreg.type,mallocreg);
             malloccall.parameters.add(new constant(curirtype.size,new INT_TYPE(64)));
@@ -1393,8 +1471,14 @@ public class IRBuilder implements ASTvisitor{
             it.expr.accept(this);
         }
         currentblock.flow_type = block.Flow_Type.RETURN;
-        if(it.expr != null)currentblock.push_back(new store(returnentity,curfunction.ret_.reg,curfunction.ret_.irtype));
-        //return_collector.add(currentblock);
+        if(it.expr != null){
+            if(!(curfunction.ret_.irtype instanceof irvoidtype)){
+                if(returnentity instanceof register)type_transfer(returnentity,curfunction.ret_.irtype);
+                currentblock.push_back(new store(returnentity,curfunction.ret_.reg,curfunction.ret_.irtype));
+            }
+
+        }
+
         
     }
 
@@ -1403,11 +1487,14 @@ public class IRBuilder implements ASTvisitor{
         // TODO Auto-generated method stub
         if(it.exprNodes.isEmpty())return;
        int off = curfunction_call_parameters.size() - it.exprNodes.size();
+       boolean need_copy_ = need_copy;
+       need_copy = true;
        for(int i = 0 ; i < it.exprNodes.size() ; i++){
            it.exprNodes.get(i).accept(this);
            if(returnentity instanceof register)type_transfer(returnentity,curfunction_call_parameters.get(i + off));
            cur_function_call.parameters.add(returnentity);
        }
+       need_copy = need_copy_;
         
     }
 
@@ -1495,7 +1582,7 @@ public class IRBuilder implements ASTvisitor{
                 cur_class_irtype.size += irtype.size;
             });
         }
-        else if(!ifgloabl) {
+        if(!ifgloabl && curfunction != null) {
             it.varDefSentenceNodes.forEach(x -> {
                 int reg_id = curfunction.register_id;
                 register reg = new register(reg_id, new ptr_type(irtype));

@@ -7,7 +7,7 @@ import Util.error.semanticError;
 import java.util.HashMap;
 
 public class Scope {
-    private HashMap<String, Type> members;
+    public HashMap<String, Type> members;
     public HashMap<String, entity> entities = new HashMap<>();
     private Scope parentScope;
     public int num = 0;

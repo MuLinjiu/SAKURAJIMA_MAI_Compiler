@@ -85,7 +85,7 @@ public class globalScope extends Scope {
             return functionIRparameters.get(name);
         }else if(this.parentScope() != null){
             return ((globalScope)this.parentScope()).getirparameterlistfromfuc(pos, name);
-        }else throw new semanticError("Semantic Error : cannot find the function : " + name, pos);
+        }else throw new semanticError("Semantic Error1 : cannot find the function : " + name, pos);
     }
 
 
@@ -110,6 +110,11 @@ public class globalScope extends Scope {
             if(this.parentScope() == null)return null;
             return ((globalScope)this.parentScope()).find_ir_classtype(name);
         }
+    }
+
+    public boolean getfunction_in_class(position pos,String name){
+        if(fucretType.containsKey(name))return true;
+        else return false;
     }
 
     @Override
