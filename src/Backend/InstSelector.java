@@ -63,12 +63,15 @@ public class InstSelector {
 
     public void visit_Global_def(){
         for(statement stmt : global_def.global_def_stmts){
-            if(stmt instanceof global_string_constant glbal_str){
+            if(stmt instanceof global_string_constant ){
+                global_string_constant glbal_str = (global_string_constant)stmt;
                 top_module.globalDefine.add(new GlobalStringConstant(glbal_str.reg.reg_number,glbal_str.string_constant));
-            }else if(stmt instanceof global_def_stmt glbal_reg){
+            }else if(stmt instanceof global_def_stmt){
+                global_def_stmt  glbal_reg = (global_def_stmt)stmt;
                 top_module.globalDefine.add(new GlobalReg(glbal_reg.global_register.reg_number,glbal_reg.initconstant.value,glbal_reg.global_register.type.size));
                 //System.out.println(glbal_reg.global_register.reg_number);
-            }else if(stmt instanceof class_define_stmt glbal_class){
+            }else if(stmt instanceof class_define_stmt ){
+                class_define_stmt glbal_class = (class_define_stmt)stmt;
                 CLASS class_type = glbal_class.class_type;
                 String class_name = glbal_class.class_type.class_name;
 
@@ -216,14 +219,16 @@ public class InstSelector {
     }
 
     public void visit_Inst(statement cur_ir_stmt){
-        if(cur_ir_stmt instanceof alloca inst){
+        if(cur_ir_stmt instanceof alloca ){
+            alloca inst = (alloca) cur_ir_stmt;
             if(!curfunction.toreg_map.containsKey(inst.reg.reg_number)){
                 VirtReg cur = new VirtReg(curfunction.cur_reg_id++, inst.type.size);
                 curfunction.toreg_map.put(inst.reg.reg_number,cur);
                 curfunction.offset += 4;
                 curfunction.reg_offset.put(cur, curfunction.offset);
             }
-        }else if(cur_ir_stmt instanceof load curload){
+        }else if(cur_ir_stmt instanceof load ){
+            load curload = (load)cur_ir_stmt;
             entity from = curload.from, to =  curload.to;
             VirtReg rd = new VirtReg(curfunction.cur_reg_id++, to.type.size);
             if(from instanceof register && ((register) from).isglobal){
@@ -244,7 +249,8 @@ public class InstSelector {
             }
             curfunction.toreg_map.put(((register)to).reg_number,rd);
 
-        }else if(cur_ir_stmt instanceof store curstore){
+        }else if(cur_ir_stmt instanceof store ){
+            store curstore = (store)cur_ir_stmt;
             entity from = curstore.from, to = curstore.to;
             if(from == null || to == null)return;
 
@@ -268,7 +274,8 @@ public class InstSelector {
             }
             //curfunction.toreg_map.put(((register)to).reg_number,rd);
 
-        }else if(cur_ir_stmt instanceof hanshudiaoyong curfunction_call){
+        }else if(cur_ir_stmt instanceof hanshudiaoyong ){
+            hanshudiaoyong curfunction_call = (hanshudiaoyong) cur_ir_stmt;
             for(int i = 0 ; i < Integer.min(8,curfunction_call.parameters.size()); i++){
                 entity curentity = curfunction_call.parameters.get(i);
                 VirtReg rs = trans(curentity);
@@ -285,13 +292,15 @@ public class InstSelector {
                 curblock.push_back(new MvInst(rd,a0));
                 curfunction.toreg_map.put(curfunction_call.dest_reg.reg_number,rd);
             }
-        }else if(cur_ir_stmt instanceof ret curret){
+        }else if(cur_ir_stmt instanceof ret){
+            ret curret = (ret) cur_ir_stmt;
             if(curret.irtype != null){//非void
                 VirtReg rs = trans(curret.reg);
                 curblock.push_back(new MvInst(a0,rs));
             }
 
-        }else if(cur_ir_stmt instanceof branch curirbranch){
+        }else if(cur_ir_stmt instanceof branch){
+            branch  curirbranch = (branch) cur_ir_stmt;
             if(curirbranch.direct_jump){
                 curblock.push_back(new JInst(curirbranch.true_label));
             }else {
@@ -299,16 +308,21 @@ public class InstSelector {
                 curblock.push_back(new JInst(curirbranch.false_label));
             }
 
-        }else if(cur_ir_stmt instanceof trunc curtrunc){
+        }else if(cur_ir_stmt instanceof trunc){
+            trunc  curtrunc = (trunc)cur_ir_stmt;
             curfunction.toreg_map.put(((register)curtrunc.to).reg_number,trans(curtrunc.from));
-        }else if(cur_ir_stmt instanceof zext curzext){
+        }else if(cur_ir_stmt instanceof zext){
+            zext  curzext = (zext)cur_ir_stmt;
             curfunction.toreg_map.put(((register)curzext.to).reg_number,trans(curzext.from));
 
-        }else if(cur_ir_stmt instanceof bitcast curbitcast){
+        }else if(cur_ir_stmt instanceof bitcast){
+            bitcast  curbitcast = (bitcast) cur_ir_stmt;
             curfunction.toreg_map.put(((register)curbitcast.to).reg_number,trans(curbitcast.from));
-        }else if(cur_ir_stmt instanceof binary curbinarystmt){
+        }else if(cur_ir_stmt instanceof binary ){
+            binary curbinarystmt = (binary) cur_ir_stmt;
             process_binary(curbinarystmt);
-        }else if(cur_ir_stmt instanceof getelement curgetelemrnt){
+        }else if(cur_ir_stmt instanceof getelement){
+            getelement  curgetelemrnt = (getelement) cur_ir_stmt;
             register from = curgetelemrnt.from,to = curgetelemrnt.to;
             VirtReg rs = trans(from);
             VirtReg rd = new VirtReg(curfunction.cur_reg_id++, to.type.size);
@@ -327,7 +341,8 @@ public class InstSelector {
             }
             curfunction.toreg_map.put(to.reg_number,rd);
 
-        }else if(cur_ir_stmt instanceof PHI curphi){
+        }else if(cur_ir_stmt instanceof PHI){
+            PHI  curphi = (PHI)cur_ir_stmt;
             register dest = curphi.destreg;
             VirtReg rd = new VirtReg(curfunction.cur_reg_id++, dest.type.size);
             curfunction.toreg_map.put(dest.reg_number,rd);
@@ -404,7 +419,8 @@ public class InstSelector {
     }
 
     public Reg Load_VR(Inst inst, Reg reg, PhyReg phyReg){
-        if(reg instanceof VirtReg Vreg){
+        if(reg instanceof VirtReg){
+            VirtReg  Vreg = (VirtReg) reg;
             if(!curfunction.reg_offset.containsKey(Vreg)){
                 curfunction.offset += 4;
                 curfunction.reg_offset.put(Vreg, curfunction.offset);
@@ -418,7 +434,8 @@ public class InstSelector {
     }
 
     public Reg Store_VR(Inst inst, Reg reg, PhyReg phyReg){
-        if(reg instanceof VirtReg Vreg){
+        if(reg instanceof VirtReg){
+            VirtReg  Vreg = (VirtReg) reg;
             if(!curfunction.reg_offset.containsKey(Vreg)){
                 curfunction.offset += 4;
                 curfunction.reg_offset.put(Vreg, curfunction.offset);
@@ -463,28 +480,36 @@ public class InstSelector {
 
     public void reg_alloc_block(AsmBlock block){
         for(Inst inst = block.head; inst != null ; inst = inst.next){
-            if(inst instanceof LoadInst x){
+            if(inst instanceof LoadInst){
+                LoadInst x = (LoadInst)inst;
                 x.rd = Store_VR(inst,(Reg) x.rd,t1);
                 x.rs = Load_VR(inst,(Reg)x.rs,t0);
-            }else if(inst instanceof StoreInst x){
+            }else if(inst instanceof StoreInst){
+                StoreInst x = (StoreInst)inst;
                 x.rd = Load_VR(inst,(Reg)x.rd,t0);
                 x.rs = Load_VR(inst,(Reg) x.rs,t1);
                 x.rt = Load_VR(inst,(Reg) x.rt,t1);
-            }else if(inst instanceof MvInst x){
+            }else if(inst instanceof MvInst){
+                MvInst x = (MvInst)inst;
                 x.rd = Store_VR(inst,(Reg) x.rd,t1);
                 x.rs = Load_VR(inst,(Reg) x.rs,t0);
-            }else if(inst instanceof LiInst x){
+            }else if(inst instanceof LiInst){
+                LiInst x = (LiInst)inst;
                 x.rd = Store_VR(inst,(Reg) x.rd,t0);
-            }else if(inst instanceof LaInst x){
+            }else if(inst instanceof LaInst){
+                LaInst x = (LaInst)inst;
                 x.rd = Store_VR(inst,(Reg) x.rd,t0);
-            }else if(inst instanceof CalcIInst x){
+            }else if(inst instanceof CalcIInst ){
+                CalcIInst x = (CalcIInst)inst;
                 x.rs = Load_VR(inst,(Reg) x.rs,t0);
                 x.rd = Store_VR(inst,(Reg) x.rd,t1);
-            }else if(inst instanceof CalcRInst x){
+            }else if(inst instanceof CalcRInst ){
+                CalcRInst x = (CalcRInst)inst;
                 x.rs1 = Load_VR(inst,(Reg) x.rs1,t0);
                 x.rs2 = Load_VR(inst,(Reg) x.rs2,t1);
                 x.rd = Store_VR(inst,(Reg) x.rd,t2);
-            }else if(inst instanceof BranchInst x){
+            }else if(inst instanceof BranchInst){
+                BranchInst x = (BranchInst)inst;
                 x.rs = Load_VR(inst,(Reg) x.rs,t0);
             }
         }
