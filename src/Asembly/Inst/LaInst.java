@@ -13,6 +13,6 @@ public class LaInst extends Inst{
 
     @Override
     public String toString(){
-        return "\t" + "la" + "\t" + rd + " " + symbol;
+        return "\t" + "la" + "\t" + rd + ", " + symbol;
     }
 }
