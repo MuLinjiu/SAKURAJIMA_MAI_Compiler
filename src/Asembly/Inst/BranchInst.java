@@ -20,7 +20,7 @@ public class BranchInst extends Inst{
 
     @Override
     public String toString(){
-        return "\t" + Type.toString() + "\t" + rs + ", " + to_label.label_name;
+        return "\t" + Type.toString() + "\t" + rs + ", ." + to_label.label_name;
     }
 
 }

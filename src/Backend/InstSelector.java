@@ -34,6 +34,11 @@ public class InstSelector {
         visit_Global_def();
         visit_Module();
         visit_phi();
+//        try {
+//            new AsmPrinter(System.out,top_module);
+//        }catch (Exception ex){
+//
+//        }
         reg_alloc_module();
     }
     public void init_phyreg(){
@@ -62,6 +67,7 @@ public class InstSelector {
                 top_module.globalDefine.add(new GlobalStringConstant(glbal_str.reg.reg_number,glbal_str.string_constant));
             }else if(stmt instanceof global_def_stmt glbal_reg){
                 top_module.globalDefine.add(new GlobalReg(glbal_reg.global_register.reg_number,glbal_reg.initconstant.value,glbal_reg.global_register.type.size));
+                //System.out.println(glbal_reg.global_register.reg_number);
             }else if(stmt instanceof class_define_stmt glbal_class){
                 CLASS class_type = glbal_class.class_type;
                 String class_name = glbal_class.class_type.class_name;
@@ -175,21 +181,21 @@ public class InstSelector {
         if(entity_ instanceof constant){
             if(entity_.type instanceof NULL_PTR){
                 rs = new VirtReg(curfunction.cur_reg_id++, 4);
-                curblock.insert_before(new LiInst(rs,new Imm(0)),inst_);
+                curblock.insert_before(inst_,new LiInst(rs,new Imm(0)));
                 return rs;
             }else{
                 rs = new VirtReg(curfunction.cur_reg_id++, 4);
                 int v = ((constant)entity_).value;
-                curblock.insert_before(new LiInst(rs,new Imm(v)),inst_);
+                curblock.insert_before(inst_,new LiInst(rs,new Imm(v)));
                 return rs;
             }
         }else {
             register reg = (register) entity_;
-            if(reg.type instanceof NULL_PTR){
-                rs = new VirtReg(curfunction.cur_reg_id++, 4);
-                curblock.insert_before(new LiInst(rs,new Imm(0)),inst_);
-                return rs;
-            }
+//            if(reg.type instanceof NULL_PTR){
+//                rs = new VirtReg(curfunction.cur_reg_id++, 4);
+//                curblock.insert_before(inst_,new LaInst(rs,new Imm(0)));
+//                return rs;
+//            }
             if(!reg.isglobal){
                 if(!curfunction.toreg_map.containsKey(reg.reg_number)){
                     rs = new VirtReg(curfunction.cur_reg_id++, reg.type.size);
@@ -202,7 +208,7 @@ public class InstSelector {
                 }
             }else{
                 rs = new VirtReg(curfunction.cur_reg_id++, reg.type.size);
-                curblock.insert_before(new LaInst(rs,reg.reg_number),inst_);
+                curblock.insert_before(inst_,new LaInst(rs,reg.reg_number));
                 return rs;
             }
         }
@@ -253,10 +259,10 @@ public class InstSelector {
                     VirtReg tmp = new VirtReg(curfunction.cur_reg_id++,4);
                     curblock.push_back(new LiInst(tmp,new Imm(imm)));
                     curblock.push_back(new CalcRInst(CalcRInst.RType.add,s0,tmp,tmp));
-                    curblock.push_back(new LoadInst(to.type.size,rs,tmp,new Imm(0)));
+                    curblock.push_back(new StoreInst(from.type.size,rs,tmp,new Imm(0)));
 
                 }else{
-                    curblock.push_back(new LoadInst(to.type.size,rs,rd,new Imm(0)));
+                    curblock.push_back(new StoreInst(from.type.size,rs,rd,new Imm(0)));
                 }
 
             }
@@ -422,7 +428,7 @@ public class InstSelector {
             curblock.insert_after(inst, new CalcRInst(CalcRInst.RType.add,s0,t3,t3));
             curblock.insert_after(inst, new LiInst(t3,new Imm(imm)));
             return phyReg;
-        }else return (Reg) reg;
+        }else return reg;
     }
 
     public void reg_alloc_module(){
@@ -463,6 +469,7 @@ public class InstSelector {
             }else if(inst instanceof StoreInst x){
                 x.rd = Load_VR(inst,(Reg)x.rd,t0);
                 x.rs = Load_VR(inst,(Reg) x.rs,t1);
+                x.rt = Load_VR(inst,(Reg) x.rt,t1);
             }else if(inst instanceof MvInst x){
                 x.rd = Store_VR(inst,(Reg) x.rd,t1);
                 x.rs = Load_VR(inst,(Reg) x.rs,t0);
