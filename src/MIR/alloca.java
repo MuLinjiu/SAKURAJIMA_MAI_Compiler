@@ -1,8 +1,8 @@
 package MIR;
 
 public class alloca extends statement{
-    register reg;
-    IRTYPE type;
+    public register reg;
+    public IRTYPE type;
     public alloca(register reg_, IRTYPE ty){
         reg = reg_;
         type = ty;

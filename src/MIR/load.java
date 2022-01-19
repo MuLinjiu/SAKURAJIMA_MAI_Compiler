@@ -3,7 +3,7 @@ package MIR;
 public class load extends statement{
     public IRTYPE type;
     //public int address;
-    entity from,to;
+    public entity from,to;
 //    public load(int reg,IRTYPE type_, int address_){
 //        reg_add = reg;
 //        type = type_;

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 public class block {
     public String Identifier;
     public ArrayList<statement> alloca_stmts = new ArrayList<>();//保证alloca在function最先输出,函数参数列表还有store放在这里
-    private ArrayList<statement> stmts = new ArrayList<>();
+    public ArrayList<statement> stmts = new ArrayList<>();
 
     public enum Flow_Type{
         BREAK,CONTINUE,RETURN

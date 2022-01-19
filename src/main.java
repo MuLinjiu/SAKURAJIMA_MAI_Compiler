@@ -1,4 +1,5 @@
 import AST.RootNode;
+import Asembly.AsmModule;
 import Backend.*;
 import Frontend.ASTbuilder;
 import Frontend.SementicChecker;
@@ -45,6 +46,9 @@ public class main {
             Global_def global_def = new Global_def();
             new IRBuilder(global_def, gScope).visit(ASTRoot);
             new IRPrinter().visitGlobal_var_def_stmt(global_def);
+            AsmModule top_module = new AsmModule();
+            new InstSelector(global_def,top_module);
+            new AsmPrinter(System.out,top_module);
         } catch(error er) {
             System.err.println(er.toString());
             throw new RuntimeException();

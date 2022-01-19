@@ -1,12 +1,12 @@
 package MIR;
 
 public class store extends statement{
-    int address;
+    public int address;
 //    int status;//0 int 1 string_address
 //    String address_to;
 //    String address_from_s;
-    entity from,to;
-    IRTYPE irtype;
+    public entity from,to;
+    public IRTYPE irtype;
     public store(entity from_, entity to_,IRTYPE irtype_){
         from = from_;
         to = to_;

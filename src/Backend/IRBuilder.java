@@ -284,16 +284,16 @@ public class IRBuilder implements ASTvisitor{
         register loopvar = new register(curfunction.register_id++, new ptr_type(new INT_TYPE(32)));
         currentblock.push_back(new alloca(loopvar,new INT_TYPE(32)));
         currentblock.push_back(new store(new constant(0,new INT_TYPE(32)),loopvar,new INT_TYPE(32)));
-        label conditionlabel = new label("my_" + (curfunction.register_id - 1) + "_for_condition");
+        label conditionlabel = new label(curfunction.identifier + "_" + "my_" + (curfunction.register_id - 1) + "_for_condition");
         block condtion = new block(conditionlabel.label_name);
 
-        label suitelabel = new label("my_" + (curfunction.register_id - 1) + "_for_suite");
+        label suitelabel = new label(curfunction.identifier + "_" + "my_" + (curfunction.register_id - 1) + "_for_suite");
         block suite = new block(suitelabel.label_name);
 
-        label finishlabel = new label("my_" + (curfunction.register_id - 1) + "_for_finish");
+        label finishlabel = new label(curfunction.identifier + "_" + "my_" + (curfunction.register_id - 1) + "_for_finish");
         block finish = new block(finishlabel.label_name);
 
-        label forourlabel = new label("my_" + (curfunction.register_id - 1) + "_for_out");
+        label forourlabel = new label(curfunction.identifier + "_" + "my_" + (curfunction.register_id - 1) + "_for_out");
         block forour = new block(forourlabel.label_name);
         currentblock.push_back(new branch (conditionlabel)) ;
 
@@ -768,10 +768,10 @@ public class IRBuilder implements ASTvisitor{
         } else if(it.sign == BinaryExprNode.binarysign.AND_AND){
             it.lhs.accept(this);
             label curlabel = new label(currentblock.Identifier);
-            label truelabel = new label((curfunction.register_id - 1) + "AND_AND_TRUE");
+            label truelabel = new label(curfunction.identifier + "_" + (curfunction.register_id - 1) + "AND_AND_TRUE");
             block trueblock = new block(truelabel.label_name);
 
-            label outlabel = new label((curfunction.register_id - 1) + "AND_AND_OUT");
+            label outlabel = new label(curfunction.identifier + "_" + (curfunction.register_id - 1) + "AND_AND_OUT");
             block outblock = new block(outlabel.label_name);
             if(returnentity instanceof register)type_transfer(returnentity,new INT_TYPE(1));
             currentblock.push_back(new branch(truelabel,outlabel,returnentity));
@@ -796,9 +796,9 @@ public class IRBuilder implements ASTvisitor{
         }else if(it.sign == BinaryExprNode.binarysign.OR_OR){
             it.lhs.accept(this);
             label curlabel = new label(currentblock.Identifier);
-            label outlabel = new label((curfunction.register_id - 1) + "OR_OR_OUT");
+            label outlabel = new label(curfunction.identifier + "_" + (curfunction.register_id - 1) + "OR_OR_OUT");
             block outblock = new block(outlabel.label_name);
-            label falselabel = new label((curfunction.register_id - 1) + "OR_OR_FALSE");
+            label falselabel = new label(curfunction.identifier + "_" + (curfunction.register_id - 1) + "OR_OR_FALSE");
             block falseblock = new block(falselabel.label_name);
 
             if(returnentity instanceof register)type_transfer(returnentity,new INT_TYPE(1));
@@ -1047,8 +1047,8 @@ public class IRBuilder implements ASTvisitor{
         if(it.forstartNode != null)it.forstartNode.accept(this);//init
         //currentScope = currentScope.parentScope();放最后
 
-        label for_condition_label = new label(curfunction.register_id++);
-        block for_condition_block = new block(Integer.toString(curfunction.register_id - 1));
+        label for_condition_label = new label(curfunction.identifier + "_" + curfunction.register_id++);
+        block for_condition_block = new block(curfunction.identifier + "_" + Integer.toString(curfunction.register_id - 1));
 
         branch init_branch = new branch(for_condition_label);
         currentblock.push_back(init_branch);
@@ -1059,16 +1059,16 @@ public class IRBuilder implements ASTvisitor{
         block for_condition_block_ = currentblock;
         entity conditon_entity = returnentity;
 
-        label for_contains_label = new label(curfunction.register_id++);
-        block for_contains_block = new block(Integer.toString(curfunction.register_id - 1));
+        label for_contains_label = new label(curfunction.identifier + "_" + curfunction.register_id++);
+        block for_contains_block = new block(curfunction.identifier + "_" + Integer.toString(curfunction.register_id - 1));
 
         currentblock = for_contains_block;
         curfunction.blocks.add(for_contains_block);
         it.suite_stmtNode.accept(this);
         block for_contains_block_ = currentblock;
 
-        label for_end_label = new label(curfunction.register_id++);
-        block for_end_block = new block(Integer.toString(curfunction.register_id - 1));
+        label for_end_label = new label(curfunction.identifier + "_" + curfunction.register_id++);
+        block for_end_block = new block(curfunction.identifier + "_" + Integer.toString(curfunction.register_id - 1));
 
         curfunction.blocks.add(for_end_block);
         block for_end_block_ = for_end_block;
@@ -1079,8 +1079,8 @@ public class IRBuilder implements ASTvisitor{
             for_end_block_ = currentblock;
         }
 
-        label for_out_label = new label(curfunction.register_id++);
-        block for_out_block = new block(Integer.toString(curfunction.register_id - 1));
+        label for_out_label = new label(curfunction.identifier + "_" + curfunction.register_id++);
+        block for_out_block = new block(curfunction.identifier + "_" + Integer.toString(curfunction.register_id - 1));
         if(it.forfinishNode==null) for_condition_block_.push_back(new branch(for_contains_label));
         else for_condition_block_.push_back(new branch(for_contains_label,for_out_label,conditon_entity));
 //        curfunction.blocks.add(for_condition_block);
@@ -1122,13 +1122,22 @@ public class IRBuilder implements ASTvisitor{
             currentblock = main_func.rootblock;
             currentblock.alloca_stmts.add(new alloca(new register(curfunction.register_id++,new ptr_type(new INT_TYPE(32))),new INT_TYPE(32)));
             curfunction.ret_ = new ret(new register(curfunction.register_id - 1,new ptr_type(new INT_TYPE(32))),new INT_TYPE(32));
+            currentblock.alloca_stmts.add(new store(new constant(0,new INT_TYPE(32)),new register(curfunction.register_id - 1,new ptr_type(new INT_TYPE(32))),new INT_TYPE(32)));
             id = curfunction.register_id - 1;
         }
         else {
             function func;
             if(isclassdef)func = new function("class" + cur_class_irtype.class_name + "_" + it.name);
             else func = new function(it.name);
-            if(Objects.equals(it.name, "main"))main_func = func;
+            if(Objects.equals(it.name, "main")){
+                main_func = func;
+//                curfunction = main_func;
+//                currentblock = main_func.rootblock;
+//                currentblock.alloca_stmts.add(new alloca(new register(curfunction.register_id++,new ptr_type(new INT_TYPE(32))),new INT_TYPE(32)));
+//                curfunction.ret_ = new ret(new register(curfunction.register_id - 1,new ptr_type(new INT_TYPE(32))),new INT_TYPE(32));
+//                currentblock.alloca_stmts.add(new store(new constant(0,new INT_TYPE(32)),new register(curfunction.register_id - 1,new ptr_type(new INT_TYPE(32))),new INT_TYPE(32)));
+
+            }
             curfunction = func;
             //func.function_id_num = function_id++;
             global_def.functions.add(func);
@@ -1148,10 +1157,9 @@ public class IRBuilder implements ASTvisitor{
 //                if(curclass != null){
 //                    irtype = curclass.type;////////
 //                }
-
-                register reg = new register(curfunction.register_id++, new ptr_type(irtype));
-                func.ret_ = new ret(reg, irtype);
-                func.rootblock.alloca_stmts.add(new alloca(reg, irtype));
+                    register reg = new register(curfunction.register_id++, new ptr_type(irtype));
+                    func.ret_ = new ret(reg, irtype);
+                    func.rootblock.alloca_stmts.add(new alloca(reg, irtype));
             }
             currentblock = func.rootblock;
         }
@@ -1259,10 +1267,10 @@ public class IRBuilder implements ASTvisitor{
         }
         //保证已经为i1
 
-        label true_label = new label(curfunction.register_id++);
+        label true_label = new label(curfunction.identifier + "_" + curfunction.register_id++);
         if(it.elseStmtNode != null) {// if else
             entity returnentity_expr = returnentity;
-            block true_block = new block(Integer.toString(curfunction.register_id - 1));
+            block true_block = new block(curfunction.identifier + "_" + Integer.toString(curfunction.register_id - 1));
             curfunction.blocks.add(true_block);
 
             block ori_current_block = currentblock;
@@ -1274,8 +1282,8 @@ public class IRBuilder implements ASTvisitor{
             block true_block_ = currentblock;
             currentScope = currentScope.parentScope();
 
-            label false_label = new label(curfunction.register_id++);
-            block false_block = new block(Integer.toString(curfunction.register_id - 1));
+            label false_label = new label(curfunction.identifier + "_" + curfunction.register_id++);
+            block false_block = new block(curfunction.identifier + "_" + Integer.toString(curfunction.register_id - 1));
             curfunction.blocks.add(false_block);
 
             currentblock = false_block;
@@ -1288,8 +1296,8 @@ public class IRBuilder implements ASTvisitor{
 
             ori_current_block.push_back(branch_);
 
-            label outif = new label(curfunction.register_id++);
-            block outif_block = new block(Integer.toString(curfunction.register_id - 1));
+            label outif = new label(curfunction.identifier + "_" + curfunction.register_id++);
+            block outif_block = new block(curfunction.identifier + "_" + Integer.toString(curfunction.register_id - 1));
             curfunction.blocks.add(outif_block);
 
             if(true_block_.flow_type == null){
@@ -1316,7 +1324,7 @@ public class IRBuilder implements ASTvisitor{
         }else{
             block ori_current_block = currentblock;//expr 的 block
             entity returnentity_expr = returnentity;
-            block true_block = new block(Integer.toString(curfunction.register_id - 1));
+            block true_block = new block(curfunction.identifier + "_" + Integer.toString(curfunction.register_id - 1));
             curfunction.blocks.add(true_block);
 
             currentScope = new Scope(currentScope);
@@ -1327,8 +1335,8 @@ public class IRBuilder implements ASTvisitor{
 
 
 
-            label false_label = new label(curfunction.register_id++);
-            block false_block = new block(Integer.toString(curfunction.register_id - 1));
+            label false_label = new label(curfunction.identifier + "_" + curfunction.register_id++);
+            block false_block = new block(curfunction.identifier + "_" + Integer.toString(curfunction.register_id - 1));
             curfunction.blocks.add(false_block);
 
             branch branch_ = new branch(true_label,false_label,returnentity_expr);//dizhi
@@ -1688,8 +1696,8 @@ public class IRBuilder implements ASTvisitor{
         ArrayList<block> flow_collector_origin = flow_collector;
         flow_collector = new ArrayList<>();
 
-        label condition_label = new label(curfunction.register_id++);
-        block condition_block = new block(Integer.toString(curfunction.register_id - 1));
+        label condition_label = new label(curfunction.identifier + "_" + curfunction.register_id++);
+        block condition_block = new block(curfunction.identifier + "_" + Integer.toString(curfunction.register_id - 1));
         branch condition_branch = new branch(condition_label);
         currentblock.push_back(condition_branch);
         curfunction.blocks.add(condition_block);
@@ -1705,8 +1713,8 @@ public class IRBuilder implements ASTvisitor{
         }
        // curfunction.blocks.add(condition_block);
 
-        label true_label = new label(curfunction.register_id++);
-        block true_block = new block(Integer.toString(curfunction.register_id - 1));
+        label true_label = new label(curfunction.identifier + "_" + curfunction.register_id++);
+        block true_block = new block(curfunction.identifier + "_" + Integer.toString(curfunction.register_id - 1));
         curfunction.blocks.add(true_block);
         entity i1entity = returnentity;
         //curfunction.blocks.add();
@@ -1719,8 +1727,8 @@ public class IRBuilder implements ASTvisitor{
 
         block bbexit = currentblock;
 
-        label false_label = new label(curfunction.register_id++);
-        block false_block = new block(Integer.toString(curfunction.register_id - 1));
+        label false_label = new label(curfunction.identifier + "_" + curfunction.register_id++);
+        block false_block = new block(curfunction.identifier + "_" + Integer.toString(curfunction.register_id - 1));
         curfunction.blocks.add(false_block);
 
         if(bbexit.flow_type == null){
