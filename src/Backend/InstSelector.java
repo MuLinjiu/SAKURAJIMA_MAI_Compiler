@@ -105,13 +105,13 @@ public class InstSelector {
         for(int i = 0 ; i < Integer.min(8,function.parameter_list.size());i++){//放寄存器
             register curparameter = function.parameter_list.get(i);
             VirtReg parareg = new VirtReg(curfunction.cur_reg_id++, curparameter.type.size);
-            para_block.push_back(new MvInst(phy_regs[10 + i],parareg));
+            para_block.push_back(new MvInst(parareg,phy_regs[10 + i]));
             curfunction.toreg_map.put(curparameter.reg_number,parareg);
         }
         for(int i = 8 ; i < function.parameter_list.size(); i++){//放内存
             register curparameter = function.parameter_list.get(i);
             VirtReg parareg = new VirtReg(curfunction.cur_reg_id++, curparameter.type.size);
-            para_block.push_back(new LoadInst(curparameter.type.size,parareg,new Imm(i * 4 - 32), s0));
+            para_block.push_back(new LoadInst(curparameter.type.size,parareg,s0,new Imm(i * 4 - 32)));
             curfunction.toreg_map.put(curparameter.reg_number,parareg);
         }
         visit_block(function.rootblock);
@@ -464,6 +464,7 @@ public class InstSelector {
         if(off % 16 != 0)off = (off/16 + 1) * 16;//必须为16倍数
         AsmBlock head = function.asmblocks.get(0);
         if(head.head == null)head.push_back(new MvInst(s0,t1));
+        else head.insert_before(head.head,new MvInst(s0,t1));
         head.insert_before(head.head,new StoreInst(4,s0,t1,new Imm(-8)));
         head.insert_before(head.head,new StoreInst(4,ra,t1,new Imm(-4)));
         head.insert_before(head.head,new CalcRInst(CalcRInst.RType.add,sp,t0,t1));
