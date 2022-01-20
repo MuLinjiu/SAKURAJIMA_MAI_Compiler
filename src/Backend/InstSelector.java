@@ -31,14 +31,6 @@ public class InstSelector {
         global_def = global_def_;
         top_module = top_module_;
         init_phyreg();
-        visit_Global_def();
-        visit_Module();
-        visit_phi();
-//        try {
-//            new AsmPrinter(System.out,top_module);
-//        }catch (Exception ex){
-//
-//        }
         reg_alloc_module();
     }
     public void init_phyreg(){
@@ -58,7 +50,7 @@ public class InstSelector {
             phy_regs[i] = new PhyReg("s" + (i - 16));
         }
         t3 = phy_regs[28] = new PhyReg("t3");
-
+        visit_Global_def();
     }
 
     public void visit_Global_def(){
@@ -84,6 +76,7 @@ public class InstSelector {
                 class_offset.put(class_name,class_offfset);
             }
         }
+        visit_Module();
     }
 
     public void visit_Module(){
@@ -92,6 +85,7 @@ public class InstSelector {
             else visit_func(func);
             top_module.functions.add(curfunction);
         }
+        visit_phi();
     }
 
     public void visit_func(function function){
@@ -136,9 +130,6 @@ public class InstSelector {
         }
     }
 
-    public boolean Imm_valid_or_not(int x){
-        return x < 2048 && x >= -2048;
-    }
 
     public VirtReg trans(entity entity_){
         VirtReg rs;
@@ -239,7 +230,7 @@ public class InstSelector {
                     int imm = -curfunction.reg_offset.get(rs);
                     VirtReg tmp = new VirtReg(curfunction.cur_reg_id++,4);
                     curblock.push_back(new LiInst(tmp,new Imm(imm)));
-                    curblock.push_back(new CalcRInst(CalcRInst.RType.add,s0,tmp,tmp));
+                    curblock.push_back(new CalcRInst(CalcRInst.RType.add,s0,tmp,tmp));//栈位置
                     curblock.push_back(new LoadInst(to.type.size,rd,tmp,new Imm(0)));
 
                 }else{
@@ -284,7 +275,7 @@ public class InstSelector {
             for(int i = 8 ; i < curfunction_call.parameters.size() ;i++){
                 entity curentity = curfunction_call.parameters.get(i);
                 VirtReg rs = trans(curentity);
-                curblock.push_back(new StoreInst(curentity.type.size,rs,sp,new Imm(i * 4 - 32)));
+                curblock.push_back(new StoreInst(curentity.type.size,rs,sp,new Imm(i * 4 - 32)));//栈往下塞
             }
             curblock.push_back(new CallInst(curfunction_call.function_name));
             if(!curfunction_call.void_or_not){
@@ -427,8 +418,8 @@ public class InstSelector {
             }
             int imm = -curfunction.reg_offset.get(Vreg);
             curblock.insert_before(inst,new LiInst(t3, new Imm(imm)));
-            curblock.insert_before(inst, new CalcRInst(CalcRInst.RType.add,s0,t3,t3));
-            curblock.insert_before(inst, new LoadInst(Vreg.size,phyReg,t3,new Imm(0)));
+            curblock.insert_before(inst, new CalcRInst(CalcRInst.RType.add,s0,t3,t3));//获取地址
+            curblock.insert_before(inst, new LoadInst(Vreg.size,phyReg,t3,new Imm(0)));//load
             return phyReg;
         }else return reg;
     }
@@ -441,7 +432,7 @@ public class InstSelector {
                 curfunction.reg_offset.put(Vreg, curfunction.offset);
             }
             int imm = -curfunction.reg_offset.get(Vreg);
-            curblock.insert_after(inst,new StoreInst(Vreg.size,phyReg,t3,new Imm(0)));
+            curblock.insert_after(inst,new StoreInst(Vreg.size,phyReg,t3,new Imm(0)));//倒序
             curblock.insert_after(inst, new CalcRInst(CalcRInst.RType.add,s0,t3,t3));
             curblock.insert_after(inst, new LiInst(t3,new Imm(imm)));
             return phyReg;
@@ -460,20 +451,25 @@ public class InstSelector {
             curblock = block;
             reg_alloc_block(block);
         }
+        process_func(function);
+    }
+
+    public void process_func(AsmFunc function){
         int off = function.offset;
         if(off % 16 != 0)off = (off/16 + 1) * 16;//必须为16倍数
         AsmBlock head = function.asmblocks.get(0);
-        if(head.head == null)head.push_back(new MvInst(s0,t1));
+        if(head.head == null)head.push_back(new MvInst(s0,t1));//倒序
         else head.insert_before(head.head,new MvInst(s0,t1));
-        head.insert_before(head.head,new StoreInst(4,s0,t1,new Imm(-8)));
+        head.insert_before(head.head,new StoreInst(4,s0,t1,new Imm(-8)));//函数定义导致s0存入t1-8
         head.insert_before(head.head,new StoreInst(4,ra,t1,new Imm(-4)));
         head.insert_before(head.head,new CalcRInst(CalcRInst.RType.add,sp,t0,t1));
         head.insert_before(head.head,new CalcRInst(CalcRInst.RType.sub,sp,t0,sp));
         head.insert_before(head.head, new LiInst(t0,new Imm(off)));
+        //最终s0为原sp，sp（原）-4为ra，-8为s0，t1是原sp，sp-了imm。
         AsmBlock tail = function.asmblocks.get(function.asmblocks.size() - 1);
         tail.push_back(new LiInst(t0, new Imm(off)));
         tail.push_back(new CalcRInst(CalcRInst.RType.add,sp,t0,t1));
-        tail.push_back(new LoadInst(4,ra,t1,new Imm(-4)));
+        tail.push_back(new LoadInst(4,ra,t1,new Imm(-4)));//获取sp和return address
         tail.push_back(new LoadInst(4,s0,t1,new Imm(-8)));
         tail.push_back(new CalcRInst(CalcRInst.RType.add,sp,t0,sp));
         tail.push_back(new RetInst());
@@ -483,7 +479,7 @@ public class InstSelector {
         for(Inst inst = block.head; inst != null ; inst = inst.next){
             if(inst instanceof LoadInst){
                 LoadInst x = (LoadInst)inst;
-                x.rd = Store_VR(inst,(Reg) x.rd,t1);
+                x.rd = Store_VR(inst,(Reg) x.rd,t1);//t为实际寄存器，获取imm获取地址再塞进t1，返回给rd
                 x.rs = Load_VR(inst,(Reg)x.rs,t0);
             }else if(inst instanceof StoreInst){
                 StoreInst x = (StoreInst)inst;
