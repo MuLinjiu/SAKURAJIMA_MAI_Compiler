@@ -722,6 +722,11 @@ public class IRBuilder implements ASTvisitor{
                     currentblock.push_back(func);
                     returnentity = res;
                 }
+            }else if(lhs_type.Type_name == Type_kind.NULL || rhs_type.Type_name == Type_kind.NULL){
+                register res = new register(curfunction.register_id++, new INT_TYPE(1));
+                IRTYPE cap = lhs_type.Type_name == Type_kind.NULL ? right.type : left.type;
+                currentblock.push_back(new binary(cap,left,right,res,binary.opType.values()[it.sign.ordinal()]));
+                returnentity = res;
             }
         }else if(aritnmatic(it.sign)){
             it.lhs.accept(this);
@@ -1260,7 +1265,7 @@ public class IRBuilder implements ASTvisitor{
     public void visit(IfStmtNode it) {
         // TODO Auto-generated method stub
         it.exprNode.accept(this);
-        if(returnentity instanceof register && ((INT_TYPE)((register)returnentity).type).width != 1){
+        if(returnentity instanceof register){
             register i1 = new register(0,new INT_TYPE(1));
             type_transfer(returnentity,i1.type);
            // returnentity = i1;
