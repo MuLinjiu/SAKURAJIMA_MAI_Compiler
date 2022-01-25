@@ -218,7 +218,7 @@ public class InstSelector {
                 curfunction.offset += 4;
                 curfunction.reg_offset.put(cur, curfunction.offset);
             }
-        }else if(cur_ir_stmt instanceof load ){
+        }else if(cur_ir_stmt instanceof load){
             load curload = (load)cur_ir_stmt;
             entity from = curload.from, to =  curload.to;
             VirtReg rd = new VirtReg(curfunction.cur_reg_id++, to.type.size);
@@ -299,14 +299,14 @@ public class InstSelector {
                 curblock.push_back(new JInst(curirbranch.false_label));
             }
 
-        }else if(cur_ir_stmt instanceof trunc){
+        }/*else if(cur_ir_stmt instanceof trunc){
             trunc  curtrunc = (trunc)cur_ir_stmt;
             curfunction.toreg_map.put(((register)curtrunc.to).reg_number,trans(curtrunc.from));
         }else if(cur_ir_stmt instanceof zext){
             zext  curzext = (zext)cur_ir_stmt;
             curfunction.toreg_map.put(((register)curzext.to).reg_number,trans(curzext.from));
 
-        }else if(cur_ir_stmt instanceof bitcast){
+        }*/else if(cur_ir_stmt instanceof bitcast){
             bitcast  curbitcast = (bitcast) cur_ir_stmt;
             curfunction.toreg_map.put(((register)curbitcast.to).reg_number,trans(curbitcast.from));
         }else if(cur_ir_stmt instanceof binary ){
