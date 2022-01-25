@@ -417,7 +417,7 @@ public class InstSelector {
                 curfunction.reg_offset.put(Vreg, curfunction.offset);
             }
             int imm = -curfunction.reg_offset.get(Vreg);
-            if(imm >= -2048 && imm < 2048)curblock.insert_before(inst,new LoadInst(Vreg.size,phyReg,t0,new Imm(imm)));
+            if(imm >= -2048 && imm < 2048)curblock.insert_before(inst,new LoadInst(Vreg.size,phyReg,s0,new Imm(imm)));
             else {
                 curblock.insert_before(inst, new LiInst(t3, new Imm(imm)));
                 curblock.insert_before(inst, new CalcRInst(CalcRInst.RType.add, s0, t3, t3));//获取地址
