@@ -238,7 +238,7 @@ public class SymbolCollector implements ASTvisitor {
 
     @Override
     public void visit(NewerNode it) {
-
+        System.out.println(1);
     }
 
     @Override

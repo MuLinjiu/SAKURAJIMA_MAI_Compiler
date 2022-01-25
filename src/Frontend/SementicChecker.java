@@ -285,9 +285,9 @@ public class SementicChecker implements ASTvisitor {
         checker = new Lambada_Returnchecker(it.name);
         it.suiteNode.accept(this);
 
-        if(Objects.equals(it.name, "main") && have_main){
-            throw new semanticError("function == main",it.pos);
-        }
+//        if(Objects.equals(it.name, "main") && have_main){
+//            throw new semanticError("function == main",it.pos);
+//        }
         if(Objects.equals(it.name, "main") && !have_main)have_main = true;
 
         if(!Objects.equals(checker.fucname, "main")){
