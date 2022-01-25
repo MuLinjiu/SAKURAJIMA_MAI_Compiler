@@ -299,14 +299,14 @@ public class InstSelector {
                 curblock.push_back(new JInst(curirbranch.false_label));
             }
 
-        }/*else if(cur_ir_stmt instanceof trunc){
+        }else if(cur_ir_stmt instanceof trunc){
             trunc  curtrunc = (trunc)cur_ir_stmt;
             curfunction.toreg_map.put(((register)curtrunc.to).reg_number,trans(curtrunc.from));
         }else if(cur_ir_stmt instanceof zext){
             zext  curzext = (zext)cur_ir_stmt;
             curfunction.toreg_map.put(((register)curzext.to).reg_number,trans(curzext.from));
 
-        }*/else if(cur_ir_stmt instanceof bitcast){
+        }else if(cur_ir_stmt instanceof bitcast){
             bitcast  curbitcast = (bitcast) cur_ir_stmt;
             curfunction.toreg_map.put(((register)curbitcast.to).reg_number,trans(curbitcast.from));
         }else if(cur_ir_stmt instanceof binary ){
@@ -417,9 +417,12 @@ public class InstSelector {
                 curfunction.reg_offset.put(Vreg, curfunction.offset);
             }
             int imm = -curfunction.reg_offset.get(Vreg);
-            curblock.insert_before(inst,new LiInst(t3, new Imm(imm)));
-            curblock.insert_before(inst, new CalcRInst(CalcRInst.RType.add,s0,t3,t3));//获取地址
-            curblock.insert_before(inst, new LoadInst(Vreg.size,phyReg,t3,new Imm(0)));//load
+            if(imm >= -2048 && imm < 2048)curblock.insert_before(inst,new LoadInst(Vreg.size,phyReg,t0,new Imm(imm)));
+            else {
+                curblock.insert_before(inst, new LiInst(t3, new Imm(imm)));
+                curblock.insert_before(inst, new CalcRInst(CalcRInst.RType.add, s0, t3, t3));//获取地址
+                curblock.insert_before(inst, new LoadInst(Vreg.size, phyReg, t3, new Imm(0)));//load
+            }
             return phyReg;
         }else return reg;
     }
@@ -432,9 +435,12 @@ public class InstSelector {
                 curfunction.reg_offset.put(Vreg, curfunction.offset);
             }
             int imm = -curfunction.reg_offset.get(Vreg);
-            curblock.insert_after(inst,new StoreInst(Vreg.size,phyReg,t3,new Imm(0)));//倒序
-            curblock.insert_after(inst, new CalcRInst(CalcRInst.RType.add,s0,t3,t3));
-            curblock.insert_after(inst, new LiInst(t3,new Imm(imm)));
+            if(imm >= -2048 && imm < 2048)curblock.insert_after(inst,new StoreInst(Vreg.size,phyReg,s0,new Imm(imm)));
+            else {
+                curblock.insert_after(inst, new StoreInst(Vreg.size, phyReg, t3, new Imm(0)));//倒序
+                curblock.insert_after(inst, new CalcRInst(CalcRInst.RType.add, s0, t3, t3));
+                curblock.insert_after(inst, new LiInst(t3, new Imm(imm)));
+            }
             return phyReg;
         }else return reg;
     }
