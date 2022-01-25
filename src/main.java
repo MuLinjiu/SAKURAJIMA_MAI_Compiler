@@ -36,9 +36,9 @@ public class main {
                     out = new PrintStream(new FileOutputStream(args[i+1]));
             }
         }
-        //String name = "test.mx";
-        InputStream raw = System.in;
-        //InputStream raw = new FileInputStream(name);
+        String name = "test.mx";
+        //InputStream raw = System.in;
+        InputStream raw = new FileInputStream(name);
         try{
             CharStream input = CharStreams.fromStream(raw);
             MxstarLexer lexer = new MxstarLexer(input);

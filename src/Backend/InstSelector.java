@@ -228,10 +228,13 @@ public class InstSelector {
                 VirtReg rs = trans(from);
                 if(curfunction.reg_offset.containsKey(rs)){
                     int imm = -curfunction.reg_offset.get(rs);
-                    VirtReg tmp = new VirtReg(curfunction.cur_reg_id++,4);
-                    curblock.push_back(new LiInst(tmp,new Imm(imm)));
-                    curblock.push_back(new CalcRInst(CalcRInst.RType.add,s0,tmp,tmp));//栈位置
-                    curblock.push_back(new LoadInst(to.type.size,rd,tmp,new Imm(0)));
+                    if(imm >= -2048 && imm < 2048)curblock.push_back(new LoadInst(to.type.size,rd,s0,new Imm(imm)));
+                    else {
+                        VirtReg tmp = new VirtReg(curfunction.cur_reg_id++, 4);
+                        curblock.push_back(new LiInst(tmp, new Imm(imm)));
+                        curblock.push_back(new CalcRInst(CalcRInst.RType.add, s0, tmp, tmp));//栈位置
+                        curblock.push_back(new LoadInst(to.type.size, rd, tmp, new Imm(0)));
+                    }
 
                 }else{
                     curblock.push_back(new LoadInst(to.type.size,rd,rs,new Imm(0)));
@@ -253,10 +256,15 @@ public class InstSelector {
                 VirtReg rs = trans(from),rd = trans(to);
                 if(curfunction.reg_offset.containsKey(rd)){
                     int imm = -curfunction.reg_offset.get(rd);
-                    VirtReg tmp = new VirtReg(curfunction.cur_reg_id++,4);
-                    curblock.push_back(new LiInst(tmp,new Imm(imm)));
-                    curblock.push_back(new CalcRInst(CalcRInst.RType.add,s0,tmp,tmp));
-                    curblock.push_back(new StoreInst(from.type.size,rs,tmp,new Imm(0)));
+                    if(imm >= -2048 && imm < 2048){
+                        curblock.push_back(new StoreInst(from.type.size,rs,s0,new Imm(imm)));
+                    }
+                    else {
+                        VirtReg tmp = new VirtReg(curfunction.cur_reg_id++, 4);
+                        curblock.push_back(new LiInst(tmp, new Imm(imm)));
+                        curblock.push_back(new CalcRInst(CalcRInst.RType.add, s0, tmp, tmp));
+                        curblock.push_back(new StoreInst(from.type.size, rs, tmp, new Imm(0)));
+                    }
 
                 }else{
                     curblock.push_back(new StoreInst(from.type.size,rs,rd,new Imm(0)));
