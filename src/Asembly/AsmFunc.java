@@ -21,6 +21,7 @@ public class AsmFunc {
     public AsmFunc(String identifier_){
         func_name = identifier_;
         offset = 0;
+        func_call_offset = 0;
         cur_reg_id = 0;
     }
     public void print(PrintStream out) {

@@ -1,273 +1,252 @@
 /*
 Test Package: Optim
-Author: Zhekai Zhang, 15
+Author: Yunwei Ren, 17
 Input:
 === input ===
-1 acm2015
-2 ABC64A57029F21F165A96BDB59F0351C7C7D1769
-0
+5
 
 === end ===
 Output:
 === output ===
-5B38674EB4BD02CEC1D41C8DE3CC14A9872A2656
-ACM
+0: 4
+1: 4
+2: 6
+3: 4
+4: 4
+6: 2
+7: 3
+8: 2
+10: 1
+11: 4
+13: 2
+14: 6
+15: 2
+18: 4
+19: 3
+20: 1
+21: 5
+22: 1
+24: 3
+25: 3
+26: 2
+27: 2
+30: 5
+33: 16
+35: 2
+36: 1
+39: 4
+40: 1
+41: 8
+42: 7
+43: 2
+44: 2
+46: 5
+47: 1
+48: 2
+51: 2
+55: 5
+57: 2
+60: 1
+63: 2
+64: 1
+65: 2
+66: 2
+67: 2
+68: 1
+69: 1
+75: 1
+76: 2
+77: 2
+78: 1
+80: 4
+81: 5
+82: 2
+83: 1
+84: 2
+86: 4
+87: 2
+89: 5
+90: 6
+91: 4
+92: 6
+93: 1
+94: 1
+97: 5
+99: 1
+102: 1
+105: 1
+106: 2
+107: 5
+108: 2
+109: 5
+111: 3
+112: 7
+115: 2
+116: 5
+117: 2
+118: 1
+119: 1
+120: 3
+121: 3
+122: 8
+126: 2
+127: 1
 
 === end ===
 ExitCode: 0
 InstLimit: -1
 */
 
-//Compute and Crack SHA-1
-//by zzk
+class Node {
+  Node pnt;
+  Node[] children;
+  int key;
+  int duplicate;
+};
 
-int hex2int(string x)
-{
-	int i;
-	int result = 0;
-	for(i=0;i<x.length();i++)
-	{
-		int digit = x.ord(i);
-		if(digit >= 48 && digit <= 57)
-			result = result * 16 + digit - 48;
-		else if(digit >= 65 && digit <= 70)
-			result = result * 16 + digit - 65 + 10;
-		else if(digit >= 97 && digit <= 102)
-			result = result * 16 + digit - 97 + 10;
-		else
-			return 0;
-	}
-	return result;
+Node constructNode(int key, Node pnt, Node lchild, Node rchild) {
+  Node node = new Node;
+  node.children = new Node[2];
+  node.key = key;
+  node.duplicate = 1;
+  node.pnt = pnt;
+  node.children[0] = lchild;
+  node.children[1] = rchild;
+  return node;
 }
 
-string asciiTable = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
-string int2chr(int x)
-{
-	if(x >= 32 && x <= 126)
-		return asciiTable.substring(x-32, x-31);
-	return "";
-}
-string toStringHex(int x)
-{
-	string ret = "";
-	int i;
-	for(i=28;i>=0;i=i-4)
-	{
-		int digit = (x >> i) & 15;
-		if(digit < 10)
-			ret = ret + int2chr(48+digit);
-		else
-			ret = ret + int2chr(65+digit-10);
-	}
-	return ret;
-}
-int rotate_left(int x, int shift)
-{
-	if(shift == 1)
-		return ((x & 2147483647) << 1) | ((x >> 31) & 1);
-	if(shift == 31)
-		return ((x & 1) << 31) | ((x >> 1) & 2147483647);
-	return ((x & ((1 << (32-shift)) - 1)) << shift) | ((x >> (32-shift)) & ((1 << shift) - 1));
-}
-int add(int x, int y)	//to avoid possible undefined behaviour when overflow
-{
-	int low = (x & 65535) + (y & 65535);
-	int high = (((x >> 16) & 65535) + ((y >> 16) & 65535) + (low >> 16)) & 65535;
-	return (high << 16) | (low & 65535);
-}
-int lohi(int lo, int hi)
-{
-	return lo | (hi << 16);
+Node root = null;
+
+int insertImpl(Node cur, Node pnt, int childId, int key) {
+  if (cur == null) {
+    cur = constructNode(key, pnt, null, null);
+    pnt.children[childId] = cur;
+    return 0;
+  }
+  if (cur.key == key) {
+    ++cur.duplicate;
+    return 1;
+  }
+  int id = 0;
+  if (cur.key < key)
+    id = 1;
+  return insertImpl(cur.children[id], cur, id, key);
 }
 
-int MAXCHUNK = 100;
-int MAXLENGTH = (MAXCHUNK-1) * 64 - 16;
-int[][] chunks = new int[MAXCHUNK][80];
-int[] inputBuffer = new int[MAXLENGTH];
-int[] outputBuffer = new int[5];
-int[] sha1(int[] input, int length)
-{
-	int nChunk = (length + 64 - 56) / 64 + 1;
-	if(nChunk > MAXCHUNK)
-	{
-		println("nChunk > MAXCHUNK!");
-		return null;
-	}
-	int i;
-	int j;
-	for(i=0;i<nChunk;i++)
-		for(j=0;j<80;j++)
-			chunks[i][j] = 0;
-	for(i=0;i<length;i++)
-		chunks[i/64][i%64/4] = chunks[i/64][i%64/4] | (input[i] << ((3-i%4)*8));
-	chunks[i/64][i%64/4] = chunks[i/64][i%64/4] | (128 << ((3-i%4)*8));
-	chunks[nChunk-1][15] = length << 3;
-	chunks[nChunk-1][14] = (length >> 29) & 7;
-
-	int h0 = 1732584193;  //0x67452301
-	int h1 = lohi(43913, 61389);  //0xEFCDAB89
-	int h2 = lohi(56574, 39098); //0x98BADCFE
-	int h3 = 271733878;   //0x10325476
-	int h4 = lohi(57840, 50130); //0xC3D2E1F0
-	for(i=0;i<nChunk;i++)
-	{
-		for(j=16;j<80;j++)
-			chunks[i][j] = rotate_left(chunks[i][j-3] ^ chunks[i][j-8] ^ chunks[i][j-14] ^ chunks[i][j-16], 1);
-
-		int a = h0;
-		int b = h1;
-		int c = h2;
-		int d = h3;
-		int e = h4;
-		for(j=0;j<80;j++)
-		{
-			int f;
-			int k;
-			if(j<20)
-			{
-				f = (b & c) | ((~b) & d);
-				k = 1518500249; //0x5A827999
-			}
-			else if(j<40)
-			{
-				f = b ^ c ^ d;
-				k = 1859775393; //0x6ED9EBA1
-			}
-			else if(j<60)
-			{
-				f = (b & c) | (b & d) | (c & d);
-				k = lohi(48348, 36635); //0x8F1BBCDC
-			}
-			else
-			{
-				f = b ^ c ^ d;
-				k = lohi(49622, 51810); //0xCA62C1D6
-			}
-			int temp = add(add(add(rotate_left(a, 5), e), add(f, k)), chunks[i][j]);
-			e = d;
-			d = c;
-			c = rotate_left(b, 30);
-			b = a;
-			a = temp;
-		}
-		h0 = add(h0, a);
-		h1 = add(h1, b);
-		h2 = add(h2, c);
-		h3 = add(h3, d);
-		h4 = add(h4, e);
-	}
-	outputBuffer[0] = h0;
-	outputBuffer[1] = h1;
-	outputBuffer[2] = h2;
-	outputBuffer[3] = h3;
-	outputBuffer[4] = h4;
-	return outputBuffer;
+// return 1 if isIn
+int insert(int key) {
+  if (root != null)
+    return insertImpl(root, null, 0 - 1, key);
+  root = constructNode(key, null, null, null);
+  return 0;
 }
 
-void computeSHA1(string input)
-{
-	int i;
-	for(i=0; i<input.length(); i++)
-		inputBuffer[i] = input.ord(i);
-	int[] result = sha1(inputBuffer, input.length());
-	for(i=0; i<result.size(); i++)
-		print(toStringHex(result[i]));
-	println("");
+Node findLargest(Node cur) {
+  if (cur.children[1] == null)
+    return cur;
+  return findLargest(cur.children[1]);
 }
 
-int nextLetter(int now)
-{
-	if(now == 122) //'z'
-		return -1;
-	if(now == 90)  //'Z'
-		return 97; //'a'
-	if(now == 57)  //'9'
-		return 65;
-	return now + 1;
+int eraseImpl(Node cur, Node pnt, int childId, int key) {
+  if (cur == null)
+    return 0;
+  if (cur.key > key)
+    return eraseImpl(cur.children[0], cur, 0, key);
+  if (cur.key < key)
+    return eraseImpl(cur.children[1], cur, 1, key);
+  --cur.duplicate;
+  if (cur.duplicate > 0)
+    return 1;
+  //  assert(cur.duplicate == 0);
+  if (cur.children[0] == null) {
+    if (pnt != null)
+      pnt.children[childId] = cur.children[1];
+    if (cur.children[1] != null)
+      cur.children[1].pnt = pnt;
+    if (key == root.key)
+      root = cur.children[1];
+    return 1;
+  }
+  Node replacement = findLargest(cur.children[0]);
+  if (key == root.key)
+    root = replacement;
+  //  assert(replacement.children[1] == null);
+  if (replacement.key != cur.children[0].key) {
+    replacement.pnt.children[1] = replacement.children[0];
+    if (replacement.children[0] != null)
+      replacement.children[0].pnt = replacement.pnt;
+  }
+  if (pnt != null)
+    pnt.children[childId] = replacement;
+  replacement.pnt = pnt;
+  replacement.children[1] = cur.children[1];
+  if (cur.children[1] != null)
+    cur.children[1].pnt = replacement;
+  if (replacement.key != cur.children[0].key) {
+    replacement.children[0] = cur.children[0];
+    cur.children[0].pnt = replacement;
+  }
+  return 1;
 }
 
-bool nextText(int[] now, int length)
-{
-	int i;
-	for(i=length-1; i>=0; i--)
-	{
-		now[i] = nextLetter(now[i]);
-		if(now[i] == -1)
-			now[i] = 48;	//'0'
-		else
-			return true;
-	}
-	return false;
+// return 1 if isIn
+int erase(int key) {
+  if (root == null)
+    return 0;
+  return eraseImpl(root, null, -1, key);
 }
 
-bool array_equal(int[] a, int[] b)
-{
-	if(a.size() != b.size())
-		return false;
-	int i;
-	for(i=0; i<a.size(); i++)
-		if(a[i] != b[i])
-			return false;
-	return true;
+void printTree(Node cur) {
+  if (cur == null)
+    return;
+  printTree(cur.children[0]);
+  println(toString(cur.key) + ": " + toString(cur.duplicate));
+  printTree(cur.children[1]);
 }
 
-void crackSHA1(string input)
-{
-	int[] target = new int[5];
-	if(input.length() != 40)
-	{
-		println("Invalid input");
-		return;
-	}
-	int i;
-	for(i=0;i<5;i++)
-		target[i] = 0;
-	for(i=0;i<40;i=i+4)
-		target[i/8] = target[i/8] | (hex2int(input.substring(i, i+4)) << (1 - (i / 4) % 2) * 16);
+int MAX = 128;
+int MaxRandInt = ~(1 << 31);
+int seed;
 
-	int MAXDIGIT = 4;
-	int digit;
-	for(digit=1; digit <= MAXDIGIT; digit++)
-	{
-		for(i=0;i<digit;i++)
-			inputBuffer[i] = 48;
-		while(true)
-		{
-			int[] out = sha1(inputBuffer, digit);
-			if(array_equal(out, target))
-			{
-				for(i=0;i<digit;i++)
-					print(int2chr(inputBuffer[i]));
-				println("");
-				return;
-			}
-			if(!nextText(inputBuffer, digit))
-				break;
-		}
-	}
-	println("Not Found!");
+// In mx, we do not have unsigned int. Hence, we only use the least significant
+// 31 bits of an integer here.
+int randInt31() {
+  int x = seed;
+  x = x ^ (x << 13);
+  x = x & ~(1 << 31);
+  x = x ^ (x >> 17);
+  x = x ^ (x << 5);
+  x = x & ~(1 << 31);
+  seed = x;
+  return x;
 }
 
-int main()
-{
-	int op;
-	string input;
-	while(true)
-	{
-		op = getInt();
-		if(op == 0)
-			break;
-		if(op == 1)
-		{
-			input = getString();
-			computeSHA1(input);
-		}
-		else if(op == 2)
-		{
-			input = getString();
-			crackSHA1(input);
-		}
-	}
-	return 0;
+// probability = p / PM
+int randOp(int n) {
+  if (randInt31() < n) {
+    return 1;
+  }
+  return 2;
 }
 
+void generateOperations(int n, int t) {
+  int i;
+  for (i = 0; i < t; ++i) {
+    int value = randInt31() % MAX;
+    if (randOp(n) == 1) {
+      insert(value);
+    } else {
+      erase(value);
+    }
+  }
+}
+
+int main() {
+  seed = getInt();
+  int m = 50000;
+  generateOperations(8 * (MaxRandInt / 10), m);
+  generateOperations(2 * (MaxRandInt / 10), 2 * m);
+  generateOperations(4 * (MaxRandInt / 10), m);
+  printTree(root);
+  return 0;
+}

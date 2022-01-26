@@ -275,6 +275,9 @@ public class InstSelector {
 
         }else if(cur_ir_stmt instanceof hanshudiaoyong ){
             hanshudiaoyong curfunction_call = (hanshudiaoyong) cur_ir_stmt;
+            int poss_off = 0;
+            for(int i = 8 ; i < curfunction_call.parameters.size();i++)poss_off += curfunction_call.parameters.get(i).type.size;
+            curfunction.func_call_offset = Integer.max(poss_off,curfunction.func_call_offset);
             for(int i = 0 ; i < Integer.min(8,curfunction_call.parameters.size()); i++){
                 entity curentity = curfunction_call.parameters.get(i);
                 VirtReg rs = trans(curentity);
@@ -469,7 +472,7 @@ public class InstSelector {
     }
 
     public void process_func(AsmFunc function){
-        int off = function.offset;
+        int off = function.offset + function.func_call_offset;
         if(off % 16 != 0)off = (off/16 + 1) * 16;//必须为16倍数
         AsmBlock head = function.asmblocks.get(0);
         if(head.head == null)head.push_back(new MvInst(s0,t1));//倒序
