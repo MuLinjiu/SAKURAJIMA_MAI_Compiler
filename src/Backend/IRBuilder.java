@@ -1130,7 +1130,7 @@ public class IRBuilder implements ASTvisitor{
     public void visit(FucDefNode it) {
         // TODO Auto-generated method stub
         int id = 0;
-        if(Objects.equals(it.name, "main") && main_func != null){
+        if(Objects.equals(it.name, "main") && main_func != null && !isclassdef){
             curfunction = main_func;
             currentblock = main_func.rootblock;
             currentblock.alloca_stmts.add(new alloca(new register(curfunction.register_id++,new ptr_type(new INT_TYPE(32))),new INT_TYPE(32)));
@@ -1142,7 +1142,7 @@ public class IRBuilder implements ASTvisitor{
             function func;
             if(isclassdef)func = new function("class" + cur_class_irtype.class_name + "_" + it.name);
             else func = new function(it.name);
-            if(Objects.equals(it.name, "main")){
+            if(Objects.equals(it.name, "main") && !isclassdef){
                 main_func = func;
 //                curfunction = main_func;
 //                currentblock = main_func.rootblock;
@@ -1631,42 +1631,6 @@ public class IRBuilder implements ASTvisitor{
         }
         if(ifgloabl) {//global
             it.varDefSentenceNodes.forEach(x -> {
-//                if(ret.Type_name == Type_kind.INT){
-//                    if(x.initialed_or_not){
-//                        if(main_func == null){
-//                            main_func = new function("main");
-//                        }
-//                        currentblock = main_func.rootblock;
-//                        curfunction = main_func;
-//                        global_def.functions.add(main_func);
-//
-//                        x.exprNode.accept(this);//获取变量名之类
-//                        register global_register = new register(x.name,new ptr_type(irtype),true);
-//                        gScope.entities.put(x.name,global_register);
-//
-//                        if(returnentity instanceof constant){
-//                            global_def.global_def_stmts.add(new dso_local_global(global_register,irtype,Integer.parseInt(global_return_value)));
-//                        }else{
-//                            global_def.global_def_stmts.add(new dso_local_global(global_register,irtype,0));
-//                            currentblock.push_back(new store(returnentity,global_register,global_register.type));
-//                        }
-//                    }else {
-//                        register global_register = new register(x.name,new ptr_type(irtype),true);
-//                        gScope.entities.put(x.name,global_register);
-//                        global_def.global_def_stmts.add(new dso_local_global(global_register,irtype,0));
-//                    }
-//                }else if(ret.Type_name == Type_kind.BOOL){
-//                    if(x.initialed_or_not){
-//                        x.exprNode.accept(this);//获取变量名之类
-//                        register global_register = new register(x.name,new ptr_type(irtype),true);
-//                        gScope.entities.put(x.name,global_register);
-//                        global_def.global_def_stmts.add(new dso_local_global(global_register,irtype,Integer.parseInt(global_return_value)));
-//                    }else{
-//                        register global_register = new register(x.name,new ptr_type(irtype),true);
-//                        gScope.entities.put(x.name,global_register);
-//                        global_def.global_def_stmts.add(new dso_local_global(global_register,irtype,0));
-//                    }
-//                }
                 register reg = new register(x.name,new ptr_type(irtype),true);
                 currentScope.entities.put(x.name,reg);
                 if(main_func == null){
