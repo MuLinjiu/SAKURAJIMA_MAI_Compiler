@@ -1132,7 +1132,8 @@ public class IRBuilder implements ASTvisitor{
         int id = 0;
         if(Objects.equals(it.name, "main") && main_func != null && !isclassdef){
             curfunction = main_func;
-            currentblock = main_func.rootblock;
+            if(curfunction.blocks.size() != 0)currentblock = curfunction.blocks.get(curfunction.blocks.size() - 1);
+            else currentblock = curfunction.rootblock;
             currentblock.alloca_stmts.add(new alloca(new register(curfunction.register_id++,new ptr_type(new INT_TYPE(32))),new INT_TYPE(32)));
             curfunction.ret_ = new ret(new register(curfunction.register_id - 1,new ptr_type(new INT_TYPE(32))),new INT_TYPE(32));
             currentblock.alloca_stmts.add(new store(new constant(0,new INT_TYPE(32)),new register(curfunction.register_id - 1,new ptr_type(new INT_TYPE(32))),new INT_TYPE(32)));
@@ -1205,6 +1206,10 @@ public class IRBuilder implements ASTvisitor{
 //retuen mei
         it.suiteNode.accept(this);
 
+        if(it.suiteNode.blockNodes.size() == 0){
+            if(curfunction.blocks.size() == 0)currentblock = curfunction.rootblock;
+            else currentblock = curfunction.blocks.get(curfunction.blocks.size() - 1);
+        }
         currentblock.push_back(new branch(new label(curfunction.returnblock.Identifier)));
 
         currentScope = currentScope.parentScope();
@@ -1633,6 +1638,7 @@ public class IRBuilder implements ASTvisitor{
             it.varDefSentenceNodes.forEach(x -> {
                 register reg = new register(x.name,new ptr_type(irtype),true);
                 currentScope.entities.put(x.name,reg);
+
                 if(main_func == null){
                     main_func = new function("main");
                     global_def.functions.add(main_func);
@@ -1640,7 +1646,14 @@ public class IRBuilder implements ASTvisitor{
                 if(x.initialed_or_not){
 
                     curfunction = main_func;
-                    currentblock = main_func.rootblock;
+
+                    if(curfunction.blocks.size() == 0){
+                        currentblock = curfunction.rootblock;
+                    }else{
+                        currentblock = curfunction.blocks.get(curfunction.blocks.size() - 1);
+                    }
+
+                    //currentblock = main_func.rootblock;
                     x.exprNode.accept(this);
                     if(ret.dims > 0)reg.type = new ptr_type(returnentity.type);
                     if(returnentity instanceof constant){
