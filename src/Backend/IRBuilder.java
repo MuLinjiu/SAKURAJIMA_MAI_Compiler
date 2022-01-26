@@ -27,6 +27,7 @@ public class IRBuilder implements ASTvisitor{
     private register curclass;
     private ArrayList<IRTYPE> curfunction_call_parameters = new ArrayList<>();
 
+
     //private int function_id;
 
     //private IRTYPE type;
@@ -616,7 +617,7 @@ public class IRBuilder implements ASTvisitor{
 
                         entity varentity = currentScope.getEntity(it.contex, true);
                         //entity var_only = currentScope.getEntity(it.contex,false);
-                        if (varentity != null && !((register)varentity).isglobal) {
+                        if (varentity != null && !((register)varentity).isglobal && reg_id == null) {
                             IRTYPE irtype = ((ptr_type) varentity.type).irtype;
                             if (need_copy || ifarray) {
                                 returnentity = new register(curfunction.register_id, irtype);
