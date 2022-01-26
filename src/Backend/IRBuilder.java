@@ -617,7 +617,7 @@ public class IRBuilder implements ASTvisitor{
 
                         entity varentity = currentScope.getEntity(it.contex, true);
                         //entity var_only = currentScope.getEntity(it.contex,false);
-                        if (varentity != null && !((register)varentity).isglobal && reg_id == null) {
+                        if (varentity != null) {
                             IRTYPE irtype = ((ptr_type) varentity.type).irtype;
                             if (need_copy || ifarray) {
                                 returnentity = new register(curfunction.register_id, irtype);
@@ -1620,7 +1620,8 @@ public class IRBuilder implements ASTvisitor{
 //                    currentblock.push_back(cur_func_call);
 //                }
             });
-        } else {//global
+        }
+        if(ifgloabl) {//global
             it.varDefSentenceNodes.forEach(x -> {
 //                if(ret.Type_name == Type_kind.INT){
 //                    if(x.initialed_or_not){
@@ -1666,8 +1667,8 @@ public class IRBuilder implements ASTvisitor{
                 }
                 if(x.initialed_or_not){
 
-                    curfunction = main_func;
-                    currentblock = main_func.rootblock;
+//                    curfunction = main_func;
+//                    currentblock = main_func.rootblock;
                     x.exprNode.accept(this);
                     if(ret.dims > 0)reg.type = new ptr_type(returnentity.type);
                     if(returnentity instanceof constant){
