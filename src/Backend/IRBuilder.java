@@ -610,12 +610,13 @@ public class IRBuilder implements ASTvisitor{
                         }else{
                             returnentity = var_entity;
                         }
-                    }else {
+                    }else{
 //                        register retreg = new register(curfunction.register_id++, new ptr_type(type_to_irtype(gScope.getType(it.pos,it.contex,true))));
 //                        getelement cur = new getelement(curclass,retreg);
 
                         entity varentity = currentScope.getEntity(it.contex, true);
-                        if (varentity != null) {
+                        //entity var_only = currentScope.getEntity(it.contex,false);
+                        if (varentity != null && !((register)varentity).isglobal) {
                             IRTYPE irtype = ((ptr_type) varentity.type).irtype;
                             if (need_copy || ifarray) {
                                 returnentity = new register(curfunction.register_id, irtype);
