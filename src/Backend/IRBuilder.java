@@ -602,6 +602,9 @@ public class IRBuilder implements ASTvisitor{
 //                        returnentity = var_entity;
 //                    }
                     Integer reg_id = gScope.member_id.get(it.contex);
+                    if(Objects.equals(it.contex, "from")){
+                        //System.out.println(1);
+                    }
                     if(curclass == null){
                         entity var_entity = currentScope.getEntity(it.contex,true);
                         IRTYPE irtype = ((ptr_type)var_entity.type).irtype;
@@ -958,6 +961,9 @@ public class IRBuilder implements ASTvisitor{
     @Override
     public void visit(ClassDefNode it) {
         // TODO Auto-generated method stub
+        if(Objects.equals(it.name, "Edge")){
+            //System.out.println(1);
+        }
         currentScope = ((globalScope)currentScope).getscopefromclass(it.pos,it.name);
         gScope = (globalScope) currentScope;
         isclassdef = true;
@@ -1215,6 +1221,8 @@ public class IRBuilder implements ASTvisitor{
             return_collector = return_collector_origin;
         }
         if(curclass != null)curclass = null;
+        curfunction = null;
+        currentblock = null;
     }
 
     @Override
