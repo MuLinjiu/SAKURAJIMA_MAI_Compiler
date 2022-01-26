@@ -1667,8 +1667,8 @@ public class IRBuilder implements ASTvisitor{
                 }
                 if(x.initialed_or_not){
 
-//                    curfunction = main_func;
-//                    currentblock = main_func.rootblock;
+                    curfunction = main_func;
+                    currentblock = main_func.rootblock;
                     x.exprNode.accept(this);
                     if(ret.dims > 0)reg.type = new ptr_type(returnentity.type);
                     if(returnentity instanceof constant){
