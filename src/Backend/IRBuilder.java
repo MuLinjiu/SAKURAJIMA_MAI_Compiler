@@ -348,7 +348,8 @@ public class IRBuilder implements ASTvisitor{
             }
             returnentity = retreg;
         }else{
-            if(from.type instanceof NULL_PTR || from.type.equals(totype)){
+            if(from.type instanceof NULL_PTR){
+                ((NULL_PTR)from.type).totype = totype;
                 returnentity = from;
             }else {
                 register retreg = new register(curfunction.register_id++,totype);

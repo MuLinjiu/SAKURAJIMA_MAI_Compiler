@@ -71,7 +71,10 @@ public class InstSelector {
                 class_offfset.add(0);
                 for(int i = 0 ; i < class_type.class_irtypes.size(); i++){
                     IRTYPE cur = class_type.class_irtypes.get(i);
-                    class_offfset.add(class_offfset.get(class_offfset.size() - 1) + cur.size);
+                    int tmp_size = 0;
+                    if(cur instanceof ptr_type)tmp_size = 8;
+                    else tmp_size = ((INT_TYPE)cur).width / 8;
+                    class_offfset.add(class_offfset.get(class_offfset.size() - 1) + tmp_size);
                 }
                 class_offset.put(class_name,class_offfset);
             }
@@ -473,6 +476,7 @@ public class InstSelector {
 
     public void process_func(AsmFunc function){
         int off = function.offset + function.func_call_offset;
+        //int off = function.offset;
         if(off % 16 != 0)off = (off/16 + 1) * 16;//必须为16倍数
         AsmBlock head = function.asmblocks.get(0);
         if(head.head == null)head.push_back(new MvInst(s0,t1));//倒序
