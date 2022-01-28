@@ -35,7 +35,7 @@ public class InstSelector {
         global_def = global_def_;
         top_module = top_module_;
         init_phyreg();
-        //\\reg_alloc_module();
+        reg_alloc_module();
     }
     public void init_phyreg(){
         zero = phy_regs[0] = top_module.regs.get(0);
