@@ -16,6 +16,9 @@ public class CalcRInst extends Inst{
         rs2 = rs2_;
         rd = rd_;
         Type = type_;
+        use.add(rs1);
+        use.add(rs2);
+        def.add(rd);
     }
 
     @Override

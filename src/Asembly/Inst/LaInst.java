@@ -9,6 +9,7 @@ public class LaInst extends Inst{
     public LaInst(Operand rd_, String Symbol){
         rd = rd_;
         symbol = Symbol;
+        def.add(rd);
     }
 
     @Override

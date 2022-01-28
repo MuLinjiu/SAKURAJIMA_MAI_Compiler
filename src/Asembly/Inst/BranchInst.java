@@ -16,6 +16,7 @@ public class BranchInst extends Inst{
         Type = type;
         rs = rs_;
         to_label = to_label_;
+        use.add(rs);
     }
 
     @Override

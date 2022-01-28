@@ -1,6 +1,7 @@
 package Asembly.Inst;
 
 import Asembly.Operand.Operand;
+import Asembly.Operand.Reg;
 
 public class StoreInst extends Inst{
     public enum StoreType{
@@ -23,6 +24,9 @@ public class StoreInst extends Inst{
         rd = rd_;
         symbol = Symbol;
         rt = rt_;
+        use.add(rd);
+        use.add(rt);
+        //String don't know
         imm = null;
         rs = null;
     }
@@ -36,6 +40,9 @@ public class StoreInst extends Inst{
         rd = rd_;
         rs = rs_;
         imm = imm_;
+        use.add(rd);
+        use.add(rs);
+        if(imm instanceof Reg)use.add(imm);
         symbol = null;
         rt = null;
     }

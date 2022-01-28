@@ -18,6 +18,8 @@ public class AsmFunc {
     public HashMap<String, VirtReg>phird = new HashMap<>();
     public HashMap<String, entity>phivalue = new HashMap<>();
 
+    public ArrayList<VirtReg>callees = new ArrayList<>();
+
     public AsmFunc(String identifier_){
         func_name = identifier_;
         offset = 0;

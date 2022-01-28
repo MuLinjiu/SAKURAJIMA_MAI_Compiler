@@ -9,6 +9,7 @@ public class LiInst extends Inst{
     public LiInst(Operand rd_, Operand imm_){
         rd = rd_;
         imm = imm_;
+        def.add(rd);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package Asembly.Inst;
 
 import Asembly.Operand.Operand;
+import Asembly.Operand.Reg;
 
 public class LoadInst extends Inst{
     public enum LoadType{
@@ -24,6 +25,9 @@ public class LoadInst extends Inst{
         imm = imm_;
         rs = rs_;
         symbol = null;
+        def.add(rd);
+        use.add(rs);
+        if(imm instanceof Reg)use.add(imm);
     }
 
     public LoadInst(int ld_byte, Operand rd_, String Symbol){
@@ -38,6 +42,7 @@ public class LoadInst extends Inst{
         imm = null;
         rs = null;
         symbol = Symbol;
+        def.add(rd);
     }
 
     @Override

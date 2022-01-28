@@ -14,7 +14,9 @@ import MIR.global_string_constant;
 import MIR.statement;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class InstSelector {
     Global_def global_def;
@@ -25,31 +27,33 @@ public class InstSelector {
     PhyReg zero,sp,ra,a0,s0;
     PhyReg t0,t1,t2,t3;
 
+    HashMap<String, AsmBlock>label_to_block = new HashMap<>();
+
     HashMap<String, ArrayList<Integer>>class_offset = new HashMap<>();
 
     public InstSelector(Global_def global_def_, AsmModule top_module_){
         global_def = global_def_;
         top_module = top_module_;
         init_phyreg();
-        reg_alloc_module();
+        //\\reg_alloc_module();
     }
     public void init_phyreg(){
-        zero = phy_regs[0] = new PhyReg("zero");
-        sp = phy_regs[2] = new PhyReg("sp");
-        ra = phy_regs[1] = new PhyReg("ra");
-        t0 = phy_regs[5] = new PhyReg("t0");
-        t1 = phy_regs[6] = new PhyReg("t1");
-        t2 = phy_regs[7] = new PhyReg("t2");
-        s0 = phy_regs[8] = new PhyReg("s0");
+        zero = phy_regs[0] = top_module.regs.get(0);
+        sp = phy_regs[2] = top_module.regs.get(2);
+        ra = phy_regs[1] = top_module.regs.get(1);
+        t0 = phy_regs[5] = top_module.regs.get(5);
+        t1 = phy_regs[6] = top_module.regs.get(6);
+        t2 = phy_regs[7] = top_module.regs.get(7);
+        s0 = phy_regs[8] = top_module.regs.get(8);
 
         for(int i = 10; i <= 17; i++){
-            phy_regs[i] = new PhyReg("a" + (i - 10));
+            phy_regs[i] = top_module.regs.get(i);
         }
         a0 = phy_regs[10];
         for(int i = 18; i <= 27; i++){
-            phy_regs[i] = new PhyReg("s" + (i - 16));
+            phy_regs[i] = top_module.regs.get(i);
         }
-        t3 = phy_regs[28] = new PhyReg("t3");
+        t3 = phy_regs[28] =top_module.regs.get(28);
         visit_Global_def();
     }
 
@@ -102,7 +106,7 @@ public class InstSelector {
         for(int i = 0 ; i < Integer.min(8,function.parameter_list.size());i++){//放寄存器
             register curparameter = function.parameter_list.get(i);
             VirtReg parareg = new VirtReg(curfunction.cur_reg_id++, curparameter.type.size);
-            para_block.push_back(new MvInst(parareg,phy_regs[10 + i]));
+            para_block.push_back(new MvInst(parareg,phy_regs[10 + i]));//range 10 - 17;
             curfunction.toreg_map.put(curparameter.reg_number,parareg);
         }
         for(int i = 8 ; i < function.parameter_list.size(); i++){//放内存
@@ -111,20 +115,31 @@ public class InstSelector {
             para_block.push_back(new LoadInst(curparameter.type.size,parareg,s0,new Imm(i * 4 - 32)));
             curfunction.toreg_map.put(curparameter.reg_number,parareg);
         }
+
+        label_to_block.put(function.rootblock.Identifier,new AsmBlock(function.rootblock.Identifier));
+        for(block cur : function.blocks){
+            label_to_block.put(cur.Identifier,new AsmBlock(cur.Identifier));
+        }
+        label_to_block.put(function.returnblock.Identifier, new AsmBlock(function.returnblock.Identifier));
+
+
         visit_block(function.rootblock);
         curfunction.asmblocks.add(curblock);////////
+        //label_to_block.put(function.rootblock.Identifier,curblock);
         for(block cur : function.blocks){
             visit_block(cur);
             curfunction.asmblocks.add(curblock);
+            //label_to_block.put(cur.Identifier,curblock);
         }
         visit_block(function.returnblock);
         curfunction.asmblocks.add(curblock);////////
-
+        //label_to_block.put(function.returnblock.Identifier,curblock);
         visit_Inst(function.ret_);
     }
 
     public void visit_block(block curirblock){
-        curblock = new AsmBlock(curirblock.Identifier);
+        //curblock = new AsmBlock(curirblock.Identifier);
+        curblock = label_to_block.get(curirblock.Identifier);
         for(statement stmt : curirblock.alloca_stmts ){
             visit_Inst(stmt);
         }
@@ -284,14 +299,22 @@ public class InstSelector {
             for(int i = 0 ; i < Integer.min(8,curfunction_call.parameters.size()); i++){
                 entity curentity = curfunction_call.parameters.get(i);
                 VirtReg rs = trans(curentity);
-                curblock.push_back(new MvInst(phy_regs[i + 10],rs));
+                curblock.push_back(new MvInst(phy_regs[i + 10],rs));// range 10 - 17; already get from top_module.
             }
             for(int i = 8 ; i < curfunction_call.parameters.size() ;i++){
                 entity curentity = curfunction_call.parameters.get(i);
                 VirtReg rs = trans(curentity);
                 curblock.push_back(new StoreInst(curentity.type.size,rs,sp,new Imm(i * 4 - 32)));//栈往下塞
             }
-            curblock.push_back(new CallInst(curfunction_call.function_name));
+            CallInst call = new CallInst(curfunction_call.function_name);
+            //need to be donel;
+//            call.def.add(ra);
+//            call.def.add(t0);
+//            call.def.add(t1);
+//            call.def.add(t2);
+//            call.def.addAll(Arrays.asList(phy_regs).subList(10, 18));
+//            call.def.addAll(Arrays.asList(phy_regs).subList(28, 32));
+            curblock.push_back(call);
             if(!curfunction_call.void_or_not){
                 VirtReg rd = new VirtReg(curfunction.cur_reg_id++,curfunction_call.dest_reg.type.size);
                 curblock.push_back(new MvInst(rd,a0));
@@ -308,9 +331,15 @@ public class InstSelector {
             branch  curirbranch = (branch) cur_ir_stmt;
             if(curirbranch.direct_jump){
                 curblock.push_back(new JInst(curirbranch.true_label));
+
+                curblock.succ.add(label_to_block.get(curirbranch.true_label));
             }else {
                 curblock.push_back(new BranchInst(BranchInst.BrType.bnez,trans(curirbranch.condition),curirbranch.true_label));
                 curblock.push_back(new JInst(curirbranch.false_label));
+
+
+                curblock.succ.add(label_to_block.get(curirbranch.false_label));
+                curblock.succ.add(label_to_block.get(curirbranch.true_label));
             }
 
         }else if(cur_ir_stmt instanceof trunc){
@@ -532,4 +561,48 @@ public class InstSelector {
             }
         }
     }
+
+    HashMap<AsmBlock, HashSet<Operand>>live_in_map = new HashMap<>(), live_out_map = new HashMap<>(),def_map = new HashMap<>();
+
+    public void liveness_analyse(AsmFunc function){
+        function.asmblocks.forEach(block -> {
+            HashSet<Operand> def = new HashSet<>(), use = new HashSet<>();
+            for(Inst cur = block.head ; cur != null ; cur = cur.next){
+                cur.use.forEach(reg -> {
+                    if(!def.contains(reg))use.add(reg);
+                });
+                def.addAll(cur.def);
+            }
+
+            def_map.put(block,def);
+            live_in_map.put(block,use);
+            live_out_map.put(block,new HashSet<>());//initialize with empty
+
+        });
+
+
+
+        while(true){
+            boolean flag = false;
+            for(int i = function.asmblocks.size() - 1 ; i >= 0; i-- ){//倒序算法
+                AsmBlock block = function.asmblocks.get(i);
+                HashSet<Operand> live_in = live_in_map.get(block);
+                HashSet<Operand> live_out = live_out_map.get(block);
+                int origin_live_in_size = live_in.size();
+                int origin_live_out_size = live_out.size();
+
+                live_out.removeAll(def_map.get(block));
+                live_in.addAll(live_out);
+                block.succ.forEach(x -> {
+                    live_out.addAll(live_in_map.get(block));
+                });
+                //live_out.size() == live_out_map.get(block).size(); 应该
+                flag = (origin_live_in_size != live_in.size() || origin_live_out_size != live_out.size()) || flag;
+            }
+
+            if(!flag)break;
+        }
+
+    }
+
 }

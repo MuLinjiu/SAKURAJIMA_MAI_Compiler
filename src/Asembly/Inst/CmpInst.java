@@ -15,6 +15,8 @@ public class CmpInst extends Inst{
         rd = rd_;
         rs = rs_;
         Type = type;
+        use.add(rs);
+        def.add(rd);
     }
 
     @Override

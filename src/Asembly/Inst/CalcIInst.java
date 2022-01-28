@@ -16,6 +16,8 @@ public class CalcIInst extends Inst{
         rd = rd_;
         rs = rs_;
         imm = imm_;
+        use.add(rs);
+        def.add(rd);
     }
 
     @Override

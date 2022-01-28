@@ -3,12 +3,15 @@ package Asembly;
 import Asembly.Inst.Inst;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class AsmBlock {
     public Inst head,tail;
     public String label;
     public HashMap<AsmBlock, Inst>pre_inst = new HashMap<>();
+
+    public ArrayList<AsmBlock> succ = new ArrayList<>();
 
     public AsmBlock(String label_){
         head = null;
