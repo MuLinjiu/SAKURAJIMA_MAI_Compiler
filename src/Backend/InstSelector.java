@@ -12,11 +12,11 @@ import MIR.Global_def;
 import MIR.entity;
 import MIR.global_string_constant;
 import MIR.statement;
+import Util.error.semanticError;
+import Util.position;
+import org.antlr.v4.runtime.misc.Pair;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
 public class InstSelector {
     Global_def global_def;
@@ -36,6 +36,9 @@ public class InstSelector {
         top_module = top_module_;
         init_phyreg();
         reg_alloc_module();
+
+
+
     }
     public void init_phyreg(){
         zero = phy_regs[0] = top_module.regs.get(0);
@@ -119,6 +122,7 @@ public class InstSelector {
         label_to_block.put(function.rootblock.Identifier,new AsmBlock(function.rootblock.Identifier));
         for(block cur : function.blocks){
             label_to_block.put(cur.Identifier,new AsmBlock(cur.Identifier));
+            //System.out.println(cur.Identifier);
         }
         label_to_block.put(function.returnblock.Identifier, new AsmBlock(function.returnblock.Identifier));
 
@@ -332,14 +336,26 @@ public class InstSelector {
             if(curirbranch.direct_jump){
                 curblock.push_back(new JInst(curirbranch.true_label));
 
-                curblock.succ.add(label_to_block.get(curirbranch.true_label));
+                if(label_to_block.containsKey(curirbranch.true_label.label_name))curblock.succ.add(label_to_block.get(curirbranch.true_label.label_name));
+                else {
+                    System.out.println(curirbranch.true_label.label_name);
+                    //throw new semanticError("succ1",new position(0,0));
+                }
             }else {
                 curblock.push_back(new BranchInst(BranchInst.BrType.bnez,trans(curirbranch.condition),curirbranch.true_label));
                 curblock.push_back(new JInst(curirbranch.false_label));
 
 
-                curblock.succ.add(label_to_block.get(curirbranch.false_label));
-                curblock.succ.add(label_to_block.get(curirbranch.true_label));
+                if(label_to_block.containsKey(curirbranch.false_label.label_name))curblock.succ.add(label_to_block.get(curirbranch.false_label.label_name));
+                else {
+                    System.out.println(curirbranch.false_label.label_name);
+                    //throw new semanticError("succ2",new position(0,0));
+                }
+                if(label_to_block.containsKey(curirbranch.true_label.label_name))curblock.succ.add(label_to_block.get(curirbranch.true_label.label_name));
+                else {
+                    System.out.println(curirbranch.true_label.label_name);
+                    //throw new semanticError("succ3",new position(0,0));
+                }
             }
 
         }else if(cur_ir_stmt instanceof trunc){
@@ -501,6 +517,7 @@ public class InstSelector {
             reg_alloc_block(block);
         }
         process_func(function);
+
     }
 
     public void process_func(AsmFunc function){
@@ -562,6 +579,8 @@ public class InstSelector {
         }
     }
 
+    static final int K = 28;
+
     HashMap<AsmBlock, HashSet<Operand>>live_in_map = new HashMap<>(), live_out_map = new HashMap<>(),def_map = new HashMap<>();
 
     public void liveness_analyse(AsmFunc function){
@@ -602,7 +621,323 @@ public class InstSelector {
 
             if(!flag)break;
         }
+//        System.out.println(1);
+    }
 
+
+    HashSet<Operand> precolored_nodes = new HashSet<>();
+    HashSet<Operand> initial_nodes = new HashSet<>();
+    HashSet<Operand> simplify_nodes = new HashSet<>();//simplify_worklist
+    HashSet<Operand> freeze_nodes = new HashSet<>();//freeze_worklist
+    HashSet<Operand> spill_nodes = new HashSet<>();//spill worklist
+    HashSet<Operand> spilled_nodes = new HashSet<>();
+    HashSet<Operand> coalesced_nodes = new HashSet<>();
+    HashSet<Operand> colored_nodes = new HashSet<>();
+    Stack<Operand> select_stack = new Stack<>();
+
+    HashSet<MvInst> coalesced_moves = new HashSet<>();
+    HashSet<MvInst> constrained_moves = new HashSet<>();
+    HashSet<MvInst> frozen_moves = new HashSet<>();
+    HashSet<MvInst> worklist_moves = new HashSet<>();
+    HashSet<MvInst> active_moves = new HashSet<>();
+
+    HashSet<Pair<Operand, Operand>> adj_set = new HashSet<>();
+    HashMap<Operand, HashSet<Operand>> adj_list = new HashMap<>();
+    HashMap<Operand, Integer> degree = new HashMap<>();
+    HashMap<Operand, HashSet<MvInst>> move_list = new HashMap<>();
+    HashMap<Operand, Operand> alias = new HashMap<>();
+    HashMap<Operand, Integer> color = new HashMap<>();
+//order from book
+
+
+    HashMap<Operand, Integer> val_map = new HashMap<>();//for spill privilege
+
+// 使用静态活跃分析结果构造冲突图
+    public void build(AsmFunc function){
+        function.asmblocks.forEach(block -> {
+            HashSet<Operand> live = live_out_map.get(block);
+            for(Inst cur = block.tail; cur != null; cur = cur.pre){//逆序
+                //calc spill privilege
+                cur.def.forEach(x -> {
+                    val_map.replace(x,val_map.get(x) + (precolored_nodes.contains(x) ? 0 : 1));
+                });
+                cur.use.forEach(x -> {
+                    val_map.replace(x,val_map.get(x) + (precolored_nodes.contains(x) ? 0 : 1));
+                });
+
+                if(cur instanceof MvInst){
+                    live.removeAll(cur.use);
+                    for(Operand var : cur.def){
+                        move_list.get(var).add((MvInst) cur);
+                    }
+                    for(Operand var: cur.use){
+                        move_list.get(var).add((MvInst) cur);
+                    }
+                    worklist_moves.add((MvInst) cur);
+                }
+                live.addAll(cur.def);
+
+                for(Operand var : cur.def){
+                    live.forEach(x -> {
+                        add_edge(var,x);
+                    });
+                }
+
+                live.removeAll(cur.def);
+                live.addAll(cur.use);
+            }
+        });
+    }
+
+    public void add_edge(Operand u, Operand v){
+        if(!adj_set.contains(new Pair<>(u,v)) && u != v){
+            for (int i = 0; i < 32; i++)
+                if (i == 0 || i == 2 || i == 3 || i == 4){
+                    if (u == top_module.regs.get(i))
+                        return;
+                    if (v == top_module.regs.get(i))
+                        return;
+                }
+            adj_set.add(new Pair<>(u,v));
+            adj_set.add(new Pair<>(v,u));
+            if(!precolored_nodes.contains(u)){
+                adj_list.get(u).add(v);
+                degree.replace(u,degree.get(u) + 1);
+            }
+            if(!precolored_nodes.contains(v)){
+                adj_list.get(v).add(u);
+                degree.replace(v,degree.get(v) + 1);
+            }
+        }
+    }
+
+    void make_worklist(){
+        initial_nodes.forEach(n -> {
+            initial_nodes.remove(n);
+            if(degree.get(n) >= K){
+                spill_nodes.add(n);
+            }else if(move_related(n)){
+                freeze_nodes.add(n);
+            }else simplify_nodes.add(n);
+        });
+    }
+
+    HashSet<Operand> adjacent(Operand n)
+    {
+        HashSet<Operand> ans = new HashSet<>(adj_list.get(n));
+        select_stack.forEach(ans::remove);
+        ans.removeAll(coalesced_nodes);
+        return ans;
+    }
+
+    HashSet<MvInst> node_moves(Operand n)
+    {
+        HashSet<MvInst> ans = new HashSet<>(active_moves);
+        ans.addAll(worklist_moves);
+        ans.retainAll(move_list.get(n));
+        return ans;
+    }
+
+    boolean move_related(Operand n){
+        return node_moves(n).size() != 0;
+    }
+
+    void simplify(){
+        Operand n = simplify_nodes.iterator().next();
+            simplify_nodes.remove(n);
+            select_stack.push(n);
+            adjacent(n).forEach(this::decrement_degree);
+    }
+
+    void decrement_degree(Operand m){
+        int d = degree.get(m);
+        degree.replace(m,d - 1);
+        if(d == K){
+            HashSet<Operand> tmp = new HashSet<>(adjacent(m));
+            tmp.add(m);
+            enable_moves(tmp);
+            spill_nodes.remove(m);
+            if(move_related(m)){
+                freeze_nodes.add(m);
+            }else simplify_nodes.add(m);
+        }
+    }
+
+    void enable_moves(HashSet<Operand> nodes){
+        nodes.forEach(n -> {
+            node_moves(n).forEach(m -> {
+                if(active_moves.contains(m)){
+                    active_moves.remove(m);
+                    worklist_moves.add(m);
+                }
+            });
+        });
+    }
+
+    void coalesce(){
+        MvInst m = worklist_moves.iterator().next();
+        Operand x = get_alias(m.rd);
+        Operand y = get_alias(m.rs);
+
+        Operand u,v;
+        if(precolored_nodes.contains(y)){
+            u = y;
+            v = x;
+        }else {
+            u = x;
+            v = y;
+        }
+        worklist_moves.remove(m);
+        if(u == v){
+            coalesced_moves.add(m);
+            add_worklist(u);
+        }else if(precolored_nodes.contains(v) || adj_set.contains(new Pair<>(u,v))){// uv 冲突 不能合并
+            constrained_moves.add(m);
+            add_worklist(u);
+            add_worklist(v);
+        }else {
+            boolean flag1 = precolored_nodes.contains(u);
+            boolean flag3 = !flag1;
+            boolean flag2 = true,flag4;
+            for(Operand t : adjacent(v)){
+                flag2 &= OK(t,u);
+            }
+//            adjacent(v).forEach(t -> {
+//                flag2 &= OK(t,u);
+//            });
+            HashSet<Operand> tmp = adjacent(u);
+            tmp.addAll(adjacent(v));
+            flag4 = conservative(tmp);
+
+            if((flag1 && flag2) || (flag3 && flag4)){
+                coalesced_moves.add(m);
+                combine(u,v);
+                add_worklist(u);
+            }else active_moves.add(m);
+
+        }
+    }
+
+    void add_worklist(Operand u){
+        if(!precolored_nodes.contains(u) && !move_related(u) && degree.get(u) < K){
+            freeze_nodes.remove(u);
+            simplify_nodes.add(u);
+        }
+    }
+//george
+    boolean OK(Operand t, Operand r){
+        return degree.get(t) < K || precolored_nodes.contains(t) || adj_set.contains(new Pair<>(t,r));
+    }
+
+    boolean conservative(HashSet<Operand> nodes){
+        int k = 0;
+        for(Operand n : nodes){
+            if(degree.get(n) >= K)k++;
+        }
+        return  k < K;
+    }
+
+    Operand get_alias(Operand n){
+        if(coalesced_nodes.contains(n)){
+            return get_alias(alias.get(n));
+        }else return n;
+    }
+
+    void combine(Operand u, Operand v){
+        if(freeze_nodes.contains(v))freeze_nodes.remove(v);
+        else spill_nodes.remove(v);
+        coalesced_nodes.add(v);
+        alias.replace(v,u);
+        move_list.get(u).addAll(move_list.get(v));
+        HashSet<Operand> v_ = new HashSet<>();
+        v_.add(v);
+        enable_moves(v_);
+        adjacent(v).forEach(t -> {
+            add_edge(t,u);
+            decrement_degree(t);
+        });
+        if(degree.get(u) >= K && freeze_nodes.contains(u)){
+            freeze_nodes.remove(u);
+            spill_nodes.add(u);
+        }
+
+    }
+
+    void freeze(){
+        Operand u = freeze_nodes.iterator().next();
+        freeze_nodes.remove(u);simplify_nodes.add(u);
+        freeze_moves(u);
+    }
+
+    void freeze_moves(Operand u){
+        for(var m : node_moves(u)){
+            Operand v;
+            if(get_alias(m.rs) == get_alias(u))v = get_alias(m.rd);
+            else v = get_alias(m.rs);
+            active_moves.remove(m);
+            frozen_moves.add(m);
+            if(node_moves(v).size() == 0 && degree.get(v) < K){
+                freeze_nodes.remove(v);
+                simplify_nodes.add(v);
+            }
+        }
+    }
+
+    void select_spill(){
+        double min = Double.POSITIVE_INFINITY;
+        Operand spill = null;
+        for(var reg : spill_nodes){
+            if(degree.get(reg) != 0){
+                double val = 1.0 * val_map.get(reg) / degree.get(reg);
+                if (val < min){
+                    min = val;
+                    spill = reg;
+                }
+            }
+        }
+        spill_nodes.remove(spill);
+        simplify_nodes.add(spill);
+        freeze_moves(spill);
+    }
+
+    void assign_color(){
+        while(!select_stack.empty()){
+            Operand n = select_stack.pop();
+            ArrayList<Integer> ok_colors = new ArrayList<>();
+            for (int i = 0; i < 32; i++) {
+                if (i == 0 || i == 2 || i == 3 || i == 4) continue;
+                else ok_colors.add(i);
+            }
+            for(var w : adj_list.get(n)){
+                if(colored_nodes.contains(get_alias(w)) || precolored_nodes.contains(get_alias(w))){
+                    ok_colors.remove(color.get(get_alias(w)));
+                }
+            }
+            if(ok_colors.size() == 0){
+                spilled_nodes.add(n);
+            }else {
+                colored_nodes.add(n);
+                int c = -1;
+               for(int i : ok_colors) {
+                   if (AsmModule.type_list.get(i) == 0) {
+                       c = i;
+                       break;
+                   }
+               }
+               if(c == -1)c = ok_colors.iterator().next();
+
+               color.put(n,c);
+            }
+
+
+        }
+        for(var n : coalesced_nodes){
+            color.put(n, color.get(get_alias(n)));
+        }
+    }
+
+    void rewrite_programme(AsmFunc function){
+        
     }
 
 }
