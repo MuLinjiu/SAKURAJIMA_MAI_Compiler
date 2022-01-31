@@ -3,6 +3,8 @@ package Asembly.Inst;
 import Asembly.Operand.Operand;
 import Asembly.Operand.Reg;
 
+import java.util.ArrayList;
+
 public class LoadInst extends Inst{
     public enum LoadType{
         lb,lh,lw,lhu,lbu
@@ -48,5 +50,28 @@ public class LoadInst extends Inst{
     @Override
     public String toString(){
         return "\t" + Type.toString() + "\t" + rd + ", " + ((imm == null) ? symbol : imm + "(" + rs + ")");
+    }
+    public void change(Operand vir,Operand phy) {
+        if (rd == vir) {
+            rd = phy;
+            def.remove(vir);
+            def.add(phy);
+        }
+        if (rs == vir) {
+            rs = phy;
+            use.remove(vir);
+            use.add(phy);
+        }
+
+
+    }
+    @Override
+    public void push_def(ArrayList<Operand> def_) {
+        rd = def_.get(0);
+    }
+
+    @Override
+    public void push_use(ArrayList<Operand> use_) {
+        if(symbol == null)rs = use_.get(0);
     }
 }

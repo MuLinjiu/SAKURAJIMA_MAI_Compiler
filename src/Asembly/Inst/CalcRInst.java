@@ -2,6 +2,8 @@ package Asembly.Inst;
 
 import Asembly.Operand.Operand;
 
+import java.util.ArrayList;
+
 public class CalcRInst extends Inst{
 
     public enum RType{
@@ -24,5 +26,35 @@ public class CalcRInst extends Inst{
     @Override
     public String toString(){
         return "\t" + Type.toString() + "\t" + rd + ", " + rs1 +", " + rs2;
+    }
+    @Override
+    public void change(Operand vir,Operand phy) {
+        if (rd == vir) {
+            rd = phy;
+            def.remove(vir);
+            def.add(phy);
+        }
+        if (rs1 == vir) {
+            rs1 = phy;
+            use.remove(vir);
+            use.add(phy);
+        }
+        if (rs2 == vir) {
+            rs2 = phy;
+            use.remove(vir);
+            use.add(phy);
+        }
+
+
+    }
+    @Override
+    public void push_def(ArrayList<Operand> def_) {
+        rd = def_.get(0);
+    }
+
+    @Override
+    public void push_use(ArrayList<Operand> use_) {
+        rs1 = use_.get(0);
+        rs2 = use_.get(1);
     }
 }

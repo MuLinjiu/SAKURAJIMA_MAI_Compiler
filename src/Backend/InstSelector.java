@@ -35,7 +35,8 @@ public class InstSelector {
         global_def = global_def_;
         top_module = top_module_;
         init_phyreg();
-        reg_alloc_module();
+        //reg_alloc_module();
+        run();
 
 
 
@@ -109,7 +110,7 @@ public class InstSelector {
         for(int i = 0 ; i < Integer.min(8,function.parameter_list.size());i++){//放寄存器
             register curparameter = function.parameter_list.get(i);
             VirtReg parareg = new VirtReg(curfunction.cur_reg_id++, curparameter.type.size);
-            para_block.push_back(new MvInst(parareg,phy_regs[10 + i]));//range 10 - 17;
+            para_block.push_back(new MvInst(parareg,phy_regs[10 + i]));//range 10 - 17;ai
             curfunction.toreg_map.put(curparameter.reg_number,parareg);
         }
         for(int i = 8 ; i < function.parameter_list.size(); i++){//放内存
@@ -280,6 +281,7 @@ public class InstSelector {
                     int imm = -curfunction.reg_offset.get(rd);
                     if(imm >= -2048 && imm < 2048){
                         curblock.push_back(new StoreInst(from.type.size,rs,s0,new Imm(imm)));
+                        //System.out.println(1);
                     }
                     else {
                         VirtReg tmp = new VirtReg(curfunction.cur_reg_id++, 4);
@@ -290,6 +292,7 @@ public class InstSelector {
 
                 }else{
                     curblock.push_back(new StoreInst(from.type.size,rs,rd,new Imm(0)));
+                    //System.out.println(2);
                 }
 
             }
@@ -494,7 +497,10 @@ public class InstSelector {
                 curfunction.reg_offset.put(Vreg, curfunction.offset);
             }
             int imm = -curfunction.reg_offset.get(Vreg);
-            if(imm >= -2048 && imm < 2048)curblock.insert_after(inst,new StoreInst(Vreg.size,phyReg,s0,new Imm(imm)));
+            if(imm >= -2048 && imm < 2048){
+                curblock.insert_after(inst,new StoreInst(Vreg.size,phyReg,s0,new Imm(imm)));
+                //System.out.println(3);
+            }
             else {
                 curblock.insert_after(inst, new StoreInst(Vreg.size, phyReg, t3, new Imm(0)));//倒序
                 curblock.insert_after(inst, new CalcRInst(CalcRInst.RType.add, s0, t3, t3));
@@ -579,7 +585,7 @@ public class InstSelector {
         }
     }
 
-    static final int K = 28;
+    static final int K = 27;
 
     HashMap<AsmBlock, HashSet<Operand>>live_in_map = new HashMap<>(), live_out_map = new HashMap<>(),def_map = new HashMap<>();
 
@@ -599,8 +605,6 @@ public class InstSelector {
 
         });
 
-
-
         while(true){
             boolean flag = false;
             for(int i = function.asmblocks.size() - 1 ; i >= 0; i-- ){//倒序算法
@@ -613,7 +617,7 @@ public class InstSelector {
                 live_out.removeAll(def_map.get(block));
                 live_in.addAll(live_out);
                 block.succ.forEach(x -> {
-                    live_out.addAll(live_in_map.get(block));
+                    live_out.addAll(live_in_map.get(x));
                 });
                 //live_out.size() == live_out_map.get(block).size(); 应该
                 flag = (origin_live_in_size != live_in.size() || origin_live_out_size != live_out.size()) || flag;
@@ -640,6 +644,7 @@ public class InstSelector {
     HashSet<MvInst> frozen_moves = new HashSet<>();
     HashSet<MvInst> worklist_moves = new HashSet<>();
     HashSet<MvInst> active_moves = new HashSet<>();
+    HashSet<Operand> new_temps = new HashSet<>();
 
     HashSet<Pair<Operand, Operand>> adj_set = new HashSet<>();
     HashMap<Operand, HashSet<Operand>> adj_list = new HashMap<>();
@@ -647,6 +652,7 @@ public class InstSelector {
     HashMap<Operand, HashSet<MvInst>> move_list = new HashMap<>();
     HashMap<Operand, Operand> alias = new HashMap<>();
     HashMap<Operand, Integer> color = new HashMap<>();
+
 //order from book
 
 
@@ -675,6 +681,7 @@ public class InstSelector {
                     }
                     worklist_moves.add((MvInst) cur);
                 }
+
                 live.addAll(cur.def);
 
                 for(Operand var : cur.def){
@@ -692,12 +699,18 @@ public class InstSelector {
     public void add_edge(Operand u, Operand v){
         if(!adj_set.contains(new Pair<>(u,v)) && u != v){
             for (int i = 0; i < 32; i++)
-                if (i == 0 || i == 2 || i == 3 || i == 4){
-                    if (u == top_module.regs.get(i))
+                if (i == 0 || i == 2 || i == 3 || i == 4 || i == 8){
+                    if (u == AsmModule.regs.get(i)){
+                       // System.out.println(1);
                         return;
-                    if (v == top_module.regs.get(i))
+                    }
+
+                    if (v == AsmModule.regs.get(i)){
                         return;
+                    }
+
                 }
+           // System.out.println("add_edge: " + u + ", " + v);
             adj_set.add(new Pair<>(u,v));
             adj_set.add(new Pair<>(v,u));
             if(!precolored_nodes.contains(u)){
@@ -712,14 +725,23 @@ public class InstSelector {
     }
 
     void make_worklist(){
-        initial_nodes.forEach(n -> {
+        for(var n : new HashSet<>(initial_nodes)){
             initial_nodes.remove(n);
             if(degree.get(n) >= K){
                 spill_nodes.add(n);
             }else if(move_related(n)){
                 freeze_nodes.add(n);
             }else simplify_nodes.add(n);
-        });
+        }
+//        initial_nodes.forEach(n -> {
+//
+//            initial_nodes.remove(n);
+//            if(degree.get(n) >= K){
+//                spill_nodes.add(n);
+//            }else if(move_related(n)){
+//                freeze_nodes.add(n);
+//            }else simplify_nodes.add(n);
+//        });
     }
 
     HashSet<Operand> adjacent(Operand n)
@@ -791,7 +813,7 @@ public class InstSelector {
         if(u == v){
             coalesced_moves.add(m);
             add_worklist(u);
-        }else if(precolored_nodes.contains(v) || adj_set.contains(new Pair<>(u,v))){// uv 冲突 不能合并
+        }else if(precolored_nodes.contains(v) || adj_set.contains(new Pair<>(u,v)) || u == AsmModule.regs.get(0) || v == AsmModule.regs.get(0)){// uv 冲突 不能合并
             constrained_moves.add(m);
             add_worklist(u);
             add_worklist(v);
@@ -800,7 +822,7 @@ public class InstSelector {
             boolean flag3 = !flag1;
             boolean flag2 = true,flag4;
             for(Operand t : adjacent(v)){
-                flag2 &= OK(t,u);
+                if(!OK(t,u))flag2 = false;
             }
 //            adjacent(v).forEach(t -> {
 //                flag2 &= OK(t,u);
@@ -810,7 +832,7 @@ public class InstSelector {
             flag4 = conservative(tmp);
 
             if((flag1 && flag2) || (flag3 && flag4)){
-                coalesced_moves.add(m);
+                //coalesced_moves.add(m);
                 combine(u,v);
                 add_worklist(u);
             }else active_moves.add(m);
@@ -905,7 +927,7 @@ public class InstSelector {
             Operand n = select_stack.pop();
             ArrayList<Integer> ok_colors = new ArrayList<>();
             for (int i = 0; i < 32; i++) {
-                if (i == 0 || i == 2 || i == 3 || i == 4) continue;
+                if (i == 0 || i == 2 || i == 3 || i == 4 || i == 8) continue;
                 else ok_colors.add(i);
             }
             for(var w : adj_list.get(n)){
@@ -937,7 +959,247 @@ public class InstSelector {
     }
 
     void rewrite_programme(AsmFunc function){
-        
+        new_temps = new HashSet<>();
+//        for(var n : spilled_nodes){
+//            assert n instanceof VirtReg;
+//            VirtReg reg = (VirtReg) n;
+//            if(!function.reg_offset.containsKey(reg)){
+//                function.offset += 4;
+//                function.reg_offset.put(reg,function.offset);
+//            }
+//        }
+
+        for(var block : function.asmblocks){
+            for(Inst cur = block.head ; cur != null; cur = cur.next){
+                ArrayList<Operand> def = new ArrayList<>();
+                for(var x : new HashSet<>(cur.def)){
+                    if(spilled_nodes.contains(x)){
+                        VirtReg reg = (VirtReg) x;
+                        VirtReg v = new VirtReg(function.cur_reg_id++, reg.size);
+                        cur.change(x,v);
+                        def.add(v);
+                        new_temps.add(v);
+                        if(!function.reg_offset.containsKey(reg)){
+                            function.offset += v.size;
+                            function.reg_offset.put(reg, function.offset);
+                        }
+
+                        int imm = -function.reg_offset.get(reg);
+                        if(imm >= -2048 && imm < 2048){
+                            block.insert_after(cur,new StoreInst(v.size,v,s0,new Imm(imm)));
+                           // System.out.println(4);
+                            //block.insert_after(cur,new StoreInst(v.size,s0,v,new Imm(imm)));
+                        }
+                        else {
+                            VirtReg t = new VirtReg(function.cur_reg_id++, 4);
+                            block.insert_after(cur,new StoreInst(v.size,v,t,new Imm(0)));
+                            block.insert_after(cur,new CalcRInst(CalcRInst.RType.add,s0,t,t));
+                            block.insert_after(cur, new LiInst(t, new Imm(imm)));
+                        }
+                    }else {
+
+                        def.add(x);
+                    }
+                }
+                //cur.push_def(def);
+                ArrayList<Operand> use = new ArrayList<>();
+                for(var x : new HashSet<>(cur.use)){
+                    if(spilled_nodes.contains(x)){
+                        VirtReg reg = (VirtReg) x;
+                        VirtReg v = new VirtReg(function.cur_reg_id++, reg.size);
+                        use.add(v);
+                        cur.change(x,v);
+                        new_temps.add(v);
+                        if(!function.reg_offset.containsKey(reg)){
+                            function.offset += v.size;
+                            function.reg_offset.put(reg, function.offset);
+                        }
+
+                        int imm = -function.reg_offset.get(reg);
+                        if(imm >= -2048 && imm < 2048)block.insert_before(cur,new LoadInst(v.size,v,s0,new Imm(imm)));
+                        else {
+                           block.insert_before(cur,new LiInst(v,new Imm(imm)));
+                           block.insert_before(cur, new CalcRInst(CalcRInst.RType.add,s0,v,v));
+                           block.insert_before(cur, new LoadInst(v.size,v,v,new Imm(0)));
+                        }
+                    }else {
+                        cur.change(x,x);
+                        use.add(x);
+                    }
+                }
+                //cur.push_use(use);
+            }
+        }
+
+//        initial_nodes = colored_nodes;
+//        initial_nodes.addAll(coalesced_nodes);
+//        initial_nodes.addAll(new_temps);
+
+
     }
+
+    void Main(AsmFunc function){
+        precolored_nodes = new HashSet<>();
+        initial_nodes = new HashSet<>();
+        simplify_nodes = new HashSet<>();
+        freeze_nodes = new HashSet<>();
+        spill_nodes = new HashSet<>();
+        spilled_nodes = new HashSet<>();
+        coalesced_nodes = new HashSet<>();
+        colored_nodes = new HashSet<>();
+        select_stack = new Stack<>();
+
+        coalesced_moves = new HashSet<>();
+        constrained_moves = new HashSet<>();
+        frozen_moves = new HashSet<>();
+        worklist_moves = new HashSet<>();
+        active_moves = new HashSet<>();
+
+        adj_set = new HashSet<>();
+        adj_list = new HashMap<>();
+        degree = new HashMap<>();
+        move_list = new HashMap<>();
+        alias = new HashMap<>();
+        color = new HashMap<>();
+
+        val_map = new HashMap<>();
+//
+        for(var block : function.asmblocks){
+            for(Inst cur = block.head; cur != null ; cur = cur.next){
+                initial_nodes.addAll(cur.def);
+                initial_nodes.addAll(cur.use);
+            }
+        }
+
+        for(int i = 0 ; i < 32 ;i ++){
+            precolored_nodes.add(AsmModule.regs.get(i));
+            color.put(AsmModule.regs.get(i),i);
+        }
+
+        for(var reg : initial_nodes){
+            adj_list.put(reg,new HashSet<>());
+            move_list.put(reg,new HashSet<>());
+            degree.put(reg,0);
+            alias.put(reg,null);
+            if(precolored_nodes.contains(reg)){
+                val_map.put(reg,Integer.MAX_VALUE);
+                degree.replace(reg,Integer.MAX_VALUE);
+            }else val_map.put(reg,0);
+        }
+        initial_nodes.removeAll(precolored_nodes);
+        //System.out.println(color.get(ra));
+        liveness_analyse(function);
+        //System.out.println(color.get(ra));
+        build(function);
+        //System.out.println(color.get(ra));
+        make_worklist();
+        //System.out.println(color.get(ra));
+        while(true){
+            if (!simplify_nodes.isEmpty())
+                simplify();
+            else if (!worklist_moves.isEmpty())
+                coalesce();
+            else if (!freeze_nodes.isEmpty())
+                freeze();
+            else if (!spill_nodes.isEmpty())
+                select_spill();
+            else
+                break;
+        }
+       // System.out.println(color.get(ra));
+        assign_color();
+       // System.out.println(color.get(ra));
+        if(!spilled_nodes.isEmpty()){
+            rewrite_programme(function);
+            Main(function);
+        }else{
+            function.asmblocks.forEach(this::practical_coloring);
+        }
+    }
+
+    void practical_coloring(AsmBlock block){
+        for(Inst cur = block.head; cur != null ; cur = cur.next){
+            ArrayList<Operand> def = new ArrayList<>();
+            for(var reg : new HashSet<>(cur.def)){
+                if(reg instanceof VirtReg){
+                    if (color.containsKey(reg) && color.get(reg) != null)
+                        cur.change((VirtReg)reg,AsmModule.regs.get(color.get(reg)));
+                }
+//                if(!precolored_nodes.contains(reg)){
+//                   // def.add(AsmModule.regs.get(color.get(get_alias(reg))));
+//                    cur.change(reg,AsmModule.regs.get(color.get(get_alias(reg))));
+//                }else {
+//                    cur.change(reg,reg);
+//                    //def.add(reg);
+//                }
+            }
+            //cur.push_def(def);
+            ArrayList<Operand> use = new ArrayList<>();
+            for(var reg : new HashSet<>(cur.use)){
+                if(reg instanceof VirtReg){
+                    if (color.containsKey(reg) && color.get(reg) != null)
+                        cur.change((VirtReg)reg,AsmModule.regs.get(color.get(reg)));
+                }
+//                if(!precolored_nodes.contains(reg)){
+//                    use.add(AsmModule.regs.get(color.get(get_alias(reg))));
+//                    cur.change(reg,AsmModule.regs.get(color.get(get_alias(reg))));
+//                }else {
+//                    cur.change(reg,reg);
+//                    use.add(reg);
+//                }
+            }
+            //cur.push_use(use);//wrong
+        }
+    }
+
+    void run(){
+        top_module.functions.forEach(fn -> {
+            ArrayList<Operand> t = new ArrayList<>();
+            VirtReg tmp0 = new VirtReg(fn.cur_reg_id++,4);
+            t.add(tmp0);
+            AsmBlock head = fn.asmblocks.get(0);
+            head.push_front(new MvInst(t.get(t.size() - 1),AsmModule.callee.get(0)));
+            for(int i = 1 ; i < AsmModule.callee.size() ;i++){
+                VirtReg tmpi = new VirtReg(fn.cur_reg_id++,4);
+                t.add(tmpi);
+                head.insert_after(head.head,new MvInst(t.get(t.size() -1 ),AsmModule.callee.get(i)));
+            }
+            AsmBlock tail = fn.asmblocks.size() == 0 ? head : fn.asmblocks.get(fn.asmblocks.size() - 1);
+            assert AsmModule.callee.size() == t.size();
+
+            for (int i = t.size() - 1; i >= 0; i--)
+                if(tail.tail == null)tail.push_front(new MvInst(AsmModule.callee.get(i), t.get(i)));
+                else tail.insert_before(tail.tail, new MvInst(AsmModule.callee.get(i), t.get(i)));
+
+            Main(fn);
+            process_func(fn);
+
+            for(var  block : fn.asmblocks ){
+                for(Inst cur = block.head; cur != null; cur = cur.next){
+                    ArrayList<Operand> use = new ArrayList<>(cur.use);
+                    ArrayList<Operand> def = new ArrayList<>(cur.def);
+
+                    for (var x : use)
+                        if (x instanceof VirtReg){
+                            VirtReg reg = (VirtReg)x;
+                            if (color.containsKey(reg) && color.get(reg) != null)
+                                cur.change((VirtReg)x, AsmModule.regs.get(color.get(reg)));
+                        }
+
+                    for (var x : def)
+                        if (x instanceof VirtReg){
+                            VirtReg reg = (VirtReg)x;
+                            if (color.containsKey(reg) && color.get(reg) != null)
+                                cur.change((VirtReg)x, AsmModule.regs.get(color.get(reg)));
+                        }
+
+                    }
+
+                }
+
+        });
+    }
+
+
 
 }

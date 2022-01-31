@@ -1,6 +1,7 @@
 package Asembly;
 
 import Asembly.Inst.Inst;
+import Asembly.Inst.MvInst;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -39,9 +40,17 @@ public class AsmBlock {
         if (head == null) head = tail = x;
         else insert_after(tail, x);
     }
+
+    public void push_front(Inst x){
+        if (head == null) head = tail = x;
+        else insert_before(head, x);
+    }
     public void print (PrintStream out) {
         out.println("." + label + ":");
         for (Inst inst = head; inst != null; inst = inst.next){
+            if(inst instanceof MvInst){
+                if(((MvInst)inst).rs == ((MvInst)inst).rd)continue;
+            }
             out.println ("\t" + inst);
         }
     }
