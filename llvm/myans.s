@@ -98,11 +98,11 @@ classSlice_int_get:
 		lw	t1, 0(ra)
 		lw	ra, -16(s0)
 		addi	ra, ra, 8
-		lw	t0, 0(ra)
-		lw	ra, -20(s0)
-		add	t0, t0, ra
-		li	ra, 4
-		mul	ra, t0, ra
+		lw	ra, 0(ra)
+		lw	t0, -20(s0)
+		add	ra, ra, t0
+		li	t0, 4
+		mul	ra, ra, t0
 		add	ra, t1, ra
 		lw	ra, 0(ra)
 		sw	ra, -12(s0)
@@ -129,15 +129,15 @@ classSlice_int_set:
 		sw	a2, -20(s0)
 		lw	ra, -12(s0)
 		addi	ra, ra, 0
-		lw	t1, 0(ra)
-		lw	ra, -12(s0)
-		addi	ra, ra, 8
 		lw	ra, 0(ra)
+		lw	t0, -12(s0)
+		addi	t0, t0, 8
+		lw	t1, 0(t0)
 		lw	t0, -16(s0)
-		add	ra, ra, t0
+		add	t1, t1, t0
 		li	t0, 4
-		mul	ra, ra, t0
-		add	ra, t1, ra
+		mul	t0, t1, t0
+		add	ra, ra, t0
 		lw	t0, -20(s0)
 		sw	t0, 0(ra)
 		j	.classSlice_int_setreturn_block
@@ -156,17 +156,17 @@ classSlice_int_slice:
 		sw	ra, 28(sp)
 		sw	s0, 24(sp)
 		addi	s0, sp, 32
-		mv	s1, s4
+		mv	s1, s3
 .classSlice_int_slice:
 		sw	a0, -16(s0)
 		sw	a1, -20(s0)
 		sw	a2, -24(s0)
 		li	a0, 16
 		call	malloc
-		mv	s4, a0
-		mv	a0, s4
+		mv	s3, a0
+		mv	a0, s3
 		call	Slice_int
-		sw	s4, -28(s0)
+		sw	s3, -28(s0)
 		lw	ra, -28(s0)
 		addi	t0, ra, 0
 		lw	ra, -16(s0)
@@ -177,20 +177,36 @@ classSlice_int_slice:
 		addi	t1, ra, 8
 		lw	ra, -16(s0)
 		addi	ra, ra, 8
+		lw	ra, 0(ra)
+		lw	t0, -20(s0)
+		add	ra, ra, t0
+		sw	ra, 0(t1)
+		lw	ra, -28(s0)
+		addi	t1, ra, 12
+		lw	ra, -16(s0)
+		addi	ra, ra, 8
 		lw	t0, 0(ra)
-		lw	ra, -20(s0)
+		lw	ra, -24(s0)
 		add	ra, t0, ra
 		sw	ra, 0(t1)
 		lw	ra, -28(s0)
-		addi	ra, ra, 12
-		lw	t0, -16(s0)
-		addi	t0, t0, 8
-		lw	t0, 0(t0)
-		lw	t1, -24(s0)
-		add	t0, t0, t1
-		sw	t0, 0(ra)
-		lw	ra, -28(s0)
 		addi	ra, ra, 8
+		lw	t2, 0(ra)
+		lw	ra, -16(s0)
+		addi	ra, ra, 0
+		lw	t1, 0(ra)
+		li	ra, -1
+		li	t0, 4
+		mul	ra, ra, t0
+		add	ra, t1, ra
+		lw	ra, 0(ra)
+		slt	t0, ra, t2
+		li	ra, 1
+		bnez	t0, .classSlice_int_slice_41OR_OR_OUT
+		j	.classSlice_int_slice_41OR_OR_FALSE
+.classSlice_int_slice_41OR_OR_FALSE:
+		lw	ra, -28(s0)
+		addi	ra, ra, 12
 		lw	t1, 0(ra)
 		lw	ra, -16(s0)
 		addi	ra, ra, 0
@@ -200,23 +216,7 @@ classSlice_int_slice:
 		mul	ra, ra, t0
 		add	ra, t2, ra
 		lw	ra, 0(ra)
-		slt	t0, ra, t1
-		li	ra, 1
-		bnez	t0, .classSlice_int_slice_41OR_OR_OUT
-		j	.classSlice_int_slice_41OR_OR_FALSE
-.classSlice_int_slice_41OR_OR_FALSE:
-		lw	ra, -28(s0)
-		addi	ra, ra, 12
-		lw	t0, 0(ra)
-		lw	ra, -16(s0)
-		addi	ra, ra, 0
-		lw	ra, 0(ra)
-		li	t1, -1
-		li	t2, 4
-		mul	t1, t1, t2
-		add	ra, ra, t1
-		lw	ra, 0(ra)
-		slt	ra, ra, t0
+		slt	ra, ra, t1
 		j	.classSlice_int_slice_41OR_OR_OUT
 .classSlice_int_slice_41OR_OR_OUT:
 		bnez	ra, .classSlice_int_slice_53
@@ -231,7 +231,7 @@ classSlice_int_slice:
 		j	.classSlice_int_slicereturn_block
 .classSlice_int_slicereturn_block:
 		lw	a0, -12(s0)
-		mv	s4, s1
+		mv	s3, s1
 		lw	s0, 24(sp)
 		lw	ra, 28(sp)
 		addi	sp, sp, 32
@@ -246,21 +246,21 @@ classSlice_int_tail:
 		sw	ra, 12(sp)
 		sw	s0, 8(sp)
 		addi	s0, sp, 16
-		mv	s1, s7
+		mv	s1, s6
 .classSlice_int_tail:
 		sw	a0, -16(s0)
-		lw	s7, -16(s0)
+		lw	s6, -16(s0)
 		lw	a0, -16(s0)
 		call	classSlice_int_size
 		mv	a2, a0
-		mv	a0, s7
+		mv	a0, s6
 		li	a1, 1
 		call	classSlice_int_slice
 		sw	a0, -12(s0)
 		j	.classSlice_int_tailreturn_block
 .classSlice_int_tailreturn_block:
 		lw	a0, -12(s0)
-		mv	s7, s1
+		mv	s6, s1
 		lw	s0, 8(sp)
 		lw	ra, 12(sp)
 		addi	sp, sp, 16
@@ -305,15 +305,15 @@ classSlice_int_copy:
 .classSlice_int_copy_20:
 		lw	ra, -12(s0)
 		addi	ra, ra, 0
-		lw	t1, 0(ra)
+		lw	t0, 0(ra)
 		lw	ra, -12(s0)
 		addi	ra, ra, 8
-		lw	ra, 0(ra)
-		lw	t0, -20(s0)
-		add	ra, ra, t0
-		li	t0, 4
-		mul	ra, ra, t0
-		add	s1, t1, ra
+		lw	t1, 0(ra)
+		lw	ra, -20(s0)
+		add	ra, t1, ra
+		li	t1, 4
+		mul	ra, ra, t1
+		add	s1, t0, ra
 		lw	a0, -16(s0)
 		lw	a1, -20(s0)
 		call	classSlice_int_get
@@ -355,9 +355,9 @@ classSlice_int_cloneArray:
 		add	a0, ra, t0
 		call	malloc
 		sw	s1, 0(a0)
-		li	ra, 1
-		li	t0, 4
-		mul	ra, ra, t0
+		li	t0, 1
+		li	ra, 4
+		mul	ra, t0, ra
 		add	ra, a0, ra
 		sw	ra, -20(s0)
 		li	ra, 0
@@ -375,20 +375,20 @@ classSlice_int_cloneArray:
 		lw	ra, -24(s0)
 		li	t1, 4
 		mul	ra, ra, t1
-		add	t1, t0, ra
+		add	t2, t0, ra
 		lw	ra, -16(s0)
 		addi	ra, ra, 0
-		lw	t2, 0(ra)
+		lw	t1, 0(ra)
 		lw	ra, -16(s0)
 		addi	ra, ra, 8
 		lw	ra, 0(ra)
 		lw	t0, -24(s0)
-		add	t0, ra, t0
-		li	ra, 4
-		mul	ra, t0, ra
-		add	ra, t2, ra
+		add	ra, ra, t0
+		li	t0, 4
+		mul	ra, ra, t0
+		add	ra, t1, ra
 		lw	ra, 0(ra)
-		sw	ra, 0(t1)
+		sw	ra, 0(t2)
 		j	.classSlice_int_cloneArray_35
 .classSlice_int_cloneArray_35:
 		lw	ra, -24(s0)
@@ -417,15 +417,15 @@ makeSlice_int:
 		sw	ra, 28(sp)
 		sw	s0, 24(sp)
 		addi	s0, sp, 32
-		mv	s1, s8
+		mv	s1, s10
 .makeSlice_int:
 		sw	a0, -16(s0)
 		li	a0, 16
 		call	malloc
-		mv	s8, a0
-		mv	a0, s8
+		mv	s10, a0
+		mv	a0, s10
 		call	Slice_int
-		sw	s8, -20(s0)
+		sw	s10, -20(s0)
 		lw	a0, -20(s0)
 		lw	a1, -16(s0)
 		call	classSlice_int_init
@@ -434,7 +434,7 @@ makeSlice_int:
 		j	.makeSlice_intreturn_block
 .makeSlice_intreturn_block:
 		lw	a0, -12(s0)
-		mv	s8, s1
+		mv	s10, s1
 		lw	s0, 24(sp)
 		lw	ra, 28(sp)
 		addi	sp, sp, 32
@@ -450,7 +450,7 @@ merge:
 		sw	s0, 40(sp)
 		addi	s0, sp, 48
 		sw	s1, -32(s0)
-		sw	s9, -36(s0)
+		sw	s8, -36(s0)
 .merge:
 		sw	a0, -16(s0)
 		sw	a1, -20(s0)
@@ -487,14 +487,14 @@ merge:
 		call	classSlice_int_size
 		add	s1, s1, a0
 		li	ra, 4
-		mul	t0, s1, ra
-		li	ra, 4
-		add	a0, t0, ra
+		mul	ra, s1, ra
+		li	t0, 4
+		add	a0, ra, t0
 		call	malloc
 		sw	s1, 0(a0)
-		li	ra, 1
-		li	t0, 4
-		mul	ra, ra, t0
+		li	t0, 1
+		li	ra, 4
+		mul	ra, t0, ra
 		add	ra, a0, ra
 		sw	ra, -24(s0)
 		lw	a0, -24(s0)
@@ -512,11 +512,11 @@ merge:
 		bnez	ra, .merge_47
 		j	.merge_63
 .merge_47:
-		lw	t1, -24(s0)
+		lw	t0, -24(s0)
 		li	ra, 0
-		li	t0, 4
-		mul	ra, ra, t0
-		add	s1, t1, ra
+		li	t1, 4
+		mul	ra, ra, t1
+		add	s1, t0, ra
 		lw	a0, -16(s0)
 		li	a1, 0
 		call	classSlice_int_get
@@ -533,24 +533,24 @@ merge:
 		j	.merge_79
 .merge_63:
 		lw	t0, -24(s0)
-		li	ra, 0
-		li	t1, 4
-		mul	ra, ra, t1
+		li	t1, 0
+		li	ra, 4
+		mul	ra, t1, ra
 		add	s1, t0, ra
 		lw	a0, -20(s0)
 		li	a1, 0
 		call	classSlice_int_get
 		sw	a0, 0(s1)
-		lw	s9, -28(s0)
-		lw	s1, -16(s0)
+		lw	s1, -28(s0)
+		lw	s8, -16(s0)
 		lw	a0, -20(s0)
 		call	classSlice_int_tail
 		mv	a1, a0
-		mv	a0, s1
+		mv	a0, s8
 		call	merge
 		call	makeSlice_int
 		mv	a1, a0
-		mv	a0, s9
+		mv	a0, s1
 		call	classSlice_int_copy
 		j	.merge_79
 .merge_79:
@@ -559,7 +559,7 @@ merge:
 		j	.mergereturn_block
 .mergereturn_block:
 		lw	a0, -12(s0)
-		lw	s9, -36(s0)
+		lw	s8, -36(s0)
 		lw	s1, -32(s0)
 		lw	s0, 40(sp)
 		lw	ra, 44(sp)
@@ -571,12 +571,11 @@ merge:
 	.type	mergeSort,@function
 mergeSort:
 .mergeSort_parameters:
-		addi	sp, sp, -32
-		sw	ra, 28(sp)
-		sw	s0, 24(sp)
-		addi	s0, sp, 32
-		mv	s1, s5
-		mv	s1, s4
+		addi	sp, sp, -48
+		sw	ra, 44(sp)
+		sw	s0, 40(sp)
+		addi	s0, sp, 48
+		mv	s1, s10
 .mergeSort:
 		sw	a0, -12(s0)
 		lw	a0, -12(s0)
@@ -606,30 +605,30 @@ mergeSort:
 		lw	a2, -16(s0)
 		call	classSlice_int_slice
 		call	mergeSort
-		lw	s4, -12(s0)
+		lw	ra, -12(s0)
+		sw	ra, -36(s0)
 		lw	a0, -12(s0)
 		lw	a2, -20(s0)
 		li	a1, 0
 		call	classSlice_int_slice
-		mv	s5, a0
+		mv	s10, a0
 		lw	a0, -12(s0)
 		lw	a1, -20(s0)
 		lw	a2, -16(s0)
 		call	classSlice_int_slice
 		mv	a1, a0
-		mv	a0, s5
+		mv	a0, s10
 		call	merge
 		call	makeSlice_int
 		mv	a1, a0
-		mv	a0, s4
+		lw	a0, -36(s0)
 		call	classSlice_int_copy
 		j	.mergeSortreturn_block
 .mergeSortreturn_block:
-		mv	s5, s1
-		mv	s4, s1
-		lw	s0, 24(sp)
-		lw	ra, 28(sp)
-		addi	sp, sp, 32
+		mv	s10, s1
+		lw	s0, 40(sp)
+		lw	ra, 44(sp)
+		addi	sp, sp, 48
 		ret	
 
 	.globl	mergeSortInf
@@ -668,9 +667,9 @@ main:
 		sw	a0, -16(s0)
 		lw	s1, -16(s0)
 		li	ra, 4
-		mul	ra, s1, ra
-		li	t0, 4
-		add	a0, ra, t0
+		mul	t0, s1, ra
+		li	ra, 4
+		add	a0, t0, ra
 		call	malloc
 		sw	s1, 0(a0)
 		li	t0, 1
@@ -709,17 +708,17 @@ main:
 		sw	ra, -24(s0)
 		j	.main_31
 .main_31:
-		lw	t0, -24(s0)
-		lw	ra, -16(s0)
-		slt	ra, t0, ra
+		lw	ra, -24(s0)
+		lw	t0, -16(s0)
+		slt	ra, ra, t0
 		bnez	ra, .main_35
 		j	.main_49
 .main_35:
-		lw	t0, -20(s0)
-		lw	t1, -24(s0)
-		li	ra, 4
-		mul	ra, t1, ra
-		add	ra, t0, ra
+		lw	t1, -20(s0)
+		lw	ra, -24(s0)
+		li	t0, 4
+		mul	ra, ra, t0
+		add	ra, t1, ra
 		lw	a0, 0(ra)
 		call	toString
 		la	a1, my_.str.2
@@ -727,9 +726,9 @@ main:
 		call	print
 		j	.main_46
 .main_46:
-		lw	ra, -24(s0)
-		li	t0, 1
-		add	ra, ra, t0
+		lw	t0, -24(s0)
+		li	ra, 1
+		add	ra, t0, ra
 		sw	ra, -24(s0)
 		j	.main_31
 .main_49:
@@ -769,4 +768,5 @@ my_.str.2:
 my_.str.3:
 	.asciz	" "
 	.size	my_.str.3, 1
+
 

@@ -261,6 +261,7 @@ public class InstSelector {
 
                 }else{
                     curblock.push_back(new LoadInst(to.type.size,rd,rs,new Imm(0)));
+                    //System.out.println(1);
                 }
 
             }
@@ -331,7 +332,9 @@ public class InstSelector {
             if(curret.irtype != null){//非void
                 VirtReg rs = trans(curret.reg);
                 curblock.push_back(new MvInst(a0,rs));
+                //curblock.push_back(new RetInst());
             }
+            curblock.push_back(new RetInst());
 
         }else if(cur_ir_stmt instanceof branch){
             branch  curirbranch = (branch) cur_ir_stmt;
@@ -554,7 +557,7 @@ public class InstSelector {
             head.push_front(new StoreInst(4,ra,sp,new Imm(off - 4)));
             head.push_front(new CalcIInst(CalcIInst.IType.addi,sp,sp,new Imm(-off)));
 
-            tail.push_back(new RetInst());
+            //tail.push_back(new RetInst());
 
 
             tail.insert_before(tail.tail, new LoadInst(4, s0, sp,new Imm(off - 8)));
@@ -568,7 +571,7 @@ public class InstSelector {
            head.push_front(new CalcRInst(CalcRInst.RType.sub,sp,t0,sp));
            head.push_front(new LiInst(t0,new Imm(off)));
 
-           tail.push_back(new RetInst());
+           //tail.push_back(new RetInst());
 
            tail.insert_before(tail.tail,new LiInst(t0,new Imm(off)));
            tail.insert_before(tail.tail, new CalcRInst(CalcRInst.RType.add,sp,t0,t1));
@@ -677,7 +680,7 @@ public class InstSelector {
     HashSet<MvInst> frozen_moves = new HashSet<>();
     HashSet<MvInst> worklist_moves = new HashSet<>();
     HashSet<MvInst> active_moves = new HashSet<>();
-    HashSet<Operand> new_temps = new HashSet<>();
+    ArrayList<Operand> new_temps = new ArrayList<>();
 
     HashSet<Pair<Operand, Operand>> adj_set = new HashSet<>();
     HashMap<Operand, HashSet<Operand>> adj_list = new HashMap<>();
@@ -832,6 +835,8 @@ public class InstSelector {
         MvInst m = worklist_moves.iterator().next();
         Operand x = get_alias(m.rd);
         Operand y = get_alias(m.rs);
+        assert x != null && y != null;
+
 
         Operand u,v;
         if(precolored_nodes.contains(y)){
@@ -895,6 +900,7 @@ public class InstSelector {
 
     Operand get_alias(Operand n){
         if(coalesced_nodes.contains(n)){
+            assert alias.get(n) != null;
             return get_alias(alias.get(n));
         }else return n;
     }
@@ -982,7 +988,7 @@ public class InstSelector {
                    }
                }
                if(c == -1)c = ok_colors.iterator().next();
-
+                //System.out.println(c);
                color.put(n,c);
             }
 
@@ -994,7 +1000,7 @@ public class InstSelector {
     }
 
     void rewrite_programme(AsmFunc function){
-        new_temps = new HashSet<>();
+        new_temps = new ArrayList<>();
 //        for(var n : spilled_nodes){
 //            assert n instanceof VirtReg;
 //            VirtReg reg = (VirtReg) n;
@@ -1007,7 +1013,7 @@ public class InstSelector {
         for(var block : function.asmblocks){
             for(Inst cur = block.head ; cur != null; cur = cur.next){
                 ArrayList<Operand> def = new ArrayList<>();
-                for(var x : new HashSet<>(cur.def)){
+                for(var x : new ArrayList<>(cur.def)){
                     if(spilled_nodes.contains(x)){
                         VirtReg reg = (VirtReg) x;
                         VirtReg v = new VirtReg(function.cur_reg_id++, reg.size);
@@ -1020,15 +1026,6 @@ public class InstSelector {
                         }
 
                         int imm = -function.reg_offset.get(reg);
-//                        if(imm >= -2048 && imm < 2048){
-//                            block.push_back(new StoreInst(v.size,v,s0,new Imm(imm)));
-//                        }
-//                        else {
-//                            VirtReg tmp = new VirtReg(function.cur_reg_id++, 4);
-//                            block.push_back(new LiInst(tmp, new Imm(imm)));
-//                            block.push_back(new CalcRInst(CalcRInst.RType.add, s0, tmp, tmp));
-//                            block.push_back(new StoreInst(v.size, v, tmp, new Imm(0)));
-//                        }
                         if(imm >= -2048 && imm < 2048){
                             block.insert_after(cur,new StoreInst(v.size,v,s0,new Imm(imm)));
                            // System.out.println(4);
@@ -1047,7 +1044,7 @@ public class InstSelector {
                 }
                 //cur.push_def(def);
                 ArrayList<Operand> use = new ArrayList<>();
-                for(var x : new HashSet<>(cur.use)){
+                for(var x : new ArrayList<>(cur.use)){
                     if(spilled_nodes.contains(x)){
                         VirtReg reg = (VirtReg) x;
                         VirtReg v = new VirtReg(function.cur_reg_id++, reg.size);
@@ -1060,16 +1057,9 @@ public class InstSelector {
                         }
 
                         int imm = -function.reg_offset.get(reg);
-
-//                        if(imm >= -2048 && imm < 2048)block.push_back(new LoadInst(v.size,v,s0,new Imm(imm)));
-//                        else {
-//                            VirtReg tmp = new VirtReg(function.cur_reg_id++, 4);
-//                            block.push_back(new LiInst(tmp, new Imm(imm)));
-//                            block.push_back(new CalcRInst(CalcRInst.RType.add, s0, tmp, tmp));//栈位置
-//                            block.push_back(new LoadInst(v.size, v, tmp, new Imm(0)));
-//                        }
-
-                        if(imm >= -2048 && imm < 2048)block.insert_before(cur,new LoadInst(v.size,v,s0,new Imm(imm)));
+                        if(imm >= -2048 && imm < 2048){
+                            block.insert_before(cur,new LoadInst(v.size,v,s0,new Imm(imm)));
+                        }
                         else {
                            block.insert_before(cur,new LiInst(v,new Imm(imm)));
                            block.insert_before(cur, new CalcRInst(CalcRInst.RType.add,s0,v,v));
@@ -1080,13 +1070,13 @@ public class InstSelector {
                         use.add(x);
                     }
                 }
-                //cur.push_use(use);
+               // cur.push_use(use);
             }
         }
 
-        initial_nodes = colored_nodes;
-        initial_nodes.addAll(coalesced_nodes);
-        initial_nodes.addAll(new_temps);
+//        initial_nodes = colored_nodes;
+//        initial_nodes.addAll(coalesced_nodes);
+//        initial_nodes.addAll(new_temps);
 
 
     }
@@ -1127,6 +1117,10 @@ public class InstSelector {
         for(int i = 0 ; i < 32 ;i ++){
             precolored_nodes.add(AsmModule.regs.get(i));
             color.put(AsmModule.regs.get(i),i);
+        }
+
+        if(Objects.equals(function.func_name, "classSlice_int_copy")){
+            //System.out.println(1);
         }
 
         for(var reg : initial_nodes){
@@ -1173,37 +1167,43 @@ public class InstSelector {
     void practical_coloring(AsmBlock block){
         for(Inst cur = block.head; cur != null ; cur = cur.next){
             ArrayList<Operand> def = new ArrayList<>();
-            for(var reg : new HashSet<>(cur.def)){
+            for(var reg : new ArrayList<>(cur.def)){
                 if(reg instanceof VirtReg){
                     if (color.containsKey(reg) && color.get(reg) != null)
                         cur.change((VirtReg)reg,AsmModule.regs.get(color.get(reg)));
                 }
-//                if(!precolored_nodes.contains(reg)){
-//                   // def.add(AsmModule.regs.get(color.get(get_alias(reg))));
-//                    cur.change(reg,AsmModule.regs.get(color.get(get_alias(reg))));
-//                }else {
-//                    cur.change(reg,reg);
-//                    //def.add(reg);
-//                }
+
             }
-            //cur.push_def(def);
             ArrayList<Operand> use = new ArrayList<>();
-            for(var reg : new HashSet<>(cur.use)){
+            for(var reg : new ArrayList<>(cur.use)){
                 if(reg instanceof VirtReg){
                     if (color.containsKey(reg) && color.get(reg) != null)
                         cur.change((VirtReg)reg,AsmModule.regs.get(color.get(reg)));
                 }
-//                if(!precolored_nodes.contains(reg)){
-//                    use.add(AsmModule.regs.get(color.get(get_alias(reg))));
-//                    cur.change(reg,AsmModule.regs.get(color.get(get_alias(reg))));
-//                }else {
-//                    cur.change(reg,reg);
-//                    use.add(reg);
-//                }
             }
-            //cur.push_use(use);//wrong
         }
     }
+//    void practical_coloring(AsmBlock block){
+//        for(Inst cur = block.head; cur != null ; cur = cur.next){
+//            ArrayList<Operand> def = new ArrayList<>();
+//            for(var reg : new ArrayList<>(cur.def)){
+//                if(!precolored_nodes.contains(reg)){
+//                    def.add(AsmModule.regs.get(color.get(get_alias(reg))));
+//                }else def.add(reg);
+//
+//            }
+//            cur.push_def(def);
+//            ArrayList<Operand> use = new ArrayList<>();
+//            for(var reg : new ArrayList<>(cur.use)){
+//                if(!precolored_nodes.contains(reg)){
+//                    use.add(AsmModule.regs.get(color.get(get_alias(reg))));
+//                }else use.add(reg);
+//            }
+//            cur.push_use(use);
+//        }
+//    }
+
+
 
     void run(){
         top_module.functions.forEach(fn -> {
@@ -1231,7 +1231,7 @@ public class InstSelector {
 
             Main(fn);
             process_func(fn);
-
+            //System.out.println(fn.func_name);
 //            for(var  block : fn.asmblocks ){
 //                for(Inst cur = block.head; cur != null; cur = cur.next){
 //                    ArrayList<Operand> use = new ArrayList<>(cur.use);
