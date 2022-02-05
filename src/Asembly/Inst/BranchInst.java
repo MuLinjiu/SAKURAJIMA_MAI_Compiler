@@ -1,5 +1,6 @@
 package Asembly.Inst;
 
+import Asembly.AsmModule;
 import Asembly.Operand.Operand;
 import MIR.label;
 
@@ -19,6 +20,7 @@ public class BranchInst extends Inst{
         rs = rs_;
         to_label = to_label_;
         use.add(rs);
+        use.removeIf(reg -> reg == AsmModule.regs.get(0));
     }
 
     @Override

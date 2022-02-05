@@ -1,5 +1,6 @@
 package Asembly.Inst;
 
+import Asembly.AsmModule;
 import Asembly.Operand.Operand;
 import Asembly.Operand.Reg;
 
@@ -57,12 +58,12 @@ public class LoadInst extends Inst{
             def.remove(vir);
             def.add(phy);
         }
-        if (rs == vir) {
+        if (rs != null && rs == vir) {
             rs = phy;
             use.remove(vir);
             use.add(phy);
         }
-
+        use.removeIf(reg -> reg == AsmModule.regs.get(0));
 
     }
     @Override

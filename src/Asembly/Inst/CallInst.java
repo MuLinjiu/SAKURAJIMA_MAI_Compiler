@@ -12,6 +12,7 @@ public class CallInst extends Inst{
     public CallInst(String Symbol){
         symbol = Symbol;
         def.addAll(AsmModule.caller);
+        use.removeIf(reg -> reg == AsmModule.regs.get(0));
         //call reserve to be done in Instselector
 //        def.add(new PhyReg("ra"));
 //        def.add(new PhyReg("t0"));

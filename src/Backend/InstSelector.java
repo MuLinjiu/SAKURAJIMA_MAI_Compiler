@@ -281,7 +281,6 @@ public class InstSelector {
                     int imm = -curfunction.reg_offset.get(rd);
                     if(imm >= -2048 && imm < 2048){
                         curblock.push_back(new StoreInst(from.type.size,rs,s0,new Imm(imm)));
-                        //System.out.println(1);
                     }
                     else {
                         VirtReg tmp = new VirtReg(curfunction.cur_reg_id++, 4);
@@ -531,21 +530,55 @@ public class InstSelector {
         //int off = function.offset;
         if(off % 16 != 0)off = (off/16 + 1) * 16;//必须为16倍数
         AsmBlock head = function.asmblocks.get(0);
-        if(head.head == null)head.push_back(new MvInst(s0,t1));//倒序
-        else head.insert_before(head.head,new MvInst(s0,t1));
-        head.insert_before(head.head,new StoreInst(4,s0,t1,new Imm(-8)));//函数定义导致s0存入t1-8
-        head.insert_before(head.head,new StoreInst(4,ra,t1,new Imm(-4)));
-        head.insert_before(head.head,new CalcRInst(CalcRInst.RType.add,sp,t0,t1));
-        head.insert_before(head.head,new CalcRInst(CalcRInst.RType.sub,sp,t0,sp));
-        head.insert_before(head.head, new LiInst(t0,new Imm(off)));
-        //最终s0为原sp，sp（原）-4为ra，-8为s0，t1是原sp，sp-了imm。
+//        if(head.head == null)head.push_back(new MvInst(s0,t1));//倒序
+//        else head.insert_before(head.head,new MvInst(s0,t1));
+//        head.insert_before(head.head,new StoreInst(4,s0,t1,new Imm(-8)));//函数定义导致s0存入t1-8
+//        head.insert_before(head.head,new StoreInst(4,ra,t1,new Imm(-4)));
+//        head.insert_before(head.head,new CalcRInst(CalcRInst.RType.add,sp,t0,t1));
+//        head.insert_before(head.head,new CalcRInst(CalcRInst.RType.sub,sp,t0,sp));
+//        head.insert_before(head.head, new LiInst(t0,new Imm(off)));
+//        //最终s0为原sp，sp（原）-4为ra，-8为s0，t1是原sp，sp-了imm。
+//        AsmBlock tail = function.asmblocks.get(function.asmblocks.size() - 1);
+//        tail.push_back(new LiInst(t0, new Imm(off)));
+//        tail.push_back(new CalcRInst(CalcRInst.RType.add,sp,t0,t1));
+//        tail.push_back(new LoadInst(4,ra,t1,new Imm(-4)));//获取sp和return address
+//        tail.push_back(new LoadInst(4,s0,t1,new Imm(-8)));
+//        tail.push_back(new CalcRInst(CalcRInst.RType.add,sp,t0,sp));
+//        tail.push_back(new RetInst());
+
+
         AsmBlock tail = function.asmblocks.get(function.asmblocks.size() - 1);
-        tail.push_back(new LiInst(t0, new Imm(off)));
-        tail.push_back(new CalcRInst(CalcRInst.RType.add,sp,t0,t1));
-        tail.push_back(new LoadInst(4,ra,t1,new Imm(-4)));//获取sp和return address
-        tail.push_back(new LoadInst(4,s0,t1,new Imm(-8)));
-        tail.push_back(new CalcRInst(CalcRInst.RType.add,sp,t0,sp));
-        tail.push_back(new RetInst());
+        if(off >= -2048 && off < 2048){
+            head.push_front(new CalcIInst(CalcIInst.IType.addi,s0,sp,new Imm(off)));
+            head.push_front(new StoreInst(4,s0,sp,new Imm(off - 8)));
+            head.push_front(new StoreInst(4,ra,sp,new Imm(off - 4)));
+            head.push_front(new CalcIInst(CalcIInst.IType.addi,sp,sp,new Imm(-off)));
+
+            tail.push_back(new RetInst());
+
+
+            tail.insert_before(tail.tail, new LoadInst(4, s0, sp,new Imm(off - 8)));
+            tail.insert_before(tail.tail, new LoadInst(4, ra, sp,new Imm(off - 4)));
+            tail.insert_before(tail.tail, new CalcIInst(CalcIInst.IType.addi,sp,sp,new Imm(off)));
+        }else{
+           head.push_front(new CalcRInst(CalcRInst.RType.add,sp,t0,s0));
+           head.push_front(new StoreInst(4,s0,t1,new Imm(-8)));
+           head.push_front(new StoreInst(4,ra,t1,new Imm(-4)));
+           head.push_front(new CalcRInst(CalcRInst.RType.add,sp,t0,t1));
+           head.push_front(new CalcRInst(CalcRInst.RType.sub,sp,t0,sp));
+           head.push_front(new LiInst(t0,new Imm(off)));
+
+           tail.push_back(new RetInst());
+
+           tail.insert_before(tail.tail,new LiInst(t0,new Imm(off)));
+           tail.insert_before(tail.tail, new CalcRInst(CalcRInst.RType.add,sp,t0,t1));
+           tail.insert_before(tail.tail, new LoadInst(4,s0,t1,new Imm(-8)));
+           tail.insert_before(tail.tail, new LoadInst(4,ra,t1,new Imm(-4)));
+           tail.insert_before(tail.tail, new CalcRInst(CalcRInst.RType.add,sp,t0,sp));
+
+        }
+
+
     }
 
     public void reg_alloc_block(AsmBlock block){
@@ -708,7 +741,6 @@ public class InstSelector {
                     if (v == AsmModule.regs.get(i)){
                         return;
                     }
-
                 }
            // System.out.println("add_edge: " + u + ", " + v);
             adj_set.add(new Pair<>(u,v));
@@ -818,6 +850,8 @@ public class InstSelector {
             add_worklist(u);
             add_worklist(v);
         }else {
+
+
             boolean flag1 = precolored_nodes.contains(u);
             boolean flag3 = !flag1;
             boolean flag2 = true,flag4;
@@ -832,7 +866,7 @@ public class InstSelector {
             flag4 = conservative(tmp);
 
             if((flag1 && flag2) || (flag3 && flag4)){
-                //coalesced_moves.add(m);
+                coalesced_moves.add(m);
                 combine(u,v);
                 add_worklist(u);
             }else active_moves.add(m);
@@ -887,7 +921,8 @@ public class InstSelector {
 
     void freeze(){
         Operand u = freeze_nodes.iterator().next();
-        freeze_nodes.remove(u);simplify_nodes.add(u);
+        freeze_nodes.remove(u);
+        simplify_nodes.add(u);
         freeze_moves(u);
     }
 
@@ -985,6 +1020,15 @@ public class InstSelector {
                         }
 
                         int imm = -function.reg_offset.get(reg);
+//                        if(imm >= -2048 && imm < 2048){
+//                            block.push_back(new StoreInst(v.size,v,s0,new Imm(imm)));
+//                        }
+//                        else {
+//                            VirtReg tmp = new VirtReg(function.cur_reg_id++, 4);
+//                            block.push_back(new LiInst(tmp, new Imm(imm)));
+//                            block.push_back(new CalcRInst(CalcRInst.RType.add, s0, tmp, tmp));
+//                            block.push_back(new StoreInst(v.size, v, tmp, new Imm(0)));
+//                        }
                         if(imm >= -2048 && imm < 2048){
                             block.insert_after(cur,new StoreInst(v.size,v,s0,new Imm(imm)));
                            // System.out.println(4);
@@ -1016,6 +1060,15 @@ public class InstSelector {
                         }
 
                         int imm = -function.reg_offset.get(reg);
+
+//                        if(imm >= -2048 && imm < 2048)block.push_back(new LoadInst(v.size,v,s0,new Imm(imm)));
+//                        else {
+//                            VirtReg tmp = new VirtReg(function.cur_reg_id++, 4);
+//                            block.push_back(new LiInst(tmp, new Imm(imm)));
+//                            block.push_back(new CalcRInst(CalcRInst.RType.add, s0, tmp, tmp));//栈位置
+//                            block.push_back(new LoadInst(v.size, v, tmp, new Imm(0)));
+//                        }
+
                         if(imm >= -2048 && imm < 2048)block.insert_before(cur,new LoadInst(v.size,v,s0,new Imm(imm)));
                         else {
                            block.insert_before(cur,new LiInst(v,new Imm(imm)));
@@ -1023,7 +1076,7 @@ public class InstSelector {
                            block.insert_before(cur, new LoadInst(v.size,v,v,new Imm(0)));
                         }
                     }else {
-                        cur.change(x,x);
+                        //cur.change(x,x);
                         use.add(x);
                     }
                 }
@@ -1031,9 +1084,9 @@ public class InstSelector {
             }
         }
 
-//        initial_nodes = colored_nodes;
-//        initial_nodes.addAll(coalesced_nodes);
-//        initial_nodes.addAll(new_temps);
+        initial_nodes = colored_nodes;
+        initial_nodes.addAll(coalesced_nodes);
+        initial_nodes.addAll(new_temps);
 
 
     }
@@ -1165,37 +1218,42 @@ public class InstSelector {
                 head.insert_after(head.head,new MvInst(t.get(t.size() -1 ),AsmModule.callee.get(i)));
             }
             AsmBlock tail = fn.asmblocks.size() == 0 ? head : fn.asmblocks.get(fn.asmblocks.size() - 1);
+
             assert AsmModule.callee.size() == t.size();
 
             for (int i = t.size() - 1; i >= 0; i--)
                 if(tail.tail == null)tail.push_front(new MvInst(AsmModule.callee.get(i), t.get(i)));
                 else tail.insert_before(tail.tail, new MvInst(AsmModule.callee.get(i), t.get(i)));
 
+//            for (int i = t.size() - 2; i >= 0; i--)
+//                tail.insert_before(tail.tail, new MvInst(AsmModule.callee.get(i), t.get(i)));
+
+
             Main(fn);
             process_func(fn);
 
-            for(var  block : fn.asmblocks ){
-                for(Inst cur = block.head; cur != null; cur = cur.next){
-                    ArrayList<Operand> use = new ArrayList<>(cur.use);
-                    ArrayList<Operand> def = new ArrayList<>(cur.def);
-
-                    for (var x : use)
-                        if (x instanceof VirtReg){
-                            VirtReg reg = (VirtReg)x;
-                            if (color.containsKey(reg) && color.get(reg) != null)
-                                cur.change((VirtReg)x, AsmModule.regs.get(color.get(reg)));
-                        }
-
-                    for (var x : def)
-                        if (x instanceof VirtReg){
-                            VirtReg reg = (VirtReg)x;
-                            if (color.containsKey(reg) && color.get(reg) != null)
-                                cur.change((VirtReg)x, AsmModule.regs.get(color.get(reg)));
-                        }
-
-                    }
-
-                }
+//            for(var  block : fn.asmblocks ){
+//                for(Inst cur = block.head; cur != null; cur = cur.next){
+//                    ArrayList<Operand> use = new ArrayList<>(cur.use);
+//                    ArrayList<Operand> def = new ArrayList<>(cur.def);
+//
+//                    for (var x : use)
+//                        if (x instanceof VirtReg){
+//                            VirtReg reg = (VirtReg)x;
+//                            if (color.containsKey(reg) && color.get(reg) != null)
+//                                cur.change((VirtReg)x, AsmModule.regs.get(color.get(reg)));
+//                        }
+//
+//                    for (var x : def)
+//                        if (x instanceof VirtReg){
+//                            VirtReg reg = (VirtReg)x;
+//                            if (color.containsKey(reg) && color.get(reg) != null)
+//                                cur.change((VirtReg)x, AsmModule.regs.get(color.get(reg)));
+//                        }
+//
+//                    }
+//
+//                }
 
         });
     }

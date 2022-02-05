@@ -1,5 +1,6 @@
 package Asembly.Inst;
 
+import Asembly.AsmModule;
 import Asembly.Operand.Operand;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ public class CalcIInst extends Inst{
         imm = imm_;
         use.add(rs);
         def.add(rd);
+        use.removeIf(reg -> reg == AsmModule.regs.get(0));
     }
 
     @Override

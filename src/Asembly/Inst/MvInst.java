@@ -1,5 +1,6 @@
 package Asembly.Inst;
 
+import Asembly.AsmModule;
 import Asembly.Operand.Operand;
 
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ public class MvInst extends Inst{
         rs = rs_;
         def.add(rd);
         use.add(rs);
+        use.removeIf(reg -> reg == AsmModule.regs.get(0));
     }
 
     @Override

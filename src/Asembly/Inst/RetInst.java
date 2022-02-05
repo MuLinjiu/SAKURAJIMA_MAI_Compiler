@@ -8,6 +8,7 @@ import java.util.ArrayList;
 public class RetInst extends Inst{
     public RetInst(){
         use.addAll(AsmModule.callee);
+        use.removeIf(reg -> reg == AsmModule.regs.get(0));
     }
     @Override
     public String toString(){

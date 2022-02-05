@@ -1,5 +1,6 @@
 package Asembly.Inst;
 
+import Asembly.AsmModule;
 import Asembly.Operand.Operand;
 
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ public class LaInst extends Inst{
         rd = rd_;
         symbol = Symbol;
         def.add(rd);
+        use.removeIf(reg -> reg == AsmModule.regs.get(0));
     }
 
     @Override

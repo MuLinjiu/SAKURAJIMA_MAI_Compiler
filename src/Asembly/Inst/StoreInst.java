@@ -1,5 +1,6 @@
 package Asembly.Inst;
 
+import Asembly.AsmModule;
 import Asembly.Operand.Operand;
 import Asembly.Operand.Reg;
 
@@ -32,6 +33,7 @@ public class StoreInst extends Inst{
         //String don't know
         imm = null;
         rs = null;
+        use.removeIf(reg -> reg == AsmModule.regs.get(0));
     }
 
     public StoreInst(int st_byte, Operand rd_, Operand rs_, Operand imm_){
@@ -48,6 +50,7 @@ public class StoreInst extends Inst{
         //if(imm instanceof Reg)use.add(imm);
         symbol = null;
         rt = null;
+        use.removeIf(reg -> reg == AsmModule.regs.get(0));
     }
 
     @Override
@@ -58,17 +61,23 @@ public class StoreInst extends Inst{
     public void change(Operand vir,Operand phy) {
         if (rd == vir) {
             rd = phy;
+            use.remove(vir);
+            use.add(phy);
         }
-        if (rs == vir) {
+        if (imm != null && rs == vir) {
             rs = phy;
+            use.remove(vir);
+            use.add(phy);
 
         }
-        if (rt == vir) {
+        if (imm == null && rt == vir) {
             rt = phy;
-
+            use.remove(vir);
+            use.add(phy);
         }
-        use.remove(vir);
-        use.add(phy);
+//        use.remove(vir);
+//        use.add(phy);
+
 
 
     }
