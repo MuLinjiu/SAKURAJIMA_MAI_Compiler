@@ -20,7 +20,7 @@ public class CmpInst extends Inst{
         Type = type;
         use.add(rs);
         def.add(rd);
-        use.removeIf(reg -> reg == AsmModule.regs.get(0));
+        //use.removeIf(reg -> reg == AsmModule.regs.get(0));
     }
 
     @Override

@@ -22,7 +22,7 @@ public class CalcRInst extends Inst{
         use.add(rs1);
         use.add(rs2);
         def.add(rd);
-        use.removeIf(reg -> reg == AsmModule.regs.get(0));
+        //use.removeIf(reg -> reg == AsmModule.regs.get(0));
     }
 
     @Override

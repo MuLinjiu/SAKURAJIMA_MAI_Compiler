@@ -21,7 +21,7 @@ public class CalcIInst extends Inst{
         imm = imm_;
         use.add(rs);
         def.add(rd);
-        use.removeIf(reg -> reg == AsmModule.regs.get(0));
+        //use.removeIf(reg -> reg == AsmModule.regs.get(0));
     }
 
     @Override

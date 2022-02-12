@@ -539,7 +539,11 @@ public class IRBuilder implements ASTvisitor{
         }else if(it.opt == BasicExprNode.option.NULL){
             returnentity = new register(0,new NULL_PTR());
         } else if(it.opt == BasicExprNode.option.THIS){
-            returnentity = curclass;
+            if(need_copy) {
+                register classreg = new register(curfunction.register_id++, ((ptr_type) curclass.type).irtype);
+                currentblock.push_back(new load(classreg.type, curclass, classreg));
+                returnentity = classreg;
+            }else returnentity = curclass;
         }else if(it.opt == BasicExprNode.option.STRING){//left
             String str = it.contex.substring(1,it.contex.length() - 1);
             str = str .replace("\\\\","\\");
@@ -551,21 +555,6 @@ public class IRBuilder implements ASTvisitor{
             returnentity = curstr.reg;
         }else {
             if(it.opt == BasicExprNode.option.Identifier){
-//                if(!ifgloabl) {
-//                    entity varentity = currentScope.getEntity(it.contex, true);//读出的地方
-//                    IRTYPE irtype_ = ((register) varentity).type;
-//                    //returnentity = varentity;/////////////
-//                    if(need_copy) {
-//                        returnentity = new register((curfunction.register_id), irtype_);
-//                        currentblock.push_back(new load(irtype_, varentity, new register(curfunction.register_id++, irtype_)));
-//
-//                    }else{
-//                        returnentity = varentity;
-//                    }
-//
-//                    }else{
-//// init 函数
-//                }
                 if(isfunction_id){
                     Type func_ret_type = gScope.getretTypefromfuc(it.pos,it.contex);
                     IRTYPE irtype = type_to_irtype(func_ret_type);
@@ -594,18 +583,7 @@ public class IRBuilder implements ASTvisitor{
                     }
                      //cur_function_call = func_call;
                 }else{
-//                    entity var_entity = currentScope.getEntity(it.contex,true);
-//                    IRTYPE irtype = var_entity.type;
-//                    if(need_copy || ifarray){
-//                        returnentity = new register(curfunction.register_id,irtype);
-//                        currentblock.push_back(new load(irtype,var_entity,new register(curfunction.register_id++,irtype)));
-//                    }else{
-//                        returnentity = var_entity;
-//                    }
                     Integer reg_id = gScope.member_id.get(it.contex);
-                    if(Objects.equals(it.contex, "from")){
-                        //System.out.println(1);
-                    }
                     if(curclass == null){
                         entity var_entity = currentScope.getEntity(it.contex,true);
                         IRTYPE irtype = ((ptr_type)var_entity.type).irtype;
@@ -1497,7 +1475,10 @@ public class IRBuilder implements ASTvisitor{
         if(it.expr == null){//void
 
         }else{
+            boolean need_copy_ = need_copy;
+            need_copy = true;
             it.expr.accept(this);
+            need_copy = need_copy_;
         }
         currentblock.flow_type = block.Flow_Type.RETURN;
         if(it.expr != null){

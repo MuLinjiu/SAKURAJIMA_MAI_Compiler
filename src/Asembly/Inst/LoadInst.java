@@ -58,12 +58,12 @@ public class LoadInst extends Inst{
             def.remove(vir);
             def.add(phy);
         }
-        if (rs != null && rs == vir) {
+        if (rs == vir) {
             rs = phy;
             use.remove(vir);
             use.add(phy);
         }
-        use.removeIf(reg -> reg == AsmModule.regs.get(0));
+       // use.removeIf(reg -> reg == AsmModule.regs.get(0));
 
     }
     @Override

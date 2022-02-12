@@ -33,7 +33,7 @@ public class StoreInst extends Inst{
         //String don't know
         imm = null;
         rs = null;
-        use.removeIf(reg -> reg == AsmModule.regs.get(0));
+        //use.removeIf(reg -> reg == AsmModule.regs.get(0));
     }
 
     public StoreInst(int st_byte, Operand rd_, Operand rs_, Operand imm_){
@@ -50,7 +50,7 @@ public class StoreInst extends Inst{
         //if(imm instanceof Reg)use.add(imm);
         symbol = null;
         rt = null;
-        use.removeIf(reg -> reg == AsmModule.regs.get(0));
+        //use.removeIf(reg -> reg == AsmModule.regs.get(0));
     }
 
     @Override
@@ -64,13 +64,13 @@ public class StoreInst extends Inst{
             use.remove(vir);
             use.add(phy);
         }
-        if (imm != null && rs == vir) {
+        if (rs == vir) {
             rs = phy;
             use.remove(vir);
             use.add(phy);
 
         }
-        if (imm == null && rt == vir) {
+        if (rt == vir) {
             rt = phy;
             use.remove(vir);
             use.add(phy);

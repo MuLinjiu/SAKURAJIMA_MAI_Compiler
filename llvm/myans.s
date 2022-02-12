@@ -1,772 +1,921 @@
 	.text
 
-	.globl	Slice_int
-	.p2align	2
-	.type	Slice_int,@function
-Slice_int:
-.Slice_int_parameters:
-		addi	sp, sp, -16
-		sw	ra, 12(sp)
-		sw	s0, 8(sp)
-		addi	s0, sp, 16
-.Slice_int:
-		sw	a0, -12(s0)
-		j	.Slice_intreturn_block
-.Slice_intreturn_block:
-		lw	s0, 8(sp)
-		lw	ra, 12(sp)
-		addi	sp, sp, 16
-		ret	
-
-	.globl	classSlice_int_init
-	.p2align	2
-	.type	classSlice_int_init,@function
-classSlice_int_init:
-.classSlice_int_init_parameters:
-		addi	sp, sp, -16
-		sw	ra, 12(sp)
-		sw	s0, 8(sp)
-		addi	s0, sp, 16
-.classSlice_int_init:
-		sw	a0, -12(s0)
-		sw	a1, -16(s0)
-		lw	ra, -12(s0)
-		addi	ra, ra, 0
-		lw	t0, -16(s0)
-		sw	t0, 0(ra)
-		lw	ra, -12(s0)
-		addi	ra, ra, 8
-		li	t0, 0
-		sw	t0, 0(ra)
-		lw	ra, -12(s0)
-		addi	t0, ra, 12
-		lw	t1, -16(s0)
-		li	t2, -1
-		li	ra, 4
-		mul	ra, t2, ra
-		add	ra, t1, ra
-		lw	ra, 0(ra)
-		sw	ra, 0(t0)
-		j	.classSlice_int_initreturn_block
-.classSlice_int_initreturn_block:
-		lw	s0, 8(sp)
-		lw	ra, 12(sp)
-		addi	sp, sp, 16
-		ret	
-
-	.globl	classSlice_int_size
-	.p2align	2
-	.type	classSlice_int_size,@function
-classSlice_int_size:
-.classSlice_int_size_parameters:
-		addi	sp, sp, -16
-		sw	ra, 12(sp)
-		sw	s0, 8(sp)
-		addi	s0, sp, 16
-.classSlice_int_size:
-		sw	a0, -16(s0)
-		lw	ra, -16(s0)
-		addi	ra, ra, 12
-		lw	t0, 0(ra)
-		lw	ra, -16(s0)
-		addi	ra, ra, 8
-		lw	ra, 0(ra)
-		sub	ra, t0, ra
-		sw	ra, -12(s0)
-		j	.classSlice_int_sizereturn_block
-.classSlice_int_sizereturn_block:
-		lw	a0, -12(s0)
-		lw	s0, 8(sp)
-		lw	ra, 12(sp)
-		addi	sp, sp, 16
-		ret	
-
-	.globl	classSlice_int_get
-	.p2align	2
-	.type	classSlice_int_get,@function
-classSlice_int_get:
-.classSlice_int_get_parameters:
-		addi	sp, sp, -32
-		sw	ra, 28(sp)
-		sw	s0, 24(sp)
-		addi	s0, sp, 32
-.classSlice_int_get:
-		sw	a0, -16(s0)
-		sw	a1, -20(s0)
-		lw	ra, -16(s0)
-		addi	ra, ra, 0
-		lw	t1, 0(ra)
-		lw	ra, -16(s0)
-		addi	ra, ra, 8
-		lw	ra, 0(ra)
-		lw	t0, -20(s0)
-		add	ra, ra, t0
-		li	t0, 4
-		mul	ra, ra, t0
-		add	ra, t1, ra
-		lw	ra, 0(ra)
-		sw	ra, -12(s0)
-		j	.classSlice_int_getreturn_block
-.classSlice_int_getreturn_block:
-		lw	a0, -12(s0)
-		lw	s0, 24(sp)
-		lw	ra, 28(sp)
-		addi	sp, sp, 32
-		ret	
-
-	.globl	classSlice_int_set
-	.p2align	2
-	.type	classSlice_int_set,@function
-classSlice_int_set:
-.classSlice_int_set_parameters:
-		addi	sp, sp, -32
-		sw	ra, 28(sp)
-		sw	s0, 24(sp)
-		addi	s0, sp, 32
-.classSlice_int_set:
-		sw	a0, -12(s0)
-		sw	a1, -16(s0)
-		sw	a2, -20(s0)
-		lw	ra, -12(s0)
-		addi	ra, ra, 0
-		lw	ra, 0(ra)
-		lw	t0, -12(s0)
-		addi	t0, t0, 8
-		lw	t1, 0(t0)
-		lw	t0, -16(s0)
-		add	t1, t1, t0
-		li	t0, 4
-		mul	t0, t1, t0
-		add	ra, ra, t0
-		lw	t0, -20(s0)
-		sw	t0, 0(ra)
-		j	.classSlice_int_setreturn_block
-.classSlice_int_setreturn_block:
-		lw	s0, 24(sp)
-		lw	ra, 28(sp)
-		addi	sp, sp, 32
-		ret	
-
-	.globl	classSlice_int_slice
-	.p2align	2
-	.type	classSlice_int_slice,@function
-classSlice_int_slice:
-.classSlice_int_slice_parameters:
-		addi	sp, sp, -32
-		sw	ra, 28(sp)
-		sw	s0, 24(sp)
-		addi	s0, sp, 32
-		mv	s1, s3
-.classSlice_int_slice:
-		sw	a0, -16(s0)
-		sw	a1, -20(s0)
-		sw	a2, -24(s0)
-		li	a0, 16
-		call	malloc
-		mv	s3, a0
-		mv	a0, s3
-		call	Slice_int
-		sw	s3, -28(s0)
-		lw	ra, -28(s0)
-		addi	t0, ra, 0
-		lw	ra, -16(s0)
-		addi	ra, ra, 0
-		lw	ra, 0(ra)
-		sw	ra, 0(t0)
-		lw	ra, -28(s0)
-		addi	t1, ra, 8
-		lw	ra, -16(s0)
-		addi	ra, ra, 8
-		lw	ra, 0(ra)
-		lw	t0, -20(s0)
-		add	ra, ra, t0
-		sw	ra, 0(t1)
-		lw	ra, -28(s0)
-		addi	t1, ra, 12
-		lw	ra, -16(s0)
-		addi	ra, ra, 8
-		lw	t0, 0(ra)
-		lw	ra, -24(s0)
-		add	ra, t0, ra
-		sw	ra, 0(t1)
-		lw	ra, -28(s0)
-		addi	ra, ra, 8
-		lw	t2, 0(ra)
-		lw	ra, -16(s0)
-		addi	ra, ra, 0
-		lw	t1, 0(ra)
-		li	ra, -1
-		li	t0, 4
-		mul	ra, ra, t0
-		add	ra, t1, ra
-		lw	ra, 0(ra)
-		slt	t0, ra, t2
-		li	ra, 1
-		bnez	t0, .classSlice_int_slice_41OR_OR_OUT
-		j	.classSlice_int_slice_41OR_OR_FALSE
-.classSlice_int_slice_41OR_OR_FALSE:
-		lw	ra, -28(s0)
-		addi	ra, ra, 12
-		lw	t1, 0(ra)
-		lw	ra, -16(s0)
-		addi	ra, ra, 0
-		lw	t2, 0(ra)
-		li	ra, -1
-		li	t0, 4
-		mul	ra, ra, t0
-		add	ra, t2, ra
-		lw	ra, 0(ra)
-		slt	ra, ra, t1
-		j	.classSlice_int_slice_41OR_OR_OUT
-.classSlice_int_slice_41OR_OR_OUT:
-		bnez	ra, .classSlice_int_slice_53
-		j	.classSlice_int_slice_56
-.classSlice_int_slice_53:
-		la	a0, my_.str.0
-		call	println
-		j	.classSlice_int_slice_56
-.classSlice_int_slice_56:
-		lw	ra, -28(s0)
-		sw	ra, -12(s0)
-		j	.classSlice_int_slicereturn_block
-.classSlice_int_slicereturn_block:
-		lw	a0, -12(s0)
-		mv	s3, s1
-		lw	s0, 24(sp)
-		lw	ra, 28(sp)
-		addi	sp, sp, 32
-		ret	
-
-	.globl	classSlice_int_tail
-	.p2align	2
-	.type	classSlice_int_tail,@function
-classSlice_int_tail:
-.classSlice_int_tail_parameters:
-		addi	sp, sp, -16
-		sw	ra, 12(sp)
-		sw	s0, 8(sp)
-		addi	s0, sp, 16
-		mv	s1, s6
-.classSlice_int_tail:
-		sw	a0, -16(s0)
-		lw	s6, -16(s0)
-		lw	a0, -16(s0)
-		call	classSlice_int_size
-		mv	a2, a0
-		mv	a0, s6
-		li	a1, 1
-		call	classSlice_int_slice
-		sw	a0, -12(s0)
-		j	.classSlice_int_tailreturn_block
-.classSlice_int_tailreturn_block:
-		lw	a0, -12(s0)
-		mv	s6, s1
-		lw	s0, 8(sp)
-		lw	ra, 12(sp)
-		addi	sp, sp, 16
-		ret	
-
-	.globl	classSlice_int_copy
-	.p2align	2
-	.type	classSlice_int_copy,@function
-classSlice_int_copy:
-.classSlice_int_copy_parameters:
-		addi	sp, sp, -32
-		sw	ra, 28(sp)
-		sw	s0, 24(sp)
-		addi	s0, sp, 32
-		sw	s1, -24(s0)
-.classSlice_int_copy:
-		sw	a0, -12(s0)
-		sw	a1, -16(s0)
-		lw	a0, -12(s0)
-		call	classSlice_int_size
-		mv	s1, a0
-		lw	a0, -16(s0)
-		call	classSlice_int_size
-		slt	ra, s1, a0
-		bnez	ra, .classSlice_int_copy_10
-		j	.classSlice_int_copy_13
-.classSlice_int_copy_10:
-		la	a0, my_.str.1
-		call	println
-		j	.classSlice_int_copy_13
-.classSlice_int_copy_13:
-		li	ra, 0
-		sw	ra, -20(s0)
-		j	.classSlice_int_copy_15
-.classSlice_int_copy_15:
-		lw	s1, -20(s0)
-		lw	a0, -16(s0)
-		call	classSlice_int_size
-		slt	ra, s1, a0
-		bnez	ra, .classSlice_int_copy_20
-		j	.classSlice_int_copy_36
-.classSlice_int_copy_20:
-		lw	ra, -12(s0)
-		addi	ra, ra, 0
-		lw	t0, 0(ra)
-		lw	ra, -12(s0)
-		addi	ra, ra, 8
-		lw	t1, 0(ra)
-		lw	ra, -20(s0)
-		add	ra, t1, ra
-		li	t1, 4
-		mul	ra, ra, t1
-		add	s1, t0, ra
-		lw	a0, -16(s0)
-		lw	a1, -20(s0)
-		call	classSlice_int_get
-		sw	a0, 0(s1)
-		j	.classSlice_int_copy_33
-.classSlice_int_copy_33:
-		lw	t0, -20(s0)
-		li	ra, 1
-		add	ra, t0, ra
-		sw	ra, -20(s0)
-		j	.classSlice_int_copy_15
-.classSlice_int_copy_36:
-		j	.classSlice_int_copyreturn_block
-.classSlice_int_copyreturn_block:
-		lw	s1, -24(s0)
-		lw	s0, 24(sp)
-		lw	ra, 28(sp)
-		addi	sp, sp, 32
-		ret	
-
-	.globl	classSlice_int_cloneArray
-	.p2align	2
-	.type	classSlice_int_cloneArray,@function
-classSlice_int_cloneArray:
-.classSlice_int_cloneArray_parameters:
-		addi	sp, sp, -32
-		sw	ra, 28(sp)
-		sw	s0, 24(sp)
-		addi	s0, sp, 32
-		sw	s1, -28(s0)
-.classSlice_int_cloneArray:
-		sw	a0, -16(s0)
-		lw	a0, -16(s0)
-		call	classSlice_int_size
-		mv	s1, a0
-		li	ra, 4
-		mul	ra, s1, ra
-		li	t0, 4
-		add	a0, ra, t0
-		call	malloc
-		sw	s1, 0(a0)
-		li	t0, 1
-		li	ra, 4
-		mul	ra, t0, ra
-		add	ra, a0, ra
-		sw	ra, -20(s0)
-		li	ra, 0
-		sw	ra, -24(s0)
-		j	.classSlice_int_cloneArray_16
-.classSlice_int_cloneArray_16:
-		lw	s1, -24(s0)
-		lw	a0, -16(s0)
-		call	classSlice_int_size
-		slt	ra, s1, a0
-		bnez	ra, .classSlice_int_cloneArray_21
-		j	.classSlice_int_cloneArray_38
-.classSlice_int_cloneArray_21:
-		lw	t0, -20(s0)
-		lw	ra, -24(s0)
-		li	t1, 4
-		mul	ra, ra, t1
-		add	t2, t0, ra
-		lw	ra, -16(s0)
-		addi	ra, ra, 0
-		lw	t1, 0(ra)
-		lw	ra, -16(s0)
-		addi	ra, ra, 8
-		lw	ra, 0(ra)
-		lw	t0, -24(s0)
-		add	ra, ra, t0
-		li	t0, 4
-		mul	ra, ra, t0
-		add	ra, t1, ra
-		lw	ra, 0(ra)
-		sw	ra, 0(t2)
-		j	.classSlice_int_cloneArray_35
-.classSlice_int_cloneArray_35:
-		lw	ra, -24(s0)
-		li	t0, 1
-		add	ra, ra, t0
-		sw	ra, -24(s0)
-		j	.classSlice_int_cloneArray_16
-.classSlice_int_cloneArray_38:
-		lw	ra, -20(s0)
-		sw	ra, -12(s0)
-		j	.classSlice_int_cloneArrayreturn_block
-.classSlice_int_cloneArrayreturn_block:
-		lw	a0, -12(s0)
-		lw	s1, -28(s0)
-		lw	s0, 24(sp)
-		lw	ra, 28(sp)
-		addi	sp, sp, 32
-		ret	
-
-	.globl	makeSlice_int
-	.p2align	2
-	.type	makeSlice_int,@function
-makeSlice_int:
-.makeSlice_int_parameters:
-		addi	sp, sp, -32
-		sw	ra, 28(sp)
-		sw	s0, 24(sp)
-		addi	s0, sp, 32
-		mv	s1, s10
-.makeSlice_int:
-		sw	a0, -16(s0)
-		li	a0, 16
-		call	malloc
-		mv	s10, a0
-		mv	a0, s10
-		call	Slice_int
-		sw	s10, -20(s0)
-		lw	a0, -20(s0)
-		lw	a1, -16(s0)
-		call	classSlice_int_init
-		lw	ra, -20(s0)
-		sw	ra, -12(s0)
-		j	.makeSlice_intreturn_block
-.makeSlice_intreturn_block:
-		lw	a0, -12(s0)
-		mv	s10, s1
-		lw	s0, 24(sp)
-		lw	ra, 28(sp)
-		addi	sp, sp, 32
-		ret	
-
-	.globl	merge
-	.p2align	2
-	.type	merge,@function
-merge:
-.merge_parameters:
-		addi	sp, sp, -48
-		sw	ra, 44(sp)
-		sw	s0, 40(sp)
-		addi	s0, sp, 48
-		sw	s1, -32(s0)
-		sw	s8, -36(s0)
-.merge:
-		sw	a0, -16(s0)
-		sw	a1, -20(s0)
-		lw	a0, -16(s0)
-		call	classSlice_int_size
-		li	ra, 0
-		xor	ra, a0, ra
-		sltiu	ra, ra, 1
-		bnez	ra, .merge_9
-		j	.merge_13
-.merge_9:
-		lw	a0, -20(s0)
-		call	classSlice_int_cloneArray
-		sw	a0, -12(s0)
-		j	.mergereturn_block
-.merge_13:
-		lw	a0, -20(s0)
-		call	classSlice_int_size
-		li	ra, 0
-		xor	ra, a0, ra
-		sltiu	ra, ra, 1
-		bnez	ra, .merge_17
-		j	.merge_21
-.merge_17:
-		lw	a0, -16(s0)
-		call	classSlice_int_cloneArray
-		sw	a0, -12(s0)
-		j	.mergereturn_block
-.merge_21:
-		lw	a0, -16(s0)
-		call	classSlice_int_size
-		mv	s1, a0
-		lw	a0, -20(s0)
-		call	classSlice_int_size
-		add	s1, s1, a0
-		li	ra, 4
-		mul	ra, s1, ra
-		li	t0, 4
-		add	a0, ra, t0
-		call	malloc
-		sw	s1, 0(a0)
-		li	t0, 1
-		li	ra, 4
-		mul	ra, t0, ra
-		add	ra, a0, ra
-		sw	ra, -24(s0)
-		lw	a0, -24(s0)
-		call	makeSlice_int
-		call	classSlice_int_tail
-		sw	a0, -28(s0)
-		lw	a0, -16(s0)
-		li	a1, 0
-		call	classSlice_int_get
-		mv	s1, a0
-		lw	a0, -20(s0)
-		li	a1, 0
-		call	classSlice_int_get
-		slt	ra, s1, a0
-		bnez	ra, .merge_47
-		j	.merge_63
-.merge_47:
-		lw	t0, -24(s0)
-		li	ra, 0
-		li	t1, 4
-		mul	ra, ra, t1
-		add	s1, t0, ra
-		lw	a0, -16(s0)
-		li	a1, 0
-		call	classSlice_int_get
-		sw	a0, 0(s1)
-		lw	s1, -28(s0)
-		lw	a0, -16(s0)
-		call	classSlice_int_tail
-		lw	a1, -20(s0)
-		call	merge
-		call	makeSlice_int
-		mv	a1, a0
-		mv	a0, s1
-		call	classSlice_int_copy
-		j	.merge_79
-.merge_63:
-		lw	t0, -24(s0)
-		li	t1, 0
-		li	ra, 4
-		mul	ra, t1, ra
-		add	s1, t0, ra
-		lw	a0, -20(s0)
-		li	a1, 0
-		call	classSlice_int_get
-		sw	a0, 0(s1)
-		lw	s1, -28(s0)
-		lw	s8, -16(s0)
-		lw	a0, -20(s0)
-		call	classSlice_int_tail
-		mv	a1, a0
-		mv	a0, s8
-		call	merge
-		call	makeSlice_int
-		mv	a1, a0
-		mv	a0, s1
-		call	classSlice_int_copy
-		j	.merge_79
-.merge_79:
-		lw	ra, -24(s0)
-		sw	ra, -12(s0)
-		j	.mergereturn_block
-.mergereturn_block:
-		lw	a0, -12(s0)
-		lw	s8, -36(s0)
-		lw	s1, -32(s0)
-		lw	s0, 40(sp)
-		lw	ra, 44(sp)
-		addi	sp, sp, 48
-		ret	
-
-	.globl	mergeSort
-	.p2align	2
-	.type	mergeSort,@function
-mergeSort:
-.mergeSort_parameters:
-		addi	sp, sp, -48
-		sw	ra, 44(sp)
-		sw	s0, 40(sp)
-		addi	s0, sp, 48
-		mv	s1, s10
-.mergeSort:
-		sw	a0, -12(s0)
-		lw	a0, -12(s0)
-		call	classSlice_int_size
-		li	ra, 1
-		xor	ra, a0, ra
-		sltiu	ra, ra, 1
-		bnez	ra, .mergeSort_6
-		j	.mergeSort_7
-.mergeSort_6:
-		j	.mergeSortreturn_block
-.mergeSort_7:
-		lw	a0, -12(s0)
-		call	classSlice_int_size
-		sw	a0, -16(s0)
-		lw	t0, -16(s0)
-		li	ra, 2
-		div	ra, t0, ra
-		sw	ra, -20(s0)
-		lw	a0, -12(s0)
-		lw	a2, -20(s0)
-		li	a1, 0
-		call	classSlice_int_slice
-		call	mergeSort
-		lw	a0, -12(s0)
-		lw	a1, -20(s0)
-		lw	a2, -16(s0)
-		call	classSlice_int_slice
-		call	mergeSort
-		lw	ra, -12(s0)
-		sw	ra, -36(s0)
-		lw	a0, -12(s0)
-		lw	a2, -20(s0)
-		li	a1, 0
-		call	classSlice_int_slice
-		mv	s10, a0
-		lw	a0, -12(s0)
-		lw	a1, -20(s0)
-		lw	a2, -16(s0)
-		call	classSlice_int_slice
-		mv	a1, a0
-		mv	a0, s10
-		call	merge
-		call	makeSlice_int
-		mv	a1, a0
-		lw	a0, -36(s0)
-		call	classSlice_int_copy
-		j	.mergeSortreturn_block
-.mergeSortreturn_block:
-		mv	s10, s1
-		lw	s0, 40(sp)
-		lw	ra, 44(sp)
-		addi	sp, sp, 48
-		ret	
-
-	.globl	mergeSortInf
-	.p2align	2
-	.type	mergeSortInf,@function
-mergeSortInf:
-.mergeSortInf_parameters:
-		addi	sp, sp, -16
-		sw	ra, 12(sp)
-		sw	s0, 8(sp)
-		addi	s0, sp, 16
-.mergeSortInf:
-		sw	a0, -12(s0)
-		lw	a0, -12(s0)
-		call	makeSlice_int
-		call	mergeSort
-		j	.mergeSortInfreturn_block
-.mergeSortInfreturn_block:
-		lw	s0, 8(sp)
-		lw	ra, 12(sp)
-		addi	sp, sp, 16
-		ret	
-
 	.globl	main
 	.p2align	2
 	.type	main,@function
 main:
 .main_parameters:
-		addi	sp, sp, -32
-		sw	ra, 28(sp)
-		sw	s0, 24(sp)
-		addi	s0, sp, 32
-		sw	s1, -28(s0)
+		li	t0, 16
+		sub	sp, sp, t0
+		add	t1, sp, t0
+		sw	ra, -4(t1)
+		sw	s0, -8(t1)
+		mv	s0, t1
+		mv	s1, s5
 .main:
-		call	getInt
-		sw	a0, -16(s0)
-		lw	s1, -16(s0)
-		li	ra, 4
-		mul	t0, s1, ra
-		li	ra, 4
-		add	a0, t0, ra
+		li	ra, 0
+		sw	ra, -12(s0)
+		li	ra, 1001
+		li	t0, 4
+		mul	ra, ra, t0
+		li	t0, 4
+		add	a0, ra, t0
 		call	malloc
-		sw	s1, 0(a0)
+		li	ra, 1001
+		sw	ra, 0(a0)
+		li	ra, 1
+		li	t0, 4
+		mul	ra, ra, t0
+		add	ra, a0, ra
+		sw	ra, my_b, s1
+		li	t0, 170
+		li	ra, 4
+		mul	ra, t0, ra
+		li	t0, 4
+		add	a0, ra, t0
+		call	malloc
+		li	ra, 170
+		sw	ra, 0(a0)
+		li	ra, 1
+		li	t0, 4
+		mul	ra, ra, t0
+		add	ra, a0, ra
+		sw	ra, my_prime, s1
+		li	t0, 1001
+		li	ra, 4
+		mul	ra, t0, ra
+		li	t0, 4
+		add	a0, ra, t0
+		call	malloc
+		li	ra, 1001
+		sw	ra, 0(a0)
 		li	t0, 1
 		li	ra, 4
 		mul	ra, t0, ra
 		add	ra, a0, ra
-		sw	ra, -20(s0)
+		sw	ra, my_gps, s1
+		li	ra, 1
+		li	t0, 4
+		mul	t0, ra, t0
+		li	ra, 4
+		add	a0, t0, ra
+		call	malloc
+		li	ra, 1
+		sw	ra, 0(a0)
+		li	t0, 1
+		li	ra, 4
+		mul	ra, t0, ra
+		add	ra, a0, ra
+		sw	ra, my_tmp, s1
+		li	a0, 170
+		call	origin
+		li	ra, 1000
+		sw	ra, my_N, s1
+		call	getInt
+		sw	a0, my_M, s1
 		li	ra, 0
-		sw	ra, -24(s0)
-		j	.main_15
-.main_15:
-		lw	t0, -24(s0)
-		lw	ra, -16(s0)
-		slt	ra, t0, ra
-		bnez	ra, .main_19
-		j	.main_27
-.main_19:
-		lw	t0, -20(s0)
-		lw	t1, -24(s0)
+		sw	ra, my_primeCount, s1
+		li	ra, 0
+		sw	ra, my_resultCount, s1
+		lw	t0, my_tmp
+		li	ra, 0
+		li	t1, 4
+		mul	ra, ra, t1
+		add	ra, t0, ra
+		li	t0, 0
+		sw	t0, 0(ra)
+		li	ra, 0
+		sw	ra, my_i, s1
+		j	.main_34
+.main_34:
+		lw	ra, my_i
+		lw	t0, my_N
+		li	t1, 1
+		add	t0, t0, t1
+		slt	ra, ra, t0
+		bnez	ra, .main_39
+		j	.main_49
+.main_39:
+		lw	t0, my_b
+		lw	ra, my_i
+		li	t1, 4
+		mul	ra, ra, t1
+		add	ra, t0, ra
+		li	t0, 1
+		sw	t0, 0(ra)
+		lw	t0, my_gps
+		lw	t1, my_i
 		li	ra, 4
 		mul	ra, t1, ra
-		add	s1, t0, ra
-		call	getInt
-		sw	a0, 0(s1)
-		j	.main_24
-.main_24:
-		lw	t0, -24(s0)
+		add	ra, t0, ra
+		li	t0, 0
+		sw	t0, 0(ra)
+		j	.main_46
+.main_46:
+		lw	ra, my_i
+		li	t0, 1
+		add	ra, ra, t0
+		sw	ra, my_i, s1
+		j	.main_34
+.main_49:
+		li	ra, 0
+		sw	ra, my_i, s1
+		j	.main_50
+.main_50:
+		lw	t1, my_i
+		lw	t0, my_M
 		li	ra, 1
 		add	ra, t0, ra
-		sw	ra, -24(s0)
-		j	.main_15
-.main_27:
-		lw	a0, -20(s0)
-		call	mergeSortInf
+		slt	ra, t1, ra
+		bnez	ra, .main_55
+		j	.main_62
+.main_55:
+		lw	t0, my_prime
+		lw	t1, my_i
+		li	ra, 4
+		mul	ra, t1, ra
+		add	t0, t0, ra
 		li	ra, 0
-		sw	ra, -24(s0)
-		j	.main_31
-.main_31:
-		lw	ra, -24(s0)
-		lw	t0, -16(s0)
+		sw	ra, 0(t0)
+		j	.main_59
+.main_59:
+		lw	ra, my_i
+		li	t0, 1
+		add	ra, ra, t0
+		sw	ra, my_i, s1
+		j	.main_50
+.main_62:
+		li	ra, 0
+		sw	ra, my_i, s1
+		j	.main_63
+.main_63:
+		lw	t0, my_i
+		lw	ra, my_M
 		slt	ra, ra, t0
-		bnez	ra, .main_35
-		j	.main_49
-.main_35:
-		lw	t1, -20(s0)
-		lw	ra, -24(s0)
+		xori	ra, ra, 1
+		bnez	ra, .main_67
+		j	.main_87
+.main_67:
+		li	ra, 0
+		sw	ra, my_j, s1
+		j	.main_68
+.main_68:
+		lw	t0, my_j
+		lw	ra, my_M
+		slt	ra, ra, t0
+		xori	ra, ra, 1
+		bnez	ra, .main_72
+		j	.main_83
+.main_72:
+		lw	ra, my_result
+		lw	t0, my_i
+		li	t1, 8
+		mul	t0, t0, t1
+		add	ra, ra, t0
+		lw	t1, 0(ra)
+		lw	ra, my_j
 		li	t0, 4
 		mul	ra, ra, t0
 		add	ra, t1, ra
-		lw	a0, 0(ra)
-		call	toString
-		la	a1, my_.str.2
-		call	string_add
-		call	print
-		j	.main_46
-.main_46:
-		lw	t0, -24(s0)
+		li	t0, 0
+		li	t1, 1
+		sub	t0, t0, t1
+		sw	t0, 0(ra)
+		j	.main_80
+.main_80:
+		lw	ra, my_j
+		li	t0, 1
+		add	ra, ra, t0
+		sw	ra, my_j, s1
+		j	.main_68
+.main_83:
+		j	.main_84
+.main_84:
+		lw	t0, my_i
 		li	ra, 1
 		add	ra, t0, ra
-		sw	ra, -24(s0)
-		j	.main_31
-.main_49:
-		la	a0, my_.str.3
+		sw	ra, my_i, s1
+		j	.main_63
+.main_87:
+		lw	a0, my_N
+		call	getPrime
+		lw	t1, my_tmp
+		li	t0, 0
+		li	ra, 4
+		mul	ra, t0, ra
+		add	ra, t1, ra
+		lw	ra, 0(ra)
+		sw	ra, my_primeCount, s1
+		li	ra, 1
+		sw	ra, my_i, s1
+		j	.main_93
+.main_93:
+		lw	t0, my_i
+		lw	ra, my_primeCount
+		slt	ra, t0, ra
+		bnez	ra, .main_97
+		j	.main_161
+.main_97:
+		lw	ra, my_i
+		li	t0, 1
+		add	ra, ra, t0
+		sw	ra, my_j, s1
+		j	.main_100
+.main_100:
+		lw	ra, my_j
+		lw	t0, my_primeCount
+		slt	ra, t0, ra
+		xori	ra, ra, 1
+		bnez	ra, .main_104
+		j	.main_157
+.main_104:
+		lw	t0, my_result
+		lw	ra, my_i
+		li	t1, 8
+		mul	ra, ra, t1
+		add	ra, t0, ra
+		lw	t0, 0(ra)
+		lw	t1, my_j
+		li	ra, 4
+		mul	ra, t1, ra
+		add	ra, t0, ra
+		lw	t0, 0(ra)
+		li	t1, 0
+		li	ra, 1
+		sub	ra, t1, ra
+		xor	ra, t0, ra
+		sltiu	ra, ra, 1
+		bnez	ra, .main_114
+		j	.main_153
+.main_114:
+		lw	t0, my_result
+		lw	t1, my_i
+		li	ra, 8
+		mul	ra, t1, ra
+		add	ra, t0, ra
+		lw	t1, 0(ra)
+		lw	t0, my_j
+		li	ra, 4
+		mul	ra, t0, ra
+		add	s5, t1, ra
+		lw	a0, my_N
+		lw	a1, my_i
+		lw	a2, my_j
+		call	getResult
+		sw	a0, 0(s5)
+		lw	ra, my_result
+		lw	t1, my_i
+		li	t0, 8
+		mul	t0, t1, t0
+		add	ra, ra, t0
+		lw	t0, 0(ra)
+		lw	ra, my_j
+		li	t1, 4
+		mul	ra, ra, t1
+		add	ra, t0, ra
+		lw	t0, 0(ra)
+		li	ra, 1
+		slt	ra, ra, t0
+		bnez	ra, .main_133
+		j	.main_152
+.main_133:
+		lw	ra, my_prime
+		lw	t1, my_i
+		li	t0, 4
+		mul	t0, t1, t0
+		add	ra, ra, t0
+		lw	a0, 0(ra)
+		lw	t0, my_prime
+		lw	ra, my_j
+		li	t1, 4
+		mul	ra, ra, t1
+		add	ra, t0, ra
+		lw	a1, 0(ra)
+		lw	t0, my_result
+		lw	ra, my_i
+		li	t1, 8
+		mul	ra, ra, t1
+		add	ra, t0, ra
+		lw	ra, 0(ra)
+		lw	t0, my_j
+		li	t1, 4
+		mul	t0, t0, t1
+		add	ra, ra, t0
+		lw	a2, 0(ra)
+		call	printF
+		lw	ra, my_resultCount
+		li	t0, 1
+		add	ra, ra, t0
+		sw	ra, my_resultCount, s1
+		j	.main_152
+.main_152:
+		j	.main_153
+.main_153:
+		j	.main_154
+.main_154:
+		lw	t0, my_j
+		li	ra, 1
+		add	ra, t0, ra
+		sw	ra, my_j, s1
+		j	.main_100
+.main_157:
+		j	.main_158
+.main_158:
+		lw	ra, my_i
+		li	t0, 1
+		add	ra, ra, t0
+		sw	ra, my_i, s1
+		j	.main_93
+.main_161:
+		la	a0, my_.str.2
+		call	print
+		lw	a0, my_resultCount
+		call	toString
 		call	println
 		li	ra, 0
 		sw	ra, -12(s0)
 		j	.mainreturn_block
 .mainreturn_block:
 		lw	a0, -12(s0)
-		lw	s1, -28(s0)
-		lw	s0, 24(sp)
-		lw	ra, 28(sp)
-		addi	sp, sp, 32
+		mv	s5, s1
+		li	t0, 16
+		add	t1, sp, t0
+		lw	ra, -4(t1)
+		lw	s0, -8(t1)
+		add	sp, sp, t0
 		ret	
+
+	.globl	origin
+	.p2align	2
+	.type	origin,@function
+origin:
+.origin_parameters:
+		li	t0, 16
+		sub	sp, sp, t0
+		add	t1, sp, t0
+		sw	ra, -4(t1)
+		sw	s0, -8(t1)
+		mv	s0, t1
+		sw	s1, -16(s0)
+		mv	s11, s5
+.origin:
+		sw	a0, -12(s0)
+		lw	s1, -12(s0)
+		li	ra, 8
+		mul	ra, s1, ra
+		li	t0, 4
+		add	a0, ra, t0
+		call	malloc
+		sw	s1, 0(a0)
+		li	ra, 1
+		li	t0, 4
+		mul	ra, ra, t0
+		add	ra, a0, ra
+		sw	ra, my_result, s2
+		li	ra, 0
+		sw	ra, my_i, s2
+		j	.origin_12
+.origin_12:
+		lw	t0, my_i
+		lw	ra, -12(s0)
+		slt	ra, t0, ra
+		bnez	ra, .origin_16
+		j	.origin_47
+.origin_16:
+		lw	t0, my_result
+		lw	ra, my_i
+		li	t1, 8
+		mul	ra, ra, t1
+		add	s5, t0, ra
+		lw	s1, -12(s0)
+		li	ra, 4
+		mul	ra, s1, ra
+		li	t0, 4
+		add	a0, ra, t0
+		call	malloc
+		sw	s1, 0(a0)
+		li	ra, 1
+		li	t0, 4
+		mul	ra, ra, t0
+		add	ra, a0, ra
+		sw	ra, 0(s5)
+		li	ra, 0
+		sw	ra, my_j, s2
+		j	.origin_29
+.origin_29:
+		lw	ra, my_j
+		lw	t0, -12(s0)
+		slt	ra, ra, t0
+		bnez	ra, .origin_33
+		j	.origin_43
+.origin_33:
+		lw	t1, my_result
+		lw	ra, my_i
+		li	t0, 8
+		mul	ra, ra, t0
+		add	ra, t1, ra
+		lw	t1, 0(ra)
+		lw	t0, my_j
+		li	ra, 4
+		mul	ra, t0, ra
+		add	t0, t1, ra
+		li	ra, 0
+		sw	ra, 0(t0)
+		j	.origin_40
+.origin_40:
+		lw	t0, my_j
+		li	ra, 1
+		add	ra, t0, ra
+		sw	ra, my_j, s2
+		j	.origin_29
+.origin_43:
+		j	.origin_44
+.origin_44:
+		lw	t0, my_i
+		li	ra, 1
+		add	ra, t0, ra
+		sw	ra, my_i, s2
+		j	.origin_12
+.origin_47:
+		j	.originreturn_block
+.originreturn_block:
+		mv	s5, s11
+		lw	s1, -16(s0)
+		li	t0, 16
+		add	t1, sp, t0
+		lw	ra, -4(t1)
+		lw	s0, -8(t1)
+		add	sp, sp, t0
+		ret	
+
+	.globl	getPrime
+	.p2align	2
+	.type	getPrime,@function
+getPrime:
+.getPrime_parameters:
+		li	t0, 32
+		sub	sp, sp, t0
+		add	t1, sp, t0
+		sw	ra, -4(t1)
+		sw	s0, -8(t1)
+		mv	s0, t1
+.getPrime:
+		sw	a0, -12(s0)
+		li	ra, 2
+		sw	ra, -16(s0)
+		li	ra, 2
+		sw	ra, -20(s0)
+		j	.getPrime_5
+.getPrime_5:
+		lw	ra, -20(s0)
+		lw	t0, -12(s0)
+		slt	ra, t0, ra
+		xori	ra, ra, 1
+		bnez	ra, .getPrime_9
+		j	.getPrime_53
+.getPrime_9:
+		lw	t0, my_b
+		lw	ra, -20(s0)
+		li	t1, 4
+		mul	ra, ra, t1
+		add	ra, t0, ra
+		lw	t0, 0(ra)
+		li	ra, 1
+		xor	ra, t0, ra
+		sltiu	ra, ra, 1
+		bnez	ra, .getPrime_15
+		j	.getPrime_34
+.getPrime_15:
+		lw	ra, my_tmp
+		li	t0, 0
+		li	t1, 4
+		mul	t0, t0, t1
+		add	t1, ra, t0
+		lw	t0, my_tmp
+		li	ra, 0
+		li	t2, 4
+		mul	ra, ra, t2
+		add	ra, t0, ra
+		lw	ra, 0(ra)
+		li	t0, 1
+		add	ra, ra, t0
+		sw	ra, 0(t1)
+		lw	ra, my_prime
+		lw	t2, my_tmp
+		li	t1, 0
+		li	t0, 4
+		mul	t0, t1, t0
+		add	t0, t2, t0
+		lw	t0, 0(t0)
+		li	t1, 4
+		mul	t0, t0, t1
+		add	ra, ra, t0
+		lw	t0, -20(s0)
+		sw	t0, 0(ra)
+		lw	t0, my_gps
+		lw	ra, -20(s0)
+		li	t1, 4
+		mul	ra, ra, t1
+		add	t2, t0, ra
+		lw	ra, my_tmp
+		li	t0, 0
+		li	t1, 4
+		mul	t0, t0, t1
+		add	ra, ra, t0
+		lw	ra, 0(ra)
+		sw	ra, 0(t2)
+		j	.getPrime_34
+.getPrime_34:
+		j	.getPrime_35
+.getPrime_35:
+		lw	t0, -20(s0)
+		lw	ra, -16(s0)
+		mul	t0, t0, ra
+		lw	ra, -12(s0)
+		slt	ra, ra, t0
+		xori	ra, ra, 1
+		bnez	ra, .getPrime_41
+		j	.getPrime_49
+.getPrime_41:
+		lw	ra, my_b
+		lw	t1, -20(s0)
+		lw	t0, -16(s0)
+		mul	t1, t1, t0
+		li	t0, 4
+		mul	t0, t1, t0
+		add	ra, ra, t0
+		li	t0, 0
+		sw	t0, 0(ra)
+		lw	ra, -16(s0)
+		li	t0, 1
+		add	ra, ra, t0
+		sw	ra, -16(s0)
+		j	.getPrime_35
+.getPrime_49:
+		li	ra, 2
+		sw	ra, -16(s0)
+		j	.getPrime_50
+.getPrime_50:
+		lw	ra, -20(s0)
+		li	t0, 1
+		add	ra, ra, t0
+		sw	ra, -20(s0)
+		j	.getPrime_5
+.getPrime_53:
+		j	.getPrimereturn_block
+.getPrimereturn_block:
+		li	t0, 32
+		add	t1, sp, t0
+		lw	ra, -4(t1)
+		lw	s0, -8(t1)
+		add	sp, sp, t0
+		ret	
+
+	.globl	getResult
+	.p2align	2
+	.type	getResult,@function
+getResult:
+.getResult_parameters:
+		li	t0, 32
+		sub	sp, sp, t0
+		add	t1, sp, t0
+		sw	ra, -4(t1)
+		sw	s0, -8(t1)
+		mv	s0, t1
+		mv	s1, s5
+.getResult:
+		sw	a0, -16(s0)
+		sw	a1, -20(s0)
+		sw	a2, -24(s0)
+		lw	t1, my_result
+		lw	t0, -20(s0)
+		li	ra, 8
+		mul	ra, t0, ra
+		add	ra, t1, ra
+		lw	ra, 0(ra)
+		lw	t0, -24(s0)
+		li	t1, 4
+		mul	t0, t0, t1
+		add	ra, ra, t0
+		lw	t0, 0(ra)
+		li	t1, 0
+		li	ra, 1
+		sub	ra, t1, ra
+		xor	ra, t0, ra
+		sltiu	ra, ra, 1
+		bnez	ra, .getResult_17
+		j	.getResult_71
+.getResult_17:
+		lw	t1, my_prime
+		lw	t0, -24(s0)
+		li	ra, 4
+		mul	ra, t0, ra
+		add	ra, t1, ra
+		lw	t0, 0(ra)
+		li	ra, 2
+		mul	t1, t0, ra
+		lw	t2, my_prime
+		lw	ra, -20(s0)
+		li	t0, 4
+		mul	ra, ra, t0
+		add	ra, t2, ra
+		lw	ra, 0(ra)
+		sub	t0, t1, ra
+		lw	ra, -16(s0)
+		slt	ra, ra, t0
+		xori	ra, ra, 1
+		bnez	ra, .getResult_30
+		j	.getResult_70
+.getResult_30:
+		lw	t1, my_b
+		lw	ra, my_prime
+		lw	t0, -24(s0)
+		li	t2, 4
+		mul	t0, t0, t2
+		add	ra, ra, t0
+		lw	t0, 0(ra)
+		li	ra, 2
+		mul	t2, t0, ra
+		lw	t0, my_prime
+		lw	a0, -20(s0)
+		li	ra, 4
+		mul	ra, a0, ra
+		add	ra, t0, ra
+		lw	ra, 0(ra)
+		sub	t0, t2, ra
+		li	ra, 4
+		mul	ra, t0, ra
+		add	ra, t1, ra
+		lw	ra, 0(ra)
+		li	t0, 0
+		xor	ra, ra, t0
+		sltiu	ra, ra, 1
+		xori	ra, ra, 1
+		bnez	ra, .getResult_45
+		j	.getResult_69
+.getResult_45:
+		lw	ra, my_result
+		lw	t0, -20(s0)
+		li	t1, 8
+		mul	t0, t0, t1
+		add	ra, ra, t0
+		lw	t1, 0(ra)
+		lw	ra, -24(s0)
+		li	t0, 4
+		mul	ra, ra, t0
+		add	s5, t1, ra
+		lw	a0, -16(s0)
+		lw	a1, -24(s0)
+		lw	t1, my_gps
+		lw	t0, my_prime
+		lw	ra, -24(s0)
+		li	t2, 4
+		mul	ra, ra, t2
+		add	ra, t0, ra
+		lw	t0, 0(ra)
+		li	ra, 2
+		mul	a2, t0, ra
+		lw	t2, my_prime
+		lw	t0, -20(s0)
+		li	ra, 4
+		mul	ra, t0, ra
+		add	ra, t2, ra
+		lw	ra, 0(ra)
+		sub	ra, a2, ra
+		li	t0, 4
+		mul	ra, ra, t0
+		add	ra, t1, ra
+		lw	a2, 0(ra)
+		call	getResult
+		li	ra, 1
+		add	ra, a0, ra
+		sw	ra, 0(s5)
+		j	.getResult_69
+.getResult_69:
+		j	.getResult_70
+.getResult_70:
+		j	.getResult_71
+.getResult_71:
+		lw	t0, my_result
+		lw	t1, -20(s0)
+		li	ra, 8
+		mul	ra, t1, ra
+		add	ra, t0, ra
+		lw	t0, 0(ra)
+		lw	t1, -24(s0)
+		li	ra, 4
+		mul	ra, t1, ra
+		add	ra, t0, ra
+		lw	ra, 0(ra)
+		li	t1, 0
+		li	t0, 1
+		sub	t0, t1, t0
+		xor	ra, ra, t0
+		sltiu	ra, ra, 1
+		bnez	ra, .getResult_81
+		j	.getResult_88
+.getResult_81:
+		lw	ra, my_result
+		lw	t1, -20(s0)
+		li	t0, 8
+		mul	t0, t1, t0
+		add	ra, ra, t0
+		lw	ra, 0(ra)
+		lw	t1, -24(s0)
+		li	t0, 4
+		mul	t0, t1, t0
+		add	ra, ra, t0
+		li	t0, 1
+		sw	t0, 0(ra)
+		j	.getResult_88
+.getResult_88:
+		lw	t0, my_result
+		lw	t1, -20(s0)
+		li	ra, 8
+		mul	ra, t1, ra
+		add	ra, t0, ra
+		lw	ra, 0(ra)
+		lw	t0, -24(s0)
+		li	t1, 4
+		mul	t0, t0, t1
+		add	ra, ra, t0
+		lw	ra, 0(ra)
+		sw	ra, -12(s0)
+		j	.getResultreturn_block
+.getResultreturn_block:
+		lw	a0, -12(s0)
+		mv	s5, s1
+		li	t0, 32
+		add	t1, sp, t0
+		lw	ra, -4(t1)
+		lw	s0, -8(t1)
+		add	sp, sp, t0
+		ret	
+
+	.globl	printF
+	.p2align	2
+	.type	printF,@function
+printF:
+.printF_parameters:
+		li	t0, 32
+		sub	sp, sp, t0
+		add	t1, sp, t0
+		sw	ra, -4(t1)
+		sw	s0, -8(t1)
+		mv	s0, t1
+.printF:
+		sw	a0, -12(s0)
+		sw	a1, -16(s0)
+		sw	a2, -20(s0)
+		lw	a0, -12(s0)
+		call	toString
+		call	print
+		j	.printF_11
+.printF_11:
+		lw	ra, -20(s0)
+		li	t0, 0
+		slt	ra, t0, ra
+		bnez	ra, .printF_14
+		j	.printF_31
+.printF_14:
+		la	a0, my_.str.0
+		call	print
+		lw	a0, -16(s0)
+		call	toString
+		call	print
+		lw	t0, -16(s0)
+		li	ra, 2
+		mul	t0, t0, ra
+		lw	ra, -12(s0)
+		sub	ra, t0, ra
+		sw	ra, -16(s0)
+		lw	ra, -12(s0)
+		lw	t0, -16(s0)
+		add	t0, ra, t0
+		li	ra, 2
+		div	ra, t0, ra
+		sw	ra, -12(s0)
+		lw	ra, -20(s0)
+		li	t0, 1
+		sub	ra, ra, t0
+		sw	ra, -20(s0)
+		j	.printF_11
+.printF_31:
+		la	a0, my_.str.1
+		call	print
+		j	.printFreturn_block
+.printFreturn_block:
+		li	t0, 32
+		add	t1, sp, t0
+		lw	ra, -4(t1)
+		lw	s0, -8(t1)
+		add	sp, sp, t0
+		ret	
+
+	.section	.sbss
+	.type	my_N,@object
+	.globl	my_N
+	.p2align	2
+my_N:
+	.word	0
+	.size	my_N, 8
+
+	.section	.sbss
+	.type	my_M,@object
+	.globl	my_M
+	.p2align	2
+my_M:
+	.word	0
+	.size	my_M, 8
+
+	.section	.sbss
+	.type	my_i,@object
+	.globl	my_i
+	.p2align	2
+my_i:
+	.word	0
+	.size	my_i, 8
+
+	.section	.sbss
+	.type	my_j,@object
+	.globl	my_j
+	.p2align	2
+my_j:
+	.word	0
+	.size	my_j, 8
+
+	.section	.sbss
+	.type	my_primeCount,@object
+	.globl	my_primeCount
+	.p2align	2
+my_primeCount:
+	.word	0
+	.size	my_primeCount, 8
+
+	.section	.sbss
+	.type	my_resultCount,@object
+	.globl	my_resultCount
+	.p2align	2
+my_resultCount:
+	.word	0
+	.size	my_resultCount, 8
+
+	.section	.sbss
+	.type	my_b,@object
+	.globl	my_b
+	.p2align	2
+my_b:
+	.word	0
+	.size	my_b, 8
+
+	.section	.sbss
+	.type	my_prime,@object
+	.globl	my_prime
+	.p2align	2
+my_prime:
+	.word	0
+	.size	my_prime, 8
+
+	.section	.sbss
+	.type	my_gps,@object
+	.globl	my_gps
+	.p2align	2
+my_gps:
+	.word	0
+	.size	my_gps, 8
+
+	.section	.sbss
+	.type	my_tmp,@object
+	.globl	my_tmp
+	.p2align	2
+my_tmp:
+	.word	0
+	.size	my_tmp, 8
+
+	.section	.sbss
+	.type	my_result,@object
+	.globl	my_result
+	.p2align	2
+my_result:
+	.word	0
+	.size	my_result, 8
 
 	.section	.rodata
 	.type	my_.str.0,@object
 my_.str.0:
-	.asciz	"Warning: Slice_int::slice: out of range "
-	.size	my_.str.0, 40
+	.asciz	"  "
+	.size	my_.str.0, 2
 
 	.section	.rodata
 	.type	my_.str.1,@object
 my_.str.1:
-	.asciz	"Warning: Slice_int::copy: size() < arr.size() "
-	.size	my_.str.1, 46
+	.asciz	"\n "
+	.size	my_.str.1, 3
 
 	.section	.rodata
 	.type	my_.str.2,@object
 my_.str.2:
-	.asciz	"  "
-	.size	my_.str.2, 2
-
-	.section	.rodata
-	.type	my_.str.3,@object
-my_.str.3:
-	.asciz	" "
-	.size	my_.str.3, 1
+	.asciz	"Total:  "
+	.size	my_.str.2, 8
 
 

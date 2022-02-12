@@ -13,7 +13,7 @@ public class LiInst extends Inst{
         rd = rd_;
         imm = imm_;
         def.add(rd);
-        use.removeIf(reg -> reg == AsmModule.regs.get(0));
+        //use.removeIf(reg -> reg == AsmModule.regs.get(0));
     }
 
     @Override

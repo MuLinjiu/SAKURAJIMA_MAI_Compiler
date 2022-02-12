@@ -12,7 +12,7 @@ public class MvInst extends Inst{
         rs = rs_;
         def.add(rd);
         use.add(rs);
-        use.removeIf(reg -> reg == AsmModule.regs.get(0));
+        //use.removeIf(reg -> reg == AsmModule.regs.get(0));
     }
 
     @Override

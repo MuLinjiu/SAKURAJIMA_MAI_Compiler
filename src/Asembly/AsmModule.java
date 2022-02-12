@@ -20,7 +20,7 @@ public class AsmModule {
     public ArrayList<AsmFunc>functions = new ArrayList<>();
     public ArrayList<Global> globalDefine = new ArrayList<>();
 
-    public static ArrayList<PhyReg>regs = new ArrayList<>();
+    public  static ArrayList<PhyReg>regs = new ArrayList<>();
     public static ArrayList<PhyReg> callee = new ArrayList<>(), caller = new ArrayList<>();
 
     public AsmModule(){

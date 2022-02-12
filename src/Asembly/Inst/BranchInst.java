@@ -20,7 +20,7 @@ public class BranchInst extends Inst{
         rs = rs_;
         to_label = to_label_;
         use.add(rs);
-        use.removeIf(reg -> reg == AsmModule.regs.get(0));
+        //use.removeIf(reg -> reg == AsmModule.regs.get(0));
     }
 
     @Override
