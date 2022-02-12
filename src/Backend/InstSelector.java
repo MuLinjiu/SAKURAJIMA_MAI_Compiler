@@ -238,8 +238,9 @@ public class InstSelector {
             if(!curfunction.toreg_map.containsKey(inst.reg.reg_number)){
                 VirtReg cur = new VirtReg(curfunction.cur_reg_id++, inst.type.size);
                 curfunction.toreg_map.put(inst.reg.reg_number,cur);
-                curfunction.offset += inst.type.size;
-                curfunction.reg_offset.put(cur, curfunction.offset);
+//                curfunction.offset += inst.type.size;
+//                curfunction.reg_offset.put(cur, curfunction.offset);
+                curfunction.allocaregs.add(inst.reg.reg_number);
             }
         }else if(cur_ir_stmt instanceof load){
             load curload = (load)cur_ir_stmt;
@@ -249,19 +250,28 @@ public class InstSelector {
                 curblock.push_back(new LoadInst(((register) from).type.size,rd,((register) from).reg_number));
             }else{
                 VirtReg rs = trans(from);
-                if(curfunction.reg_offset.containsKey(rs)){
-                    int imm = -curfunction.reg_offset.get(rs);
-                    if(imm >= -2048 && imm < 2048)curblock.push_back(new LoadInst(to.type.size,rd,s0,new Imm(imm)));
-                    else {
-                        VirtReg tmp = new VirtReg(curfunction.cur_reg_id++, 4);
-                        curblock.push_back(new LiInst(tmp, new Imm(imm)));
-                        curblock.push_back(new CalcRInst(CalcRInst.RType.add, s0, tmp, tmp));//栈位置
-                        curblock.push_back(new LoadInst(to.type.size, rd, tmp, new Imm(0)));
-                    }
+//                if(curfunction.reg_offset.containsKey(rs)){
+//                    int imm = -curfunction.reg_offset.get(rs);
+//                    if(imm >= -2048 && imm < 2048)curblock.push_back(new LoadInst(to.type.size,rd,s0,new Imm(imm)));
+//                    else {
+//                        VirtReg tmp = new VirtReg(curfunction.cur_reg_id++, 4);
+//                        curblock.push_back(new LiInst(tmp, new Imm(imm)));
+//                        curblock.push_back(new CalcRInst(CalcRInst.RType.add, s0, tmp, tmp));//栈位置
+//                        curblock.push_back(new LoadInst(to.type.size, rd, tmp, new Imm(0)));
+//                    }
+//
+//                }else{
+//                    curblock.push_back(new LoadInst(to.type.size,rd,rs,new Imm(0)));
+//                    //System.out.println(1);
+//                }
+                if(!curfunction.allocaregs.contains(((register)from).reg_number)){
+                    if(curfunction.reg_offset.containsKey(rs)){
 
+                    }else {
+                        curblock.push_back(new LoadInst(to.type.size, rd, rs, new Imm(0)));
+                    }
                 }else{
-                    curblock.push_back(new LoadInst(to.type.size,rd,rs,new Imm(0)));
-                    //System.out.println(1);
+                    curblock.push_back(new MvInst(rd,rs));
                 }
 
             }
@@ -278,21 +288,26 @@ public class InstSelector {
                 curblock.push_back(new StoreInst(to.type.size,rs,((register) to).reg_number,t));
             }else{
                 VirtReg rs = trans(from),rd = trans(to);
-                if(curfunction.reg_offset.containsKey(rd)){
-                    int imm = -curfunction.reg_offset.get(rd);
-                    if(imm >= -2048 && imm < 2048){
-                        curblock.push_back(new StoreInst(from.type.size,rs,s0,new Imm(imm)));
-                    }
-                    else {
-                        VirtReg tmp = new VirtReg(curfunction.cur_reg_id++, 4);
-                        curblock.push_back(new LiInst(tmp, new Imm(imm)));
-                        curblock.push_back(new CalcRInst(CalcRInst.RType.add, s0, tmp, tmp));
-                        curblock.push_back(new StoreInst(from.type.size, rs, tmp, new Imm(0)));
-                    }
 
+                if(!curfunction.allocaregs.contains(((register)to).reg_number)){
+                    if(curfunction.reg_offset.containsKey(rd)){
+                        int imm = -curfunction.reg_offset.get(rd);
+                        if(imm >= -2048 && imm < 2048){
+                            curblock.push_back(new StoreInst(from.type.size,rs,s0,new Imm(imm)));
+                        }
+                        else {
+                            VirtReg tmp = new VirtReg(curfunction.cur_reg_id++, 4);
+                            curblock.push_back(new LiInst(tmp, new Imm(imm)));
+                            curblock.push_back(new CalcRInst(CalcRInst.RType.add, s0, tmp, tmp));
+                            curblock.push_back(new StoreInst(from.type.size, rs, tmp, new Imm(0)));
+                        }
+
+                    }else{
+                        curblock.push_back(new StoreInst(from.type.size,rs,rd,new Imm(0)));
+                        //System.out.println(2);
+                    }
                 }else{
-                    curblock.push_back(new StoreInst(from.type.size,rs,rd,new Imm(0)));
-                    //System.out.println(2);
+                    curblock.push_back(new MvInst(rd,rs));
                 }
 
             }

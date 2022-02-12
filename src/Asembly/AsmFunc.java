@@ -7,6 +7,7 @@ import java.io.PrintStream;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 
 public class AsmFunc {
@@ -17,7 +18,7 @@ public class AsmFunc {
     public HashMap<Reg, Integer> reg_offset = new HashMap<>();
     public HashMap<String, VirtReg>phird = new HashMap<>();
     public HashMap<String, entity>phivalue = new HashMap<>();
-
+    public HashSet<String> allocaregs = new HashSet<>();
     public ArrayList<VirtReg>callees = new ArrayList<>();
 
     public AsmFunc(String identifier_){
