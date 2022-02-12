@@ -127,7 +127,7 @@ public class InstSelector {
         }
         label_to_block.put(function.returnblock.Identifier, new AsmBlock(function.returnblock.Identifier));
 
-
+        para_block.succ.add(label_to_block.get((function.rootblock).Identifier));
         visit_block(function.rootblock);
         curfunction.asmblocks.add(curblock);////////
         //label_to_block.put(function.rootblock.Identifier,curblock);
@@ -649,6 +649,7 @@ public class InstSelector {
         while(true){
             boolean flag = false;
             for(int i = function.asmblocks.size() - 1 ; i >= 0; i-- ){//倒序算法
+
                 AsmBlock block = function.asmblocks.get(i);
                 HashSet<Operand> live_in = live_in_map.get(block);
                 HashSet<Operand> live_out = live_out_map.get(block);
@@ -703,6 +704,9 @@ public class InstSelector {
     public void build(AsmFunc function){
         function.asmblocks.forEach(block -> {
             HashSet<Operand> live = live_out_map.get(block);
+//            if(Objects.equals(curfunction.func_name, "classSlice_int_tail")) {
+//                System.out.println(1);
+//            }
             for(Inst cur = block.tail; cur != null; cur = cur.pre){//逆序
                 //calc spill privilege
                 cur.def.forEach(x -> {
@@ -724,9 +728,22 @@ public class InstSelector {
                 }
 
                 live.addAll(cur.def);
+//                cur.def.forEach(x -> {
+//                    if(x == AsmModule.regs.get(14)){
+//                        System.out.println(1);
+//                    }
+//                });
 
                 for(Operand var : cur.def){
                     live.forEach(x -> {
+//                        if(var instanceof VirtReg && Objects.equals(((VirtReg) var).identifier, "VirtReg_11") || x instanceof VirtReg && Objects.equals(((VirtReg) x).identifier, "VirtReg_11")){
+//                            if(Objects.equals(curfunction.func_name, "classSlice_int_tail")) {
+//                                if (var instanceof VirtReg && Objects.equals(((VirtReg) var).identifier, "VirtReg_11")) {
+//                                    System.out.println(x);
+//                                }
+//                                if (x instanceof VirtReg && Objects.equals(((VirtReg) x).identifier, "VirtReg_11")) System.out.println(var);
+//                            }
+//                        }
                         add_edge(var,x);
                     });
                 }
@@ -738,6 +755,12 @@ public class InstSelector {
     }
 
     public void add_edge(Operand u, Operand v){
+//        if(u instanceof VirtReg && Objects.equals(((VirtReg) u).identifier, "VirtReg_11") || v instanceof VirtReg && Objects.equals(((VirtReg) v).identifier, "VirtReg_11")){
+//            if(Objects.equals(curfunction.func_name, "classSlice_int_tail")) {
+//                if (u instanceof VirtReg && Objects.equals(((VirtReg) u).identifier, "VirtReg_11")) System.out.println(v);
+//                if (v instanceof VirtReg && Objects.equals(((VirtReg) v).identifier, "VirtReg_11")) System.out.println(u);
+//            }
+//        }
         if(!adj_set.contains(new Pair<>(u,v)) && u != v){
             for (int i = 0; i < 32; i++)
                 if (i == 0 || i == 2 || i == 3 || i == 4 || i == 8){
@@ -975,8 +998,18 @@ public class InstSelector {
                 if (i == 0 || i == 2 || i == 3 || i == 4 || i == 8) continue;
                 else ok_colors.add(i);
             }
+//            if(Objects.equals(curfunction.func_name, "classSlice_int_tail")){
+//                System.out.println(1);
+//            }
             for(var w : adj_list.get(n)){
+//                if(w instanceof  VirtReg && Objects.equals(((VirtReg) w).identifier, "VirtReg_11")){
+//                   // System.out.println(1);
+//                }
                 if(colored_nodes.contains(get_alias(w)) || precolored_nodes.contains(get_alias(w))){
+                   // System.out.println(get_alias(w));
+//                                if(Objects.equals(curfunction.func_name, "classSlice_int_tail")) {
+//                                    System.out.println(1);
+//                                }
                     ok_colors.remove(color.get(get_alias(w)));
                 }
             }
@@ -991,6 +1024,7 @@ public class InstSelector {
                         break;
                     }
                 }
+
                 if(c == -1)c = ok_colors.iterator().next();
                 //System.out.println(c);
                 color.put(n,c);
@@ -1067,7 +1101,7 @@ public class InstSelector {
 
                         int imm = -function.reg_offset.get(reg);
                         if(Objects.equals(function.func_name, "classvector_scalarInPlaceMultiply")){
-                            System.out.println(1);
+                            //System.out.println(1);
                         }
                         if(imm >= -2048 && imm < 2048){
                             block.insert_before(cur,new LoadInst(v.size,v,s0,new Imm(imm)));
@@ -1097,6 +1131,7 @@ public class InstSelector {
     }
 
     void Main(AsmFunc function){
+        curfunction = function;
         precolored_nodes = new HashSet<>();
         initial_nodes = new HashSet<>();
         simplify_nodes = new HashSet<>();
@@ -1129,7 +1164,7 @@ public class InstSelector {
             }
         }
 
-        for(int i = 0 ; i < 32 ;i ++){
+        for(int i = 0 ; i < 32 ; i++){
             precolored_nodes.add(AsmModule.regs.get(i));
             color.put(AsmModule.regs.get(i),i);
         }
@@ -1149,13 +1184,13 @@ public class InstSelector {
             }else val_map.put(reg,0);
         }
         initial_nodes.removeAll(precolored_nodes);
-        //System.out.println(color.get(ra));
+
         liveness_analyse(function);
-        //System.out.println(color.get(ra));
+
         build(function);
-        //System.out.println(color.get(ra));
+
         make_worklist();
-        //System.out.println(color.get(ra));
+
         while(true){
             if (!simplify_nodes.isEmpty())
                 simplify();

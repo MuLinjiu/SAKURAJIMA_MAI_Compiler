@@ -1,426 +1,1224 @@
-@my_.str.0 = private constant [3 x i8] c"( \00"
-@my_.str.1 = private constant [3 x i8] c", \00"
-@my_.str.2 = private constant [3 x i8] c" )\00"
-%class.vector = type { i32*, i32, i32, i8*, i32, i32 }
+	.text
 
-declare void @print(i8* %my_1)
-declare void @println(i8* %my_1)
-declare void @printInt(i32 %my_1)
-declare void @printlnInt(i32 %my_1)
-declare i8* @getString()
-declare i32 @getInt()
-declare i8* @toString(i32 %my_1)
-declare i32 @size(i8* %my_1)
-declare i32 @length(i8* %my_1)
-declare i8* @substring(i8* %my_1, i32 %my_2, i32 %my_3)
-declare i8 @parseInt(i8* %my_1)
-declare i8* @string_add(i8* %my_1, i8* %my_2)
-declare i32 @ord(i8* %my_1, i32 %my_2)
-declare i1 @string_equal(i8* %my_1, i8* %my_2)
-declare i1 @string_notEqual(i8* %my_1, i8* %my_2)
-declare i1 @string_less(i8* %my_1, i8* %my_2)
-declare i1 @string_lessEqual(i8* %my_1, i8* %my_2)
-declare i1 @string_greater(i8* %my_1, i8* %my_2)
-declare i1 @string_greaterEqual(i8* %my_1, i8* %my_2)
-declare i8* @malloc(i64 %my_1)
-define void @vector(%class.vector* %my_1) {
-my_vector: 
-%my_2 = alloca %class.vector*
-store %class.vector* %my_1, %class.vector** %my_2
-br label %my_vectorreturn_block
-my_vectorreturn_block: 
-ret void
-}
-define void @classvector_init(%class.vector* %my_1, i32* %my_2) {
-my_classvector_init: 
-%my_3 = alloca %class.vector*
-store %class.vector* %my_1, %class.vector** %my_3
-%my_4 = alloca i32*
-store i32* %my_2, i32** %my_4
-%my_23 = alloca i32
-%my_5 = load i32*, i32** %my_4
-%my_6 = icmp eq i32* %my_5, null
-br i1 %my_6, label %my_classvector_init_7, label %my_classvector_init_8
-my_classvector_init_7: 
-br label %my_classvector_initreturn_block
+	.globl	Slice_int
+	.p2align	2
+	.type	Slice_int,@function
+Slice_int:
+.Slice_int_parameters:
+		li	t0, 16
+		sub	sp, sp, t0
+		add	t1, sp, t0
+		sw	ra, -4(t1)
+		sw	s0, -8(t1)
+		mv	s0, t1
+		mv	ra, s1
+		mv	ra, s11
+		mv	ra, s10
+		mv	ra, s9
+		mv	ra, s8
+		mv	ra, s7
+		mv	ra, s6
+		mv	ra, s5
+		mv	ra, s4
+		mv	ra, s3
+		mv	ra, s2
+		mv	ra, a0
+.Slice_int:
+		sw	ra, -16(s0)
+		j	.Slice_intreturn_block
+.Slice_intreturn_block:
+		mv	s10, ra
+		mv	s9, ra
+		mv	s8, ra
+		mv	s7, ra
+		mv	s6, ra
+		mv	s5, ra
+		mv	s4, ra
+		mv	s3, ra
+		mv	s2, ra
+		mv	s1, ra
+		mv	s11, ra
+		li	t0, 16
+		add	t1, sp, t0
+		lw	ra, -4(t1)
+		lw	s0, -8(t1)
+		add	sp, sp, t0
+		ret	
 
-my_classvector_init_8: 
-%my_9 = load %class.vector*, %class.vector** %my_3
-%my_10 = getelementptr inbounds %class.vector, %class.vector* %my_9, i32 0, i32 0
-%my_11 = load i32*, i32** %my_4
-%my_12 = bitcast i32* %my_11 to i32*
-%my_13 = getelementptr inbounds i32, i32* %my_12, i8 -1
-%my_14 = load i32, i32* %my_13
-%my_15 = zext i32 %my_14 to i64
-%my_16 = mul nsw i64 %my_15, 4
-%my_17 = add nsw i64 %my_16, 4
-%my_18 = call i8* @malloc(i64 %my_17)
-%my_19 = bitcast i8* %my_18 to i32*
-store i32 %my_14, i32* %my_19
-%my_20 = getelementptr inbounds i32, i32* %my_19, i32 1
-%my_21 = bitcast i32* %my_20 to i32*
-%my_22 = bitcast i32* %my_21 to i32*
-store i32* %my_22, i32** %my_10
-store i32 0, i32* %my_23
-br label %my_classvector_init_24
+	.globl	classSlice_int_init
+	.p2align	2
+	.type	classSlice_int_init,@function
+classSlice_int_init:
+.classSlice_int_init_parameters:
+		li	t0, 32
+		sub	sp, sp, t0
+		add	t1, sp, t0
+		sw	ra, -4(t1)
+		sw	s0, -8(t1)
+		mv	s0, t1
+		mv	ra, s1
+		mv	ra, s11
+		mv	ra, s10
+		mv	ra, s9
+		mv	ra, s8
+		mv	ra, s7
+		mv	ra, s6
+		mv	ra, s5
+		mv	ra, s4
+		mv	ra, s3
+		mv	ra, s2
+		mv	ra, a0
+		mv	ra, a1
+.classSlice_int_init:
+		sw	ra, -16(s0)
+		sw	ra, -24(s0)
+		lw	t0, -16(s0)
+		addi	t1, t0, 0
+		lw	t0, -24(s0)
+		sw	t0, 0(t1)
+		lw	t0, -16(s0)
+		addi	t1, t0, 8
+		li	t0, 0
+		sw	t0, 0(t1)
+		lw	t0, -16(s0)
+		addi	t2, t0, 12
+		lw	a0, -24(s0)
+		li	t0, -1
+		li	t1, 4
+		mul	t0, t0, t1
+		add	t0, a0, t0
+		lw	t0, 0(t0)
+		sw	t0, 0(t2)
+		j	.classSlice_int_initreturn_block
+.classSlice_int_initreturn_block:
+		mv	s10, ra
+		mv	s9, ra
+		mv	s8, ra
+		mv	s7, ra
+		mv	s6, ra
+		mv	s5, ra
+		mv	s4, ra
+		mv	s3, ra
+		mv	s2, ra
+		mv	s1, ra
+		mv	s11, ra
+		li	t0, 32
+		add	t1, sp, t0
+		lw	ra, -4(t1)
+		lw	s0, -8(t1)
+		add	sp, sp, t0
+		ret	
 
-my_classvector_init_24: 
-%my_25 = load i32, i32* %my_23
-%my_26 = load i32*, i32** %my_4
-%my_27 = bitcast i32* %my_26 to i32*
-%my_28 = getelementptr inbounds i32, i32* %my_27, i8 -1
-%my_29 = load i32, i32* %my_28
-%my_30 = icmp slt i32 %my_25, %my_29
-br i1 %my_30, label %my_classvector_init_31, label %my_classvector_init_44
+	.globl	classSlice_int_size
+	.p2align	2
+	.type	classSlice_int_size,@function
+classSlice_int_size:
+.classSlice_int_size_parameters:
+		li	t0, 32
+		sub	sp, sp, t0
+		add	t1, sp, t0
+		sw	ra, -4(t1)
+		sw	s0, -8(t1)
+		mv	s0, t1
+		mv	t0, s1
+		mv	t0, s11
+		mv	t0, s10
+		mv	t0, s9
+		mv	t0, s8
+		mv	t0, s7
+		mv	t0, s6
+		mv	t0, s5
+		mv	t0, s4
+		mv	t0, s3
+		mv	t0, s2
+		mv	ra, a0
+.classSlice_int_size:
+		sw	ra, -20(s0)
+		lw	ra, -20(s0)
+		addi	ra, ra, 12
+		lw	t1, 0(ra)
+		lw	ra, -20(s0)
+		addi	ra, ra, 8
+		lw	ra, 0(ra)
+		sub	ra, t1, ra
+		sw	ra, -12(s0)
+		j	.classSlice_int_sizereturn_block
+.classSlice_int_sizereturn_block:
+		lw	ra, -12(s0)
+		mv	s11, t0
+		mv	s10, t0
+		mv	s9, t0
+		mv	s8, t0
+		mv	s7, t0
+		mv	s6, t0
+		mv	s5, t0
+		mv	s4, t0
+		mv	s3, t0
+		mv	s2, t0
+		mv	s1, t0
+		mv	a0, ra
+		li	t0, 32
+		add	t1, sp, t0
+		lw	ra, -4(t1)
+		lw	s0, -8(t1)
+		add	sp, sp, t0
+		ret	
 
-my_classvector_init_31: 
-%my_32 = load %class.vector*, %class.vector** %my_3
-%my_33 = getelementptr inbounds %class.vector, %class.vector* %my_32, i32 0, i32 0
-%my_34 = load i32*, i32** %my_33
-%my_35 = load i32, i32* %my_23
-%my_36 = getelementptr inbounds i32, i32* %my_34, i32 %my_35
-%my_37 = load i32*, i32** %my_4
-%my_38 = load i32, i32* %my_23
-%my_39 = getelementptr inbounds i32, i32* %my_37, i32 %my_38
-%my_40 = load i32, i32* %my_39
-store i32 %my_40, i32* %my_36
-br label %my_classvector_init_41
+	.globl	classSlice_int_get
+	.p2align	2
+	.type	classSlice_int_get,@function
+classSlice_int_get:
+.classSlice_int_get_parameters:
+		li	t0, 32
+		sub	sp, sp, t0
+		add	t1, sp, t0
+		sw	ra, -4(t1)
+		sw	s0, -8(t1)
+		mv	s0, t1
+		mv	ra, s1
+		mv	ra, s11
+		mv	ra, s10
+		mv	ra, s9
+		mv	ra, s8
+		mv	ra, s7
+		mv	ra, s6
+		mv	ra, s5
+		mv	ra, s4
+		mv	ra, s3
+		mv	ra, s2
+		mv	ra, a0
+		mv	ra, a1
+.classSlice_int_get:
+		sw	ra, -20(s0)
+		sw	ra, -24(s0)
+		lw	t0, -20(s0)
+		addi	t0, t0, 0
+		lw	t1, 0(t0)
+		lw	t0, -20(s0)
+		addi	t0, t0, 8
+		lw	t0, 0(t0)
+		lw	t2, -24(s0)
+		add	t0, t0, t2
+		li	t2, 4
+		mul	t0, t0, t2
+		add	t0, t1, t0
+		lw	t0, 0(t0)
+		sw	t0, -12(s0)
+		j	.classSlice_int_getreturn_block
+.classSlice_int_getreturn_block:
+		lw	t0, -12(s0)
+		mv	s11, ra
+		mv	s10, ra
+		mv	s9, ra
+		mv	s8, ra
+		mv	s7, ra
+		mv	s6, ra
+		mv	s5, ra
+		mv	s4, ra
+		mv	s3, ra
+		mv	s2, ra
+		mv	s1, ra
+		mv	a0, t0
+		li	t0, 32
+		add	t1, sp, t0
+		lw	ra, -4(t1)
+		lw	s0, -8(t1)
+		add	sp, sp, t0
+		ret	
 
-my_classvector_init_41: 
-%my_42 = load i32, i32* %my_23
-%my_43 = add nsw i32 %my_42, 1
-store i32 %my_43, i32* %my_23
-br label %my_classvector_init_24
+	.globl	classSlice_int_set
+	.p2align	2
+	.type	classSlice_int_set,@function
+classSlice_int_set:
+.classSlice_int_set_parameters:
+		li	t0, 32
+		sub	sp, sp, t0
+		add	t1, sp, t0
+		sw	ra, -4(t1)
+		sw	s0, -8(t1)
+		mv	s0, t1
+		mv	ra, s1
+		mv	ra, s11
+		mv	ra, s10
+		mv	ra, s9
+		mv	ra, s8
+		mv	ra, s7
+		mv	ra, s6
+		mv	ra, s5
+		mv	ra, s4
+		mv	ra, s3
+		mv	ra, s2
+		mv	ra, a0
+		mv	ra, a1
+		mv	ra, a2
+.classSlice_int_set:
+		sw	ra, -16(s0)
+		sw	ra, -20(s0)
+		sw	ra, -24(s0)
+		lw	t0, -16(s0)
+		addi	t0, t0, 0
+		lw	t2, 0(t0)
+		lw	t0, -16(s0)
+		addi	t0, t0, 8
+		lw	t0, 0(t0)
+		lw	t1, -20(s0)
+		add	t0, t0, t1
+		li	t1, 4
+		mul	t0, t0, t1
+		add	t1, t2, t0
+		lw	t0, -24(s0)
+		sw	t0, 0(t1)
+		j	.classSlice_int_setreturn_block
+.classSlice_int_setreturn_block:
+		mv	s10, ra
+		mv	s9, ra
+		mv	s8, ra
+		mv	s7, ra
+		mv	s6, ra
+		mv	s5, ra
+		mv	s4, ra
+		mv	s3, ra
+		mv	s2, ra
+		mv	s1, ra
+		mv	s11, ra
+		li	t0, 32
+		add	t1, sp, t0
+		lw	ra, -4(t1)
+		lw	s0, -8(t1)
+		add	sp, sp, t0
+		ret	
 
-my_classvector_init_44: 
-br label %my_classvector_initreturn_block
+	.globl	classSlice_int_slice
+	.p2align	2
+	.type	classSlice_int_slice,@function
+classSlice_int_slice:
+.classSlice_int_slice_parameters:
+		li	t0, 64
+		sub	sp, sp, t0
+		add	t1, sp, t0
+		sw	ra, -4(t1)
+		sw	s0, -8(t1)
+		mv	s0, t1
+		mv	s1, s11
+		mv	s1, s10
+		mv	s1, s9
+		mv	s1, s8
+		mv	s1, s7
+		mv	s1, s6
+		mv	s1, s5
+		mv	s1, s4
+		mv	s1, s3
+		mv	s1, s2
+		mv	ra, a0
+		mv	ra, a1
+		mv	ra, a2
+.classSlice_int_slice:
+		sw	ra, -32(s0)
+		sw	ra, -36(s0)
+		sw	ra, -40(s0)
+		li	ra, 16
+		mv	a0, ra
+		call	malloc
+		mv	s2, a0
+		mv	a0, s2
+		call	Slice_int
+		sw	s2, -56(s0)
+		lw	ra, -56(s0)
+		addi	t0, ra, 0
+		lw	ra, -32(s0)
+		addi	ra, ra, 0
+		lw	ra, 0(ra)
+		sw	ra, 0(t0)
+		lw	ra, -56(s0)
+		addi	t1, ra, 8
+		lw	ra, -32(s0)
+		addi	ra, ra, 8
+		lw	ra, 0(ra)
+		lw	t0, -36(s0)
+		add	ra, ra, t0
+		sw	ra, 0(t1)
+		lw	ra, -56(s0)
+		addi	t1, ra, 12
+		lw	ra, -32(s0)
+		addi	ra, ra, 8
+		lw	ra, 0(ra)
+		lw	t0, -40(s0)
+		add	ra, ra, t0
+		sw	ra, 0(t1)
+		lw	ra, -56(s0)
+		addi	ra, ra, 8
+		lw	ra, 0(ra)
+		lw	t0, -32(s0)
+		addi	t0, t0, 0
+		lw	t0, 0(t0)
+		li	t2, -1
+		li	t1, 4
+		mul	t1, t2, t1
+		add	t0, t0, t1
+		lw	t0, 0(t0)
+		slt	t0, t0, ra
+		li	ra, 1
+		bnez	t0, .classSlice_int_slice_41OR_OR_OUT
+		j	.classSlice_int_slice_41OR_OR_FALSE
+.classSlice_int_slice_41OR_OR_FALSE:
+		lw	ra, -56(s0)
+		addi	ra, ra, 12
+		lw	t2, 0(ra)
+		lw	ra, -32(s0)
+		addi	ra, ra, 0
+		lw	ra, 0(ra)
+		li	t0, -1
+		li	t1, 4
+		mul	t0, t0, t1
+		add	ra, ra, t0
+		lw	ra, 0(ra)
+		slt	ra, ra, t2
+		j	.classSlice_int_slice_41OR_OR_OUT
+.classSlice_int_slice_41OR_OR_OUT:
+		bnez	ra, .classSlice_int_slice_53
+		j	.classSlice_int_slice_56
+.classSlice_int_slice_53:
+		la	ra, my_.str.0
+		mv	a0, ra
+		call	println
+		j	.classSlice_int_slice_56
+.classSlice_int_slice_56:
+		lw	ra, -56(s0)
+		sw	ra, -24(s0)
+		j	.classSlice_int_slicereturn_block
+.classSlice_int_slicereturn_block:
+		lw	ra, -24(s0)
+		mv	s11, s1
+		mv	s10, s1
+		mv	s9, s1
+		mv	s8, s1
+		mv	s7, s1
+		mv	s6, s1
+		mv	s5, s1
+		mv	s4, s1
+		mv	s3, s1
+		mv	s2, s1
+		mv	a0, ra
+		li	t0, 64
+		add	t1, sp, t0
+		lw	ra, -4(t1)
+		lw	s0, -8(t1)
+		add	sp, sp, t0
+		ret	
 
-my_classvector_initreturn_block: 
-ret void
-}
-define i32 @classvector_getDim(%class.vector* %my_2) {
-my_classvector_getDim: 
-%my_1 = alloca i32
-%my_3 = alloca %class.vector*
-store %class.vector* %my_2, %class.vector** %my_3
-%my_4 = load %class.vector*, %class.vector** %my_3
-%my_5 = getelementptr inbounds %class.vector, %class.vector* %my_4, i32 0, i32 0
-%my_6 = load i32*, i32** %my_5
-%my_7 = icmp eq i32* %my_6, null
-br i1 %my_7, label %my_classvector_getDim_8, label %my_classvector_getDim_9
-my_classvector_getDim_8: 
-store i32 0, i32* %my_1
-br label %my_classvector_getDimreturn_block
+	.globl	classSlice_int_tail
+	.p2align	2
+	.type	classSlice_int_tail,@function
+classSlice_int_tail:
+.classSlice_int_tail_parameters:
+		li	t0, 32
+		sub	sp, sp, t0
+		add	t1, sp, t0
+		sw	ra, -4(t1)
+		sw	s0, -8(t1)
+		mv	s0, t1
+		mv	s1, s11
+		mv	s1, s10
+		mv	s1, s9
+		mv	s1, s8
+		mv	s1, s7
+		mv	s1, s6
+		mv	s1, s5
+		mv	s1, s4
+		mv	s1, s3
+		mv	s1, s2
+		mv	ra, a0
+.classSlice_int_tail:
+		sw	ra, -32(s0)
+		lw	s2, -32(s0)
+		lw	ra, -32(s0)
+		mv	a0, ra
+		call	classSlice_int_size
+		mv	t0, a0
+		mv	a0, s2
+		li	ra, 1
+		mv	a1, ra
+		mv	a2, t0
+		call	classSlice_int_slice
+		mv	ra, a0
+		sw	ra, -24(s0)
+		j	.classSlice_int_tailreturn_block
+.classSlice_int_tailreturn_block:
+		lw	ra, -24(s0)
+		mv	s11, s1
+		mv	s10, s1
+		mv	s9, s1
+		mv	s8, s1
+		mv	s7, s1
+		mv	s6, s1
+		mv	s5, s1
+		mv	s4, s1
+		mv	s3, s1
+		mv	s2, s1
+		mv	a0, ra
+		li	t0, 32
+		add	t1, sp, t0
+		lw	ra, -4(t1)
+		lw	s0, -8(t1)
+		add	sp, sp, t0
+		ret	
 
-my_classvector_getDim_9: 
-%my_10 = load %class.vector*, %class.vector** %my_3
-%my_11 = getelementptr inbounds %class.vector, %class.vector* %my_10, i32 0, i32 0
-%my_12 = load i32*, i32** %my_11
-%my_13 = bitcast i32* %my_12 to i32*
-%my_14 = getelementptr inbounds i32, i32* %my_13, i8 -1
-%my_15 = load i32, i32* %my_14
-store i32 %my_15, i32* %my_1
-br label %my_classvector_getDimreturn_block
+	.globl	classSlice_int_copy
+	.p2align	2
+	.type	classSlice_int_copy,@function
+classSlice_int_copy:
+.classSlice_int_copy_parameters:
+		li	t0, 48
+		sub	sp, sp, t0
+		add	t1, sp, t0
+		sw	ra, -4(t1)
+		sw	s0, -8(t1)
+		mv	s0, t1
+		mv	s1, s10
+		mv	s1, s9
+		mv	s1, s8
+		mv	s1, s7
+		mv	s1, s6
+		mv	s1, s5
+		mv	s1, s4
+		mv	s1, s3
+		mv	s1, s2
+		mv	ra, a0
+		mv	ra, a1
+.classSlice_int_copy:
+		sw	ra, -16(s0)
+		sw	ra, -32(s0)
+		lw	ra, -16(s0)
+		mv	a0, ra
+		call	classSlice_int_size
+		mv	s2, a0
+		lw	ra, -32(s0)
+		mv	a0, ra
+		call	classSlice_int_size
+		mv	ra, a0
+		slt	ra, s2, ra
+		bnez	ra, .classSlice_int_copy_10
+		j	.classSlice_int_copy_13
+.classSlice_int_copy_10:
+		la	ra, my_.str.1
+		mv	a0, ra
+		call	println
+		j	.classSlice_int_copy_13
+.classSlice_int_copy_13:
+		li	ra, 0
+		sw	ra, -36(s0)
+		j	.classSlice_int_copy_15
+.classSlice_int_copy_15:
+		lw	s2, -36(s0)
+		lw	ra, -32(s0)
+		mv	a0, ra
+		call	classSlice_int_size
+		mv	ra, a0
+		slt	ra, s2, ra
+		bnez	ra, .classSlice_int_copy_20
+		j	.classSlice_int_copy_36
+.classSlice_int_copy_20:
+		lw	ra, -16(s0)
+		addi	ra, ra, 0
+		lw	t1, 0(ra)
+		lw	ra, -16(s0)
+		addi	ra, ra, 8
+		lw	t0, 0(ra)
+		lw	ra, -36(s0)
+		add	t0, t0, ra
+		li	ra, 4
+		mul	ra, t0, ra
+		add	s2, t1, ra
+		lw	ra, -32(s0)
+		lw	t0, -36(s0)
+		mv	a0, ra
+		mv	a1, t0
+		call	classSlice_int_get
+		mv	ra, a0
+		sw	ra, 0(s2)
+		j	.classSlice_int_copy_33
+.classSlice_int_copy_33:
+		lw	ra, -36(s0)
+		li	t0, 1
+		add	ra, ra, t0
+		sw	ra, -36(s0)
+		j	.classSlice_int_copy_15
+.classSlice_int_copy_36:
+		j	.classSlice_int_copyreturn_block
+.classSlice_int_copyreturn_block:
+		mv	s10, s1
+		mv	s9, s1
+		mv	s8, s1
+		mv	s7, s1
+		mv	s6, s1
+		mv	s5, s1
+		mv	s4, s1
+		mv	s3, s1
+		mv	s2, s1
+		li	t0, 48
+		add	t1, sp, t0
+		lw	ra, -4(t1)
+		lw	s0, -8(t1)
+		add	sp, sp, t0
+		ret	
 
-my_classvector_getDimreturn_block: 
-%my_16 = load i32, i32* %my_1
-ret i32 %my_16
-}
-define %class.vector* @classvector_scalarInPlaceMultiply(%class.vector* %my_2, i32 %my_3) {
-my_classvector_scalarInPlaceMultiply: 
-%my_1 = alloca %class.vector*
-%my_4 = alloca %class.vector*
-store %class.vector* %my_2, %class.vector** %my_4
-%my_5 = alloca i32
-store i32 %my_3, i32* %my_5
-%my_12 = alloca i32
-%my_6 = load %class.vector*, %class.vector** %my_4
-%my_7 = getelementptr inbounds %class.vector, %class.vector* %my_6, i32 0, i32 0
-%my_8 = load i32*, i32** %my_7
-%my_9 = icmp eq i32* %my_8, null
-br i1 %my_9, label %my_classvector_scalarInPlaceMultiply_10, label %my_classvector_scalarInPlaceMultiply_11
-my_classvector_scalarInPlaceMultiply_10: 
-store %class.vector* null, %class.vector** %my_1
-br label %my_classvector_scalarInPlaceMultiplyreturn_block
+	.globl	classSlice_int_cloneArray
+	.p2align	2
+	.type	classSlice_int_cloneArray,@function
+classSlice_int_cloneArray:
+.classSlice_int_cloneArray_parameters:
+		li	t0, 48
+		sub	sp, sp, t0
+		add	t1, sp, t0
+		sw	ra, -4(t1)
+		sw	s0, -8(t1)
+		mv	s0, t1
+		mv	s1, s11
+		mv	s1, s10
+		mv	s1, s9
+		mv	s1, s8
+		mv	s1, s7
+		mv	s1, s6
+		mv	s1, s5
+		mv	s1, s4
+		mv	s1, s3
+		mv	s1, s2
+		mv	ra, a0
+.classSlice_int_cloneArray:
+		sw	ra, -24(s0)
+		lw	ra, -24(s0)
+		mv	a0, ra
+		call	classSlice_int_size
+		mv	s2, a0
+		li	ra, 4
+		mul	ra, s2, ra
+		li	t0, 4
+		add	ra, ra, t0
+		mv	a0, ra
+		call	malloc
+		mv	ra, a0
+		sw	s2, 0(ra)
+		li	t1, 1
+		li	t0, 4
+		mul	t0, t1, t0
+		add	ra, ra, t0
+		sw	ra, -32(s0)
+		li	ra, 0
+		sw	ra, -36(s0)
+		j	.classSlice_int_cloneArray_16
+.classSlice_int_cloneArray_16:
+		lw	s2, -36(s0)
+		lw	ra, -24(s0)
+		mv	a0, ra
+		call	classSlice_int_size
+		mv	ra, a0
+		slt	ra, s2, ra
+		bnez	ra, .classSlice_int_cloneArray_21
+		j	.classSlice_int_cloneArray_38
+.classSlice_int_cloneArray_21:
+		lw	t0, -32(s0)
+		lw	ra, -36(s0)
+		li	t1, 4
+		mul	ra, ra, t1
+		add	t2, t0, ra
+		lw	ra, -24(s0)
+		addi	ra, ra, 0
+		lw	t0, 0(ra)
+		lw	ra, -24(s0)
+		addi	ra, ra, 8
+		lw	ra, 0(ra)
+		lw	t1, -36(s0)
+		add	t1, ra, t1
+		li	ra, 4
+		mul	ra, t1, ra
+		add	ra, t0, ra
+		lw	ra, 0(ra)
+		sw	ra, 0(t2)
+		j	.classSlice_int_cloneArray_35
+.classSlice_int_cloneArray_35:
+		lw	ra, -36(s0)
+		li	t0, 1
+		add	ra, ra, t0
+		sw	ra, -36(s0)
+		j	.classSlice_int_cloneArray_16
+.classSlice_int_cloneArray_38:
+		lw	ra, -32(s0)
+		sw	ra, -16(s0)
+		j	.classSlice_int_cloneArrayreturn_block
+.classSlice_int_cloneArrayreturn_block:
+		lw	ra, -16(s0)
+		mv	s11, s1
+		mv	s10, s1
+		mv	s9, s1
+		mv	s8, s1
+		mv	s7, s1
+		mv	s6, s1
+		mv	s5, s1
+		mv	s4, s1
+		mv	s3, s1
+		mv	s2, s1
+		mv	a0, ra
+		li	t0, 48
+		add	t1, sp, t0
+		lw	ra, -4(t1)
+		lw	s0, -8(t1)
+		add	sp, sp, t0
+		ret	
 
-my_classvector_scalarInPlaceMultiply_11: 
-store i32 0, i32* %my_12
-br label %my_classvector_scalarInPlaceMultiply_13
+	.globl	makeSlice_int
+	.p2align	2
+	.type	makeSlice_int,@function
+makeSlice_int:
+.makeSlice_int_parameters:
+		li	t0, 48
+		sub	sp, sp, t0
+		add	t1, sp, t0
+		sw	ra, -4(t1)
+		sw	s0, -8(t1)
+		mv	s0, t1
+		mv	s1, s11
+		mv	s1, s10
+		mv	s1, s9
+		mv	s1, s8
+		mv	s1, s7
+		mv	s1, s6
+		mv	s1, s5
+		mv	s1, s4
+		mv	s1, s3
+		mv	s1, s2
+		mv	ra, a0
+.makeSlice_int:
+		sw	ra, -32(s0)
+		li	ra, 16
+		mv	a0, ra
+		call	malloc
+		mv	s2, a0
+		mv	a0, s2
+		call	Slice_int
+		sw	s2, -48(s0)
+		lw	t0, -48(s0)
+		lw	ra, -32(s0)
+		mv	a0, t0
+		mv	a1, ra
+		call	classSlice_int_init
+		lw	ra, -48(s0)
+		sw	ra, -24(s0)
+		j	.makeSlice_intreturn_block
+.makeSlice_intreturn_block:
+		lw	ra, -24(s0)
+		mv	s11, s1
+		mv	s10, s1
+		mv	s9, s1
+		mv	s8, s1
+		mv	s7, s1
+		mv	s6, s1
+		mv	s5, s1
+		mv	s4, s1
+		mv	s3, s1
+		mv	s2, s1
+		mv	a0, ra
+		li	t0, 48
+		add	t1, sp, t0
+		lw	ra, -4(t1)
+		lw	s0, -8(t1)
+		add	sp, sp, t0
+		ret	
 
-my_classvector_scalarInPlaceMultiply_13: 
-%my_14 = load i32, i32* %my_12
-%my_15 = load %class.vector*, %class.vector** %my_4
-%my_16 = call i32 @classvector_getDim(%class.vector* %my_15)
-%my_17 = icmp slt i32 %my_14, %my_16
-br i1 %my_17, label %my_classvector_scalarInPlaceMultiply_18, label %my_classvector_scalarInPlaceMultiply_35
+	.globl	merge
+	.p2align	2
+	.type	merge,@function
+merge:
+.merge_parameters:
+		li	t0, 80
+		sub	sp, sp, t0
+		add	t1, sp, t0
+		sw	ra, -4(t1)
+		sw	s0, -8(t1)
+		mv	s0, t1
+		mv	s1, s11
+		mv	s1, s10
+		mv	s1, s9
+		mv	s1, s8
+		mv	s1, s7
+		mv	s1, s6
+		mv	s1, s5
+		mv	s1, s4
+		mv	s1, s3
+		mv	s1, s2
+		mv	ra, a0
+		mv	ra, a1
+.merge:
+		sw	ra, -32(s0)
+		sw	ra, -48(s0)
+		lw	ra, -32(s0)
+		mv	a0, ra
+		call	classSlice_int_size
+		mv	ra, a0
+		li	t0, 0
+		xor	ra, ra, t0
+		sltiu	ra, ra, 1
+		bnez	ra, .merge_9
+		j	.merge_13
+.merge_9:
+		lw	ra, -48(s0)
+		mv	a0, ra
+		call	classSlice_int_cloneArray
+		mv	ra, a0
+		sw	ra, -16(s0)
+		j	.mergereturn_block
+.merge_13:
+		lw	ra, -48(s0)
+		mv	a0, ra
+		call	classSlice_int_size
+		mv	ra, a0
+		li	t0, 0
+		xor	ra, ra, t0
+		sltiu	ra, ra, 1
+		bnez	ra, .merge_17
+		j	.merge_21
+.merge_17:
+		lw	ra, -32(s0)
+		mv	a0, ra
+		call	classSlice_int_cloneArray
+		mv	ra, a0
+		sw	ra, -16(s0)
+		j	.mergereturn_block
+.merge_21:
+		lw	ra, -32(s0)
+		mv	a0, ra
+		call	classSlice_int_size
+		mv	s2, a0
+		lw	ra, -48(s0)
+		mv	a0, ra
+		call	classSlice_int_size
+		mv	ra, a0
+		add	s2, s2, ra
+		li	ra, 4
+		mul	ra, s2, ra
+		li	t0, 4
+		add	ra, ra, t0
+		mv	a0, ra
+		call	malloc
+		mv	ra, a0
+		sw	s2, 0(ra)
+		li	t0, 1
+		li	t1, 4
+		mul	t0, t0, t1
+		add	ra, ra, t0
+		sw	ra, -56(s0)
+		lw	ra, -56(s0)
+		mv	a0, ra
+		call	makeSlice_int
+		mv	ra, a0
+		mv	a0, ra
+		call	classSlice_int_tail
+		mv	ra, a0
+		sw	ra, -72(s0)
+		lw	ra, -32(s0)
+		mv	a0, ra
+		li	ra, 0
+		mv	a1, ra
+		call	classSlice_int_get
+		mv	s2, a0
+		lw	ra, -48(s0)
+		mv	a0, ra
+		li	ra, 0
+		mv	a1, ra
+		call	classSlice_int_get
+		mv	ra, a0
+		slt	ra, s2, ra
+		bnez	ra, .merge_47
+		j	.merge_63
+.merge_47:
+		lw	ra, -56(s0)
+		li	t1, 0
+		li	t0, 4
+		mul	t0, t1, t0
+		add	s2, ra, t0
+		lw	ra, -32(s0)
+		mv	a0, ra
+		li	ra, 0
+		mv	a1, ra
+		call	classSlice_int_get
+		mv	ra, a0
+		sw	ra, 0(s2)
+		lw	s2, -72(s0)
+		lw	ra, -32(s0)
+		mv	a0, ra
+		call	classSlice_int_tail
+		mv	t0, a0
+		lw	ra, -48(s0)
+		mv	a0, t0
+		mv	a1, ra
+		call	merge
+		mv	ra, a0
+		mv	a0, ra
+		call	makeSlice_int
+		mv	ra, a0
+		mv	a0, s2
+		mv	a1, ra
+		call	classSlice_int_copy
+		j	.merge_79
+.merge_63:
+		lw	t0, -56(s0)
+		li	ra, 0
+		li	t1, 4
+		mul	ra, ra, t1
+		add	s2, t0, ra
+		lw	ra, -48(s0)
+		mv	a0, ra
+		li	ra, 0
+		mv	a1, ra
+		call	classSlice_int_get
+		mv	ra, a0
+		sw	ra, 0(s2)
+		lw	s2, -72(s0)
+		lw	s3, -32(s0)
+		lw	ra, -48(s0)
+		mv	a0, ra
+		call	classSlice_int_tail
+		mv	ra, a0
+		mv	a0, s3
+		mv	a1, ra
+		call	merge
+		mv	ra, a0
+		mv	a0, ra
+		call	makeSlice_int
+		mv	ra, a0
+		mv	a0, s2
+		mv	a1, ra
+		call	classSlice_int_copy
+		j	.merge_79
+.merge_79:
+		lw	ra, -56(s0)
+		sw	ra, -16(s0)
+		j	.mergereturn_block
+.mergereturn_block:
+		lw	ra, -16(s0)
+		mv	s11, s1
+		mv	s10, s1
+		mv	s9, s1
+		mv	s8, s1
+		mv	s7, s1
+		mv	s6, s1
+		mv	s5, s1
+		mv	s4, s1
+		mv	s3, s1
+		mv	s2, s1
+		mv	a0, ra
+		li	t0, 80
+		add	t1, sp, t0
+		lw	ra, -4(t1)
+		lw	s0, -8(t1)
+		add	sp, sp, t0
+		ret	
 
-my_classvector_scalarInPlaceMultiply_18: 
-%my_19 = load %class.vector*, %class.vector** %my_4
-%my_20 = getelementptr inbounds %class.vector, %class.vector* %my_19, i32 0, i32 0
-%my_21 = load i32*, i32** %my_20
-%my_22 = load i32, i32* %my_12
-%my_23 = getelementptr inbounds i32, i32* %my_21, i32 %my_22
-%my_24 = load i32, i32* %my_5
-%my_25 = load %class.vector*, %class.vector** %my_4
-%my_26 = getelementptr inbounds %class.vector, %class.vector* %my_25, i32 0, i32 0
-%my_27 = load i32*, i32** %my_26
-%my_28 = load i32, i32* %my_12
-%my_29 = getelementptr inbounds i32, i32* %my_27, i32 %my_28
-%my_30 = load i32, i32* %my_29
-%my_31 = mul nsw i32 %my_24, %my_30
-store i32 %my_31, i32* %my_23
-br label %my_classvector_scalarInPlaceMultiply_32
+	.globl	mergeSort
+	.p2align	2
+	.type	mergeSort,@function
+mergeSort:
+.mergeSort_parameters:
+		li	t0, 32
+		sub	sp, sp, t0
+		add	t1, sp, t0
+		sw	ra, -4(t1)
+		sw	s0, -8(t1)
+		mv	s0, t1
+		mv	s1, s10
+		mv	s1, s9
+		mv	s1, s8
+		mv	s1, s7
+		mv	s1, s6
+		mv	s1, s5
+		mv	s1, s4
+		mv	s1, s3
+		mv	s1, s2
+		mv	ra, a0
+.mergeSort:
+		sw	ra, -24(s0)
+		lw	ra, -24(s0)
+		mv	a0, ra
+		call	classSlice_int_size
+		mv	ra, a0
+		li	t0, 1
+		xor	ra, ra, t0
+		sltiu	ra, ra, 1
+		bnez	ra, .mergeSort_6
+		j	.mergeSort_7
+.mergeSort_6:
+		j	.mergeSortreturn_block
+.mergeSort_7:
+		lw	ra, -24(s0)
+		mv	a0, ra
+		call	classSlice_int_size
+		mv	ra, a0
+		sw	ra, -28(s0)
+		lw	t0, -28(s0)
+		li	ra, 2
+		div	ra, t0, ra
+		sw	ra, -32(s0)
+		lw	ra, -24(s0)
+		lw	t0, -32(s0)
+		mv	a0, ra
+		li	ra, 0
+		mv	a1, ra
+		mv	a2, t0
+		call	classSlice_int_slice
+		mv	ra, a0
+		mv	a0, ra
+		call	mergeSort
+		lw	t0, -24(s0)
+		lw	ra, -32(s0)
+		lw	t1, -28(s0)
+		mv	a0, t0
+		mv	a1, ra
+		mv	a2, t1
+		call	classSlice_int_slice
+		mv	ra, a0
+		mv	a0, ra
+		call	mergeSort
+		lw	s3, -24(s0)
+		lw	t0, -24(s0)
+		lw	ra, -32(s0)
+		mv	a0, t0
+		li	t0, 0
+		mv	a1, t0
+		mv	a2, ra
+		call	classSlice_int_slice
+		mv	s2, a0
+		lw	t0, -24(s0)
+		lw	t1, -32(s0)
+		lw	ra, -28(s0)
+		mv	a0, t0
+		mv	a1, t1
+		mv	a2, ra
+		call	classSlice_int_slice
+		mv	ra, a0
+		mv	a0, s2
+		mv	a1, ra
+		call	merge
+		mv	ra, a0
+		mv	a0, ra
+		call	makeSlice_int
+		mv	ra, a0
+		mv	a0, s3
+		mv	a1, ra
+		call	classSlice_int_copy
+		j	.mergeSortreturn_block
+.mergeSortreturn_block:
+		mv	s10, s1
+		mv	s9, s1
+		mv	s8, s1
+		mv	s7, s1
+		mv	s6, s1
+		mv	s5, s1
+		mv	s4, s1
+		mv	s3, s1
+		mv	s2, s1
+		li	t0, 32
+		add	t1, sp, t0
+		lw	ra, -4(t1)
+		lw	s0, -8(t1)
+		add	sp, sp, t0
+		ret	
 
-my_classvector_scalarInPlaceMultiply_32: 
-%my_33 = load i32, i32* %my_12
-%my_34 = add nsw i32 %my_33, 1
-store i32 %my_34, i32* %my_12
-br label %my_classvector_scalarInPlaceMultiply_13
+	.globl	mergeSortInf
+	.p2align	2
+	.type	mergeSortInf,@function
+mergeSortInf:
+.mergeSortInf_parameters:
+		li	t0, 16
+		sub	sp, sp, t0
+		add	t1, sp, t0
+		sw	ra, -4(t1)
+		sw	s0, -8(t1)
+		mv	s0, t1
+		mv	s1, s10
+		mv	s1, s9
+		mv	s1, s8
+		mv	s1, s7
+		mv	s1, s6
+		mv	s1, s5
+		mv	s1, s4
+		mv	s1, s3
+		mv	s1, s2
+		mv	ra, a0
+.mergeSortInf:
+		sw	ra, -16(s0)
+		lw	ra, -16(s0)
+		mv	a0, ra
+		call	makeSlice_int
+		mv	ra, a0
+		mv	a0, ra
+		call	mergeSort
+		j	.mergeSortInfreturn_block
+.mergeSortInfreturn_block:
+		mv	s10, s1
+		mv	s9, s1
+		mv	s8, s1
+		mv	s7, s1
+		mv	s6, s1
+		mv	s5, s1
+		mv	s4, s1
+		mv	s3, s1
+		mv	s2, s1
+		li	t0, 16
+		add	t1, sp, t0
+		lw	ra, -4(t1)
+		lw	s0, -8(t1)
+		add	sp, sp, t0
+		ret	
 
-my_classvector_scalarInPlaceMultiply_35: 
-%my_36 = bitcast %class.vector** %my_4 to %class.vector*
-store %class.vector* %my_36, %class.vector** %my_1
-br label %my_classvector_scalarInPlaceMultiplyreturn_block
+	.globl	main
+	.p2align	2
+	.type	main,@function
+main:
+.main_parameters:
+		li	t0, 32
+		sub	sp, sp, t0
+		add	t1, sp, t0
+		sw	ra, -4(t1)
+		sw	s0, -8(t1)
+		mv	s0, t1
+		mv	s1, s11
+		mv	s1, s10
+		mv	s1, s9
+		mv	s1, s8
+		mv	s1, s7
+		mv	s1, s6
+		mv	s1, s5
+		mv	s1, s4
+		mv	s1, s3
+		mv	s1, s2
+.main:
+		call	getInt
+		mv	ra, a0
+		sw	ra, -16(s0)
+		lw	s2, -16(s0)
+		li	ra, 4
+		mul	ra, s2, ra
+		li	t0, 4
+		add	ra, ra, t0
+		mv	a0, ra
+		call	malloc
+		mv	ra, a0
+		sw	s2, 0(ra)
+		li	t0, 1
+		li	t1, 4
+		mul	t0, t0, t1
+		add	ra, ra, t0
+		sw	ra, -24(s0)
+		li	ra, 0
+		sw	ra, -28(s0)
+		j	.main_15
+.main_15:
+		lw	t0, -28(s0)
+		lw	ra, -16(s0)
+		slt	ra, t0, ra
+		bnez	ra, .main_19
+		j	.main_27
+.main_19:
+		lw	ra, -24(s0)
+		lw	t0, -28(s0)
+		li	t1, 4
+		mul	t0, t0, t1
+		add	s2, ra, t0
+		call	getInt
+		mv	ra, a0
+		sw	ra, 0(s2)
+		j	.main_24
+.main_24:
+		lw	ra, -28(s0)
+		li	t0, 1
+		add	ra, ra, t0
+		sw	ra, -28(s0)
+		j	.main_15
+.main_27:
+		lw	ra, -24(s0)
+		mv	a0, ra
+		call	mergeSortInf
+		li	ra, 0
+		sw	ra, -28(s0)
+		j	.main_31
+.main_31:
+		lw	ra, -28(s0)
+		lw	t0, -16(s0)
+		slt	ra, ra, t0
+		bnez	ra, .main_35
+		j	.main_49
+.main_35:
+		lw	t1, -24(s0)
+		lw	t0, -28(s0)
+		li	ra, 4
+		mul	ra, t0, ra
+		add	ra, t1, ra
+		lw	ra, 0(ra)
+		mv	a0, ra
+		call	toString
+		mv	t0, a0
+		la	ra, my_.str.2
+		mv	a0, t0
+		mv	a1, ra
+		call	string_add
+		mv	ra, a0
+		mv	a0, ra
+		call	print
+		j	.main_46
+.main_46:
+		lw	ra, -28(s0)
+		li	t0, 1
+		add	ra, ra, t0
+		sw	ra, -28(s0)
+		j	.main_31
+.main_49:
+		la	ra, my_.str.3
+		mv	a0, ra
+		call	println
+		li	ra, 0
+		sw	ra, -12(s0)
+		j	.mainreturn_block
+.mainreturn_block:
+		lw	ra, -12(s0)
+		mv	s11, s1
+		mv	s10, s1
+		mv	s9, s1
+		mv	s8, s1
+		mv	s7, s1
+		mv	s6, s1
+		mv	s5, s1
+		mv	s4, s1
+		mv	s3, s1
+		mv	s2, s1
+		mv	a0, ra
+		li	t0, 32
+		add	t1, sp, t0
+		lw	ra, -4(t1)
+		lw	s0, -8(t1)
+		add	sp, sp, t0
+		ret	
 
-my_classvector_scalarInPlaceMultiplyreturn_block: 
-%my_37 = load %class.vector*, %class.vector** %my_1
-ret %class.vector* %my_37
-}
-define i8* @classvector_tostring(%class.vector* %my_2) {
-my_classvector_tostring: 
-%my_1 = alloca i8*
-%my_3 = alloca %class.vector*
-store %class.vector* %my_2, %class.vector** %my_3
-%my_4 = alloca i8*
-%my_22 = alloca i32
-%my_5 = bitcast [3 x i8]* @my_.str.0 to i8*
-store i8* %my_5, i8** %my_4
-%my_6 = load %class.vector*, %class.vector** %my_3
-%my_7 = call i32 @classvector_getDim(%class.vector* %my_6)
-%my_8 = icmp sgt i32 %my_7, 0
-br i1 %my_8, label %my_classvector_tostring_9, label %my_classvector_tostring_21
-my_classvector_tostring_9: 
-%my_10 = load i8*, i8** %my_4
-%my_11 = load %class.vector*, %class.vector** %my_3
-%my_12 = getelementptr inbounds %class.vector, %class.vector* %my_11, i32 0, i32 0
-%my_13 = load i32*, i32** %my_12
-%my_14 = getelementptr inbounds i32, i32* %my_13, i32 0
-%my_15 = load i32, i32* %my_14
-%my_16 = call i8* @toString(i32 %my_15)
-%my_17 = bitcast i8* %my_10 to i8*
-%my_18 = bitcast i8* %my_16 to i8*
-%my_19 = call i8* @string_add(i8* %my_17,i8* %my_18)
-%my_20 = bitcast i8* %my_19 to i8*
-store i8* %my_20, i8** %my_4
-br label %my_classvector_tostring_21
+	.section	.rodata
+	.type	my_.str.0,@object
+my_.str.0:
+	.asciz	"Warning: Slice_int::slice: out of range "
+	.size	my_.str.0, 40
 
-my_classvector_tostring_21: 
-store i32 1, i32* %my_22
-br label %my_classvector_tostring_23
+	.section	.rodata
+	.type	my_.str.1,@object
+my_.str.1:
+	.asciz	"Warning: Slice_int::copy: size() < arr.size() "
+	.size	my_.str.1, 46
 
-my_classvector_tostring_23: 
-%my_24 = load i32, i32* %my_22
-%my_25 = load %class.vector*, %class.vector** %my_3
-%my_26 = call i32 @classvector_getDim(%class.vector* %my_25)
-%my_27 = icmp slt i32 %my_24, %my_26
-br i1 %my_27, label %my_classvector_tostring_28, label %my_classvector_tostring_47
+	.section	.rodata
+	.type	my_.str.2,@object
+my_.str.2:
+	.asciz	"  "
+	.size	my_.str.2, 2
 
-my_classvector_tostring_28: 
-%my_29 = load i8*, i8** %my_4
-%my_30 = bitcast i8* %my_29 to i8*
-%my_31 = bitcast [3 x i8]* @my_.str.1 to i8*
-%my_32 = call i8* @string_add(i8* %my_30,i8* %my_31)
-%my_33 = load %class.vector*, %class.vector** %my_3
-%my_34 = getelementptr inbounds %class.vector, %class.vector* %my_33, i32 0, i32 0
-%my_35 = load i32*, i32** %my_34
-%my_36 = load i32, i32* %my_22
-%my_37 = getelementptr inbounds i32, i32* %my_35, i32 %my_36
-%my_38 = load i32, i32* %my_37
-%my_39 = call i8* @toString(i32 %my_38)
-%my_40 = bitcast i8* %my_32 to i8*
-%my_41 = bitcast i8* %my_39 to i8*
-%my_42 = call i8* @string_add(i8* %my_40,i8* %my_41)
-%my_43 = bitcast i8* %my_42 to i8*
-store i8* %my_43, i8** %my_4
-br label %my_classvector_tostring_44
+	.section	.rodata
+	.type	my_.str.3,@object
+my_.str.3:
+	.asciz	" "
+	.size	my_.str.3, 1
 
-my_classvector_tostring_44: 
-%my_45 = load i32, i32* %my_22
-%my_46 = add nsw i32 %my_45, 1
-store i32 %my_46, i32* %my_22
-br label %my_classvector_tostring_23
 
-my_classvector_tostring_47: 
-%my_48 = load i8*, i8** %my_4
-%my_49 = bitcast i8* %my_48 to i8*
-%my_50 = bitcast [3 x i8]* @my_.str.2 to i8*
-%my_51 = call i8* @string_add(i8* %my_49,i8* %my_50)
-%my_52 = bitcast i8* %my_51 to i8*
-store i8* %my_52, i8** %my_4
-%my_53 = load i8*, i8** %my_4
-%my_54 = bitcast i8* %my_53 to i8*
-store i8* %my_54, i8** %my_1
-br label %my_classvector_tostringreturn_block
-
-my_classvector_tostringreturn_block: 
-%my_55 = load i8*, i8** %my_1
-ret i8* %my_55
-}
-define i8 @classvector_copy(%class.vector* %my_2, %class.vector* %my_3) {
-my_classvector_copy: 
-%my_1 = alloca i8
-%my_4 = alloca %class.vector*
-store %class.vector* %my_2, %class.vector** %my_4
-%my_5 = alloca %class.vector*
-store %class.vector* %my_3, %class.vector** %my_5
-%my_29 = alloca i32
-%my_6 = load %class.vector*, %class.vector** %my_5
-%my_7 = icmp eq %class.vector* %my_6, null
-br i1 %my_7, label %my_classvector_copy_8, label %my_classvector_copy_9
-my_classvector_copy_8: 
-store i8 0, i8* %my_1
-br label %my_classvector_copyreturn_block
-
-my_classvector_copy_9: 
-%my_10 = load %class.vector*, %class.vector** %my_5
-%my_11 = call i32 @classvector_getDim(%class.vector* %my_10)
-%my_12 = icmp eq i32 %my_11, 0
-br i1 %my_12, label %my_classvector_copy_13, label %my_classvector_copy_16
-
-my_classvector_copy_13: 
-%my_14 = load %class.vector*, %class.vector** %my_4
-%my_15 = getelementptr inbounds %class.vector, %class.vector* %my_14, i32 0, i32 0
-store i32* null, i32** %my_15
-br label %my_classvector_copy_51
-
-my_classvector_copy_16: 
-%my_17 = load %class.vector*, %class.vector** %my_4
-%my_18 = getelementptr inbounds %class.vector, %class.vector* %my_17, i32 0, i32 0
-%my_19 = load %class.vector*, %class.vector** %my_5
-%my_20 = call i32 @classvector_getDim(%class.vector* %my_19)
-%my_21 = zext i32 %my_20 to i64
-%my_22 = mul nsw i64 %my_21, 4
-%my_23 = add nsw i64 %my_22, 4
-%my_24 = call i8* @malloc(i64 %my_23)
-%my_25 = bitcast i8* %my_24 to i32*
-store i32 %my_20, i32* %my_25
-%my_26 = getelementptr inbounds i32, i32* %my_25, i32 1
-%my_27 = bitcast i32* %my_26 to i32*
-%my_28 = bitcast i32* %my_27 to i32*
-store i32* %my_28, i32** %my_18
-store i32 0, i32* %my_29
-br label %my_classvector_copy_30
-
-my_classvector_copy_30: 
-%my_31 = load i32, i32* %my_29
-%my_32 = load %class.vector*, %class.vector** %my_4
-%my_33 = call i32 @classvector_getDim(%class.vector* %my_32)
-%my_34 = icmp slt i32 %my_31, %my_33
-br i1 %my_34, label %my_classvector_copy_35, label %my_classvector_copy_50
-
-my_classvector_copy_35: 
-%my_36 = load %class.vector*, %class.vector** %my_4
-%my_37 = getelementptr inbounds %class.vector, %class.vector* %my_36, i32 0, i32 0
-%my_38 = load i32*, i32** %my_37
-%my_39 = load i32, i32* %my_29
-%my_40 = getelementptr inbounds i32, i32* %my_38, i32 %my_39
-%my_41 = load %class.vector*, %class.vector** %my_5
-%my_42 = getelementptr inbounds %class.vector, %class.vector* %my_41, i32 0, i32 0
-%my_43 = load i32*, i32** %my_42
-%my_44 = load i32, i32* %my_29
-%my_45 = getelementptr inbounds i32, i32* %my_43, i32 %my_44
-%my_46 = load i32, i32* %my_45
-store i32 %my_46, i32* %my_40
-br label %my_classvector_copy_47
-
-my_classvector_copy_47: 
-%my_48 = load i32, i32* %my_29
-%my_49 = add nsw i32 %my_48, 1
-store i32 %my_49, i32* %my_29
-br label %my_classvector_copy_30
-
-my_classvector_copy_50: 
-br label %my_classvector_copy_51
-
-my_classvector_copy_51: 
-store i8 1, i8* %my_1
-br label %my_classvector_copyreturn_block
-
-my_classvector_copyreturn_block: 
-%my_52 = load i8, i8* %my_1
-ret i8 %my_52
-}
-define i32 @main() {
-my_main: 
-%my_1 = alloca i32
-%my_2 = alloca %class.vector*
-%my_6 = alloca i32*
-%my_14 = alloca i32
-%my_32 = alloca %class.vector*
-%my_40 = alloca %class.vector*
-%my_3 = call i8* @malloc(i64 8)
-%my_4 = bitcast i8* %my_3 to %class.vector*
-call void @vector(%class.vector* %my_4)
-%my_5 = bitcast %class.vector* %my_4 to %class.vector*
-store %class.vector* %my_5, %class.vector** %my_2
-%my_7 = mul nsw i64 10, 4
-%my_8 = add nsw i64 %my_7, 4
-%my_9 = call i8* @malloc(i64 %my_8)
-%my_10 = bitcast i8* %my_9 to i32*
-store i32 10, i32* %my_10
-%my_11 = getelementptr inbounds i32, i32* %my_10, i32 1
-%my_12 = bitcast i32* %my_11 to i32*
-%my_13 = bitcast i32* %my_12 to i32*
-store i32* %my_13, i32** %my_6
-store i32 0, i32* %my_14
-br label %my_main_15
-my_main_15: 
-%my_16 = load i32, i32* %my_14
-%my_17 = icmp slt i32 %my_16, 10
-br i1 %my_17, label %my_main_18, label %my_main_27
-
-my_main_18: 
-%my_19 = load i32*, i32** %my_6
-%my_20 = load i32, i32* %my_14
-%my_21 = getelementptr inbounds i32, i32* %my_19, i32 %my_20
-%my_22 = load i32, i32* %my_14
-%my_23 = sub nsw i32 9, %my_22
-store i32 %my_23, i32* %my_21
-br label %my_main_24
-
-my_main_24: 
-%my_25 = load i32, i32* %my_14
-%my_26 = add nsw i32 %my_25, 1
-store i32 %my_26, i32* %my_14
-br label %my_main_15
-
-my_main_27: 
-%my_28 = load %class.vector*, %class.vector** %my_2
-%my_29 = load i32*, i32** %my_6
-%my_30 = bitcast i32* %my_29 to i32*
-call void @classvector_init(%class.vector* %my_28,i32* %my_30)
-%my_33 = call i8* @malloc(i64 8)
-%my_34 = bitcast i8* %my_33 to %class.vector*
-call void @vector(%class.vector* %my_34)
-%my_35 = bitcast %class.vector* %my_34 to %class.vector*
-store %class.vector* %my_35, %class.vector** %my_32
-%my_36 = load %class.vector*, %class.vector** %my_32
-%my_37 = load %class.vector*, %class.vector** %my_2
-%my_38 = bitcast %class.vector* %my_37 to %class.vector*
-%my_39 = call i8 @classvector_copy(%class.vector* %my_36,%class.vector* %my_38)
-%my_41 = load %class.vector*, %class.vector** %my_32
-%my_42 = shl i32 1, 3
-%my_43 = call %class.vector* @classvector_scalarInPlaceMultiply(%class.vector* %my_41,i32 %my_42)
-%my_44 = bitcast %class.vector* %my_43 to %class.vector*
-store %class.vector* %my_44, %class.vector** %my_40
-%my_45 = load %class.vector*, %class.vector** %my_40
-%my_46 = call i8* @classvector_tostring(%class.vector* %my_45)
-%my_47 = bitcast i8* %my_46 to i8*
-call void @println(i8* %my_47)
-store i32 0, i32* %my_1
-br label %my_mainreturn_block
-
-my_mainreturn_block: 
-%my_49 = load i32, i32* %my_1
-ret i32 %my_49
-}

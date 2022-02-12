@@ -63,7 +63,7 @@ public class main {
                 mainFn f = new mainFn();
                 Global_def global_def = new Global_def();
                 new IRBuilder(global_def, gScope).visit(ASTRoot);
-                //new IRPrinter().visitGlobal_var_def_stmt(global_def);
+               // new IRPrinter().visitGlobal_var_def_stmt(global_def);
                 AsmModule top_module = new AsmModule();
                 new InstSelector(global_def, top_module);
                 new AsmPrinter(out, top_module);
